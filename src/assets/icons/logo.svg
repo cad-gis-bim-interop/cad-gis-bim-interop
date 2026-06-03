@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="logo-title logo-desc">
+  <title id="logo-title">Python for CAD/GIS &amp; BIM Interoperability Pipelines</title>
+  <desc id="logo-desc">Layered grid representing GIS, a CAD polyline, a BIM volume, and pipeline nodes.</desc>
+  <defs>
+    <linearGradient id="grad-primary" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e3a5f"/>
+      <stop offset="1" stop-color="#2c5282"/>
+    </linearGradient>
+    <linearGradient id="grad-teal" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#0d9488"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+    <linearGradient id="grad-warm" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c2410c"/>
+      <stop offset="1" stop-color="#d97706"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.55">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#fbf8f3" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Soft backdrop -->
+  <circle cx="160" cy="160" r="148" fill="url(#halo)"/>
+
+  <!-- GIS Grid -->
+  <g stroke="#bfb7a3" stroke-width="1.4" opacity="0.55">
+    <path d="M40 100 H280"/>
+    <path d="M40 160 H280"/>
+    <path d="M40 220 H280"/>
+    <path d="M100 40 V280"/>
+    <path d="M160 40 V280"/>
+    <path d="M220 40 V280"/>
+  </g>
+
+  <!-- BIM volume (hexagonal isometric) -->
+  <path d="M160 56 L232 100 L232 196 L160 240 L88 196 L88 100 Z"
+    fill="url(#grad-teal)" fill-opacity="0.14"
+    stroke="url(#grad-teal)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M160 56 V240 M88 100 L232 100 M88 196 L232 196"
+    stroke="url(#grad-teal)" stroke-width="1.6" stroke-linejoin="round"
+    opacity="0.6" fill="none"/>
+
+  <!-- CAD polyline -->
+  <polyline points="56,228 100,140 160,180 220,80 268,128"
+    fill="none" stroke="url(#grad-primary)" stroke-width="6"
+    stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Survey nodes -->
+  <g>
+    <circle cx="100" cy="140" r="8" fill="url(#grad-warm)"/>
+    <circle cx="220" cy="80" r="8" fill="url(#grad-warm)"/>
+    <circle cx="160" cy="180" r="9" fill="url(#grad-primary)"/>
+    <circle cx="56" cy="228" r="6" fill="url(#grad-teal)"/>
+    <circle cx="268" cy="128" r="6" fill="url(#grad-teal)"/>
+  </g>
+
+  <!-- North pointer / compass tick -->
+  <g transform="translate(258 60)">
+    <path d="M0 -16 L8 8 L0 2 L-8 8 Z" fill="url(#grad-warm)" opacity="0.9"/>
+    <text x="0" y="22" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="700"
+      text-anchor="middle" fill="#1e3a5f">N</text>
+  </g>
+</svg>

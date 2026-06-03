@@ -1,0 +1,5 @@
+{
+  "layout": "layouts/content.njk",
+  "tags": ["section"],
+  "section": "core-format-fundamentals-schema-mapping"
+}

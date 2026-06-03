@@ -1,0 +1,20 @@
+{
+  "name": "Python for CAD/GIS & BIM Interoperability Pipelines",
+  "short_name": "CAD/GIS/BIM Interop",
+  "description": "Production-ready Python patterns for bridging CAD, GIS, and BIM systems.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fbf8f3",
+  "theme_color": "#1e3a5f",
+  "categories": ["productivity", "developer", "education"],
+  "lang": "en",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "/assets/icons/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "/assets/icons/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "/assets/icons/icon-maskable.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" },
+    { "src": "/assets/icons/apple-touch-icon.png", "type": "image/png", "sizes": "180x180", "purpose": "any" }
+  ]
+}

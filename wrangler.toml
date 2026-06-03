@@ -1,0 +1,17 @@
+# Cloudflare Worker — serves the built 11ty site as static assets.
+# Deploy with `npm run deploy` (runs `eleventy` then `wrangler deploy`).
+name = "cad-gis-bim-interop"
+compatibility_date = "2025-05-27"
+workers_dev = true
+
+[assets]
+directory = "./_site"
+# Serve `404.html` (in _site) for any request that doesn't match a file.
+# Use "single-page-application" instead if you want every miss to fall back to /index.html.
+not_found_handling = "404-page"
+
+# Static asset handling notes:
+# - Cloudflare Workers Static Assets automatically maps `/path/` → `/path/index.html`.
+# - `/_headers` and `/_redirects` files in the asset dir, if present, are honored.
+# - Asset binding (`env.ASSETS`) is not used here because there is no Worker script —
+#   pure static serving from the assets directory.

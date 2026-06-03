@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="{{ site.locale }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="{{ site.themeColor }}">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="format-detection" content="telephone=no">
+
+  {%- set pageTitle = title or (page.url | breadcrumb | last).slug | titleize -%}
+  {%- if page.url == "/" -%}
+    {%- set fullTitle = site.name -%}
+  {%- elif (pageTitle | length) > 50 -%}
+    {%- set fullTitle = pageTitle -%}
+  {%- else -%}
+    {%- set fullTitle = pageTitle + " · CAD/GIS/BIM" -%}
+  {%- endif -%}
+  <title>{{ fullTitle }}</title>
+
+  {%- set metaDescription = description or site.description -%}
+  <meta name="description" content="{{ metaDescription }}">
+  <meta name="keywords" content="{{ site.keywords | join(', ') }}">
+  <meta name="author" content="{{ site.shortName }}">
+  <link rel="canonical" href="{{ page.url | absoluteUrl }}">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="{% if page.url == '/' %}website{% else %}article{% endif %}">
+  <meta property="og:site_name" content="{{ site.shortName }}">
+  <meta property="og:title" content="{% if page.url == '/' %}{{ site.name }}{% else %}{{ pageTitle }}{% endif %}">
+  <meta property="og:description" content="{{ metaDescription }}">
+  <meta property="og:url" content="{{ page.url | absoluteUrl }}">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="{{ '/assets/icons/og-image.png' | absoluteUrl }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:alt" content="{{ site.name }} — {{ site.tagline }}">
+  {%- if page.url != "/" %}
+  <meta property="article:section" content="{{ (page.url | breadcrumb)[0].slug | titleize }}">
+  {%- endif %}
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% if page.url == '/' %}{{ site.name }}{% else %}{{ pageTitle }}{% endif %}">
+  <meta name="twitter:description" content="{{ metaDescription }}">
+  <meta name="twitter:image" content="{{ '/assets/icons/og-image.png' | absoluteUrl }}">
+  <meta name="twitter:image:alt" content="{{ site.name }} — {{ site.tagline }}">
+
+  <!-- PWA & icons -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="{{ site.shortName }}">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="{{ site.shortName }}">
+
+  <!-- Discoverability -->
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+
+  <!-- Fonts (system stack with Inter fallback) -->
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+  <!-- KaTeX (for rendered math) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/assets/css/main.css">
+
+  <!-- JSON-LD: site / article / collection -->
+  {%- if page.url == "/" %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "{{ site.name | escape }}",
+    "alternateName": "{{ site.shortName | escape }}",
+    "description": "{{ site.description | escape }}",
+    "url": "{{ site.url }}",
+    "inLanguage": "{{ site.locale }}",
+    "publisher": {
+      "@type": "Organization",
+      "name": "{{ site.shortName | escape }}",
+      "url": "{{ site.url }}",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ '/assets/icons/icon-512.png' | absoluteUrl }}",
+        "width": 512,
+        "height": 512
+      }
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "{{ site.url }}/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  {%- else %}
+  {%- set crumbs = page.url | breadcrumb -%}
+  {%- set sectionSlug = crumbs[0].slug -%}
+  {%- set isLeaf = crumbs.length > 1 -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "{% if isLeaf %}TechArticle{% else %}CollectionPage{% endif %}",
+    "headline": "{{ pageTitle | escape }}",
+    "name": "{{ pageTitle | escape }}",
+    "description": "{{ metaDescription | escape }}",
+    "url": "{{ page.url | absoluteUrl }}",
+    "inLanguage": "{{ site.locale }}",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "{{ site.name | escape }}",
+      "url": "{{ site.url }}"
+    },
+    "about": [{% for k in site.keywords %}{ "@type": "Thing", "name": "{{ k }}" }{% if not loop.last %}, {% endif %}{% endfor %}],
+    "image": "{{ '/assets/icons/og-image.png' | absoluteUrl }}",
+    "publisher": {
+      "@type": "Organization",
+      "name": "{{ site.shortName | escape }}",
+      "url": "{{ site.url }}",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ '/assets/icons/icon-512.png' | absoluteUrl }}",
+        "width": 512,
+        "height": 512
+      }
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{ site.url }}/" }{% for c in crumbs %},
+      { "@type": "ListItem", "position": {{ loop.index + 1 }}, "name": "{{ c.slug | titleize | escape }}", "item": "{{ c.url | absoluteUrl }}" }{% endfor %}
+    ]
+  }
+  </script>
+  {%- endif %}
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  {% include "partials/header.njk" %}
+
+  <main id="main">
+    {{ content | safe }}
+  </main>
+
+  {% include "partials/footer.njk" %}
+
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

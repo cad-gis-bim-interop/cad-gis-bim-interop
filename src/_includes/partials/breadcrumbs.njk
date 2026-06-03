@@ -1,0 +1,18 @@
+{%- set crumbs = page.url | breadcrumb -%}
+{%- if crumbs.length > 0 -%}
+<nav class="crumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="/">Home</a></li>
+    {%- for c in crumbs -%}
+      {%- set isLast = loop.last -%}
+      <li>
+        {% if isLast %}
+          <span aria-current="page">{{ c.slug | titleize }}</span>
+        {% else %}
+          <a href="{{ c.url }}">{{ c.slug | titleize }}</a>
+        {% endif %}
+      </li>
+    {%- endfor -%}
+  </ol>
+</nav>
+{%- endif -%}

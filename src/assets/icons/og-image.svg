@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="og-title">
+  <title id="og-title">Python for CAD/GIS &amp; BIM Interoperability Pipelines</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbf8f3"/>
+      <stop offset="1" stop-color="#e2ecf6"/>
+    </linearGradient>
+    <linearGradient id="gp" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e3a5f"/>
+      <stop offset="1" stop-color="#2c5282"/>
+    </linearGradient>
+    <linearGradient id="gt" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#0d9488"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+    <linearGradient id="gw" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c2410c"/>
+      <stop offset="1" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="title-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1e3a5f"/>
+      <stop offset="0.6" stop-color="#0d9488"/>
+      <stop offset="1" stop-color="#c2410c"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Decorative GIS grid -->
+  <g stroke="#bfb7a3" stroke-width="1" opacity="0.45">
+    <path d="M0 105 H1200"/>
+    <path d="M0 210 H1200"/>
+    <path d="M0 315 H1200"/>
+    <path d="M0 420 H1200"/>
+    <path d="M0 525 H1200"/>
+    <path d="M150 0 V630"/>
+    <path d="M300 0 V630"/>
+    <path d="M450 0 V630"/>
+    <path d="M600 0 V630"/>
+    <path d="M750 0 V630"/>
+    <path d="M900 0 V630"/>
+    <path d="M1050 0 V630"/>
+  </g>
+
+  <!-- Logo (left) -->
+  <g transform="translate(72 175)">
+    <g stroke="#bfb7a3" stroke-width="1.2" opacity="0.5">
+      <path d="M20 60 H300"/>
+      <path d="M20 140 H300"/>
+      <path d="M20 220 H300"/>
+      <path d="M80 0 V280"/>
+      <path d="M160 0 V280"/>
+      <path d="M240 0 V280"/>
+    </g>
+    <path d="M160 16 L256 70 L256 210 L160 264 L64 210 L64 70 Z"
+      fill="url(#gt)" fill-opacity="0.15"
+      stroke="url(#gt)" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M160 16 V264 M64 70 L256 70 M64 210 L256 210"
+      stroke="url(#gt)" stroke-width="2" stroke-linejoin="round" opacity="0.55" fill="none"/>
+    <polyline points="30,250 84,140 168,180 232,72 286,128"
+      fill="none" stroke="url(#gp)" stroke-width="7"
+      stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="84" cy="140" r="11" fill="url(#gw)"/>
+    <circle cx="232" cy="72" r="11" fill="url(#gw)"/>
+    <circle cx="168" cy="180" r="12" fill="url(#gp)"/>
+    <circle cx="30" cy="250" r="8" fill="url(#gt)"/>
+    <circle cx="286" cy="128" r="8" fill="url(#gt)"/>
+  </g>
+
+  <!-- Text (right) -->
+  <g transform="translate(440 230)">
+    <text x="0" y="0" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700"
+      letter-spacing="3" fill="#0d9488">PYTHON · AEC · GEOSPATIAL</text>
+    <text x="0" y="68" font-family="Inter, system-ui, sans-serif" font-size="52" font-weight="800"
+      fill="url(#title-grad)" letter-spacing="-1">Python for CAD / GIS</text>
+    <text x="0" y="128" font-family="Inter, system-ui, sans-serif" font-size="52" font-weight="800"
+      fill="url(#title-grad)" letter-spacing="-1">&amp; BIM Interoperability</text>
+    <text x="0" y="178" font-family="Inter, system-ui, sans-serif" font-size="40" font-weight="700"
+      fill="#1e3a5f" letter-spacing="-0.5">Pipelines</text>
+    <text x="0" y="240" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="500"
+      fill="#3b4a5e">Production patterns for DXF · DWG · IFC ·</text>
+    <text x="0" y="270" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="500"
+      fill="#3b4a5e">coordinate alignment · attribute mapping.</text>
+  </g>
+
+  <!-- URL footer -->
+  <text x="600" y="582" font-family="Inter, system-ui, sans-serif" font-size="20"
+    font-weight="600" fill="#6b7384" text-anchor="middle">cad-gis-bim-interop.org</text>
+</svg>

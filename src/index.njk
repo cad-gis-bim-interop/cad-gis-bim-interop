@@ -1,0 +1,104 @@
+---
+layout: layouts/base.njk
+title: "Python for CAD/GIS & BIM Interoperability Pipelines"
+description: "Production-ready Python patterns for CAD/GIS/BIM interoperability pipelines — DXF/DWG parsing, IFC integration, coordinate transformation, and automation."
+eleventyNavigation:
+  key: Home
+---
+
+<section class="container hero">
+  <img class="hero__logo" src="/assets/icons/logo.svg" alt="CAD/GIS/BIM Interop logo — layered grid, polyline, hex volume." width="240" height="240">
+
+  <p class="hero__eyebrow">Python · AEC · Geospatial</p>
+  <h1 class="hero__title">{{ site.name }}</h1>
+  <p class="hero__lede">
+    Production-ready patterns for building automated interoperability pipelines between CAD, GIS, and BIM systems using Python.
+    Bridge the gap between proprietary spatial formats and open geospatial standards — without lossy guesswork.
+  </p>
+
+  <div class="cta-row" role="list">
+    {% for s in sections %}
+    <a class="cta" href="{{ s.url }}" role="listitem">
+      <span class="cta__icon cta__icon--{{ s.accent }}" aria-hidden="true">
+        {% if s.icon == "schema" %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            <path d="M10 6.5h4M6.5 10v4M17.5 10v4M10 17.5h4"/>
+          </svg>
+        {% elif s.icon == "parse" %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+            <line x1="13" y1="5" x2="11" y2="19"/>
+          </svg>
+        {% else %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" fill-opacity="0.2"/>
+          </svg>
+        {% endif %}
+      </span>
+      <span class="cta__text">
+        <span class="cta__title">{{ s.short }}</span>
+        <span class="cta__sub">Explore section →</span>
+      </span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="container" style="padding: var(--s-6) 0 var(--s-4);">
+  <div class="prose stack-lg" style="margin: 0 auto;">
+    <h2>What this site is</h2>
+    <p>
+      CAD, GIS, and BIM ecosystems evolved in isolation: each has its own file structures, coordinate conventions, and geometric representations.
+      Python has emerged as the lingua franca for bridging them — but building a pipeline that survives production traffic takes more than reading coordinates.
+      It demands rigorous parsing, deterministic schema mapping, and survey-grade spatial alignment.
+    </p>
+    <p>
+      This site collects the architectural patterns, library walkthroughs, and extraction strategies needed to build interoperability pipelines that actually scale.
+      Every page is written for engineers and integrators who need to ship — not for browsing tutorials.
+    </p>
+    <p>
+      Focus areas include <strong>DXF/DWG parsing</strong>, <strong>IFC integration</strong>, <strong>coordinate transformation</strong>,
+      <strong>attribute mapping</strong>, <strong>batch conversion</strong>, <strong>quality control</strong>, and <strong>automation scripts</strong>.
+    </p>
+  </div>
+</section>
+
+<section class="container" style="padding: var(--s-5) 0 var(--s-8);">
+  <h2 style="margin-bottom: var(--s-5);">Browse the content</h2>
+  <div class="grid grid--cards">
+    {% for s in sections %}
+    {% set kids = collections.allPages | childrenOf(s.url) %}
+    <article class="card">
+      <span class="card__icon cta__icon--{{ s.accent }}" aria-hidden="true">
+        {% if s.icon == "schema" %}
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        {% elif s.icon == "parse" %}
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+        {% else %}
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+          </svg>
+        {% endif %}
+      </span>
+      <h3 class="card__title"><a href="{{ s.url }}">{{ s.title }}</a></h3>
+      <p>{{ s.blurb }}</p>
+      {% if kids.length > 0 %}
+      <ul>
+        {% for k in kids %}
+          {% set slug = k.url.split('/').slice(-2, -1)[0] %}
+          <li><a href="{{ k.url }}">{{ slug | titleize }}</a></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</section>

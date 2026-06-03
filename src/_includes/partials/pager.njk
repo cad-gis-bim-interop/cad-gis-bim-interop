@@ -1,0 +1,34 @@
+{%- set parts = page.url.split('/') | reject('falsy') | list -%}
+{%- if parts.length >= 2 -%}
+  {%- set sibs = collections.allPages | siblingsOf(page.url) -%}
+  {%- if sibs.length > 0 -%}
+    {%- set all = [] -%}
+    {%- for s in sibs -%}{%- set all = (all.push(s), all) -%}{%- endfor -%}
+    {%- set all = (all.push({ url: page.url, isCurrent: true }), all) -%}
+    {%- set all = all | sort(false, false, "url") -%}
+    {%- set idx = 0 -%}
+    {%- for it in all -%}
+      {%- if it.url == page.url -%}{%- set idx = loop.index0 -%}{%- endif -%}
+    {%- endfor -%}
+    {%- set prev = (idx > 0) and all[idx - 1] -%}
+    {%- set next = (idx < all.length - 1) and all[idx + 1] -%}
+    {%- if prev or next -%}
+    <nav class="pager" aria-label="Pager">
+      {%- if prev and not prev.isCurrent -%}
+        {%- set slug = prev.url.split('/').slice(-2, -1)[0] -%}
+        <a class="pager__link pager__link--prev" href="{{ prev.url }}" rel="prev">
+          <span class="pager__direction">← Previous</span>
+          <span class="pager__title">{{ slug | titleize }}</span>
+        </a>
+      {%- else -%}<span></span>{%- endif -%}
+      {%- if next and not next.isCurrent -%}
+        {%- set slug = next.url.split('/').slice(-2, -1)[0] -%}
+        <a class="pager__link pager__link--next" href="{{ next.url }}" rel="next">
+          <span class="pager__direction">Next →</span>
+          <span class="pager__title">{{ slug | titleize }}</span>
+        </a>
+      {%- else -%}<span></span>{%- endif -%}
+    </nav>
+    {%- endif -%}
+  {%- endif -%}
+{%- endif -%}

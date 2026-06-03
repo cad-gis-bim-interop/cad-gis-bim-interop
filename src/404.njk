@@ -1,0 +1,54 @@
+---
+layout: layouts/base.njk
+permalink: /404.html
+title: "Page not found"
+description: "The page you're looking for doesn't exist. Browse the sections below to find what you need."
+eleventyExcludeFromCollections: true
+---
+
+<section class="container hero" style="padding-block: var(--s-8);">
+  <p class="hero__eyebrow">404</p>
+  <h1 class="hero__title" style="max-width: 22ch;">This page doesn't exist.</h1>
+  <p class="hero__lede">
+    The URL you tried may have been moved, mistyped, or never existed.
+    Head back to the home page or pick a section below.
+  </p>
+
+  <div class="cta-row" role="list">
+    <a class="cta" href="/" role="listitem">
+      <span class="cta__icon cta__icon--primary" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v10h14V10"/>
+        </svg>
+      </span>
+      <span class="cta__text">
+        <span class="cta__title">Home</span>
+        <span class="cta__sub">Start over →</span>
+      </span>
+    </a>
+    {% for s in sections %}
+    <a class="cta" href="{{ s.url }}" role="listitem">
+      <span class="cta__icon cta__icon--{{ s.accent }}" aria-hidden="true">
+        {% if s.icon == "schema" %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        {% elif s.icon == "parse" %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+        {% else %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+          </svg>
+        {% endif %}
+      </span>
+      <span class="cta__text">
+        <span class="cta__title">{{ s.short }}</span>
+        <span class="cta__sub">Browse section →</span>
+      </span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
