@@ -40,6 +40,8 @@
   line-height: var(--lh-relaxed);
   max-width: none;
   width: 100%;
+  overflow-wrap: break-word;
+  min-width: 0;
 }
 
 .stack > * + * { margin-top: var(--s-4); }

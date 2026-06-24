@@ -28,15 +28,58 @@ CAD and BIM files frequently store geometry in local or project-specific coordin
 
 A reliable geometry mesh conversion pipeline follows a deterministic sequence. Deviating from this order introduces non-manifold edges, inverted normals, or topology collapse during batch processing.
 
-```mermaid
-flowchart LR
-    SRC[(Source<br/>DXF · IFC · GIS)] --> FI[Filter entities<br/>drop annotation /<br/>dimensions]
-    FI --> NM[Normalize coords<br/>centroid → 0,0,0<br/>scale to meters]
-    NM --> TR[Triangulate<br/>Delaunay / trimesh]
-    TR --> RP[Repair topology<br/>merge dups · fix normals]
-    RP --> AT[Attach attributes<br/>materials · Psets · layers]
-    AT --> EX[Export<br/>glTF · OBJ · STL]
-```
+<figure aria-label="Geometry mesh conversion pipeline: Source (DXF/IFC/GIS) → Filter entities → Normalize coords → Triangulate → Repair topology → Attach attributes → Export (glTF/OBJ/STL)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 290" role="img" aria-label="Geometry mesh conversion workflow" width="100%" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="gm-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+  </defs>
+  <!-- Row 1: SRC → FI → NM -->
+  <!-- SRC cylinder -->
+  <ellipse cx="80" cy="38" rx="70" ry="14" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <rect x="10" y="38" width="140" height="30" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <ellipse cx="80" cy="68" rx="70" ry="14" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="80" y="50" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Source</text>
+  <text x="80" y="65" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">DXF · IFC · GIS</text>
+  <line x1="150" y1="53" x2="170" y2="53" stroke="#444" stroke-width="1.5" marker-end="url(#gm-arrow)"/>
+  <!-- FI -->
+  <rect x="170" y="28" width="145" height="50" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="242" y="47" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Filter entities</text>
+  <text x="242" y="62" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">drop annotation / dims</text>
+  <line x1="315" y1="53" x2="335" y2="53" stroke="#444" stroke-width="1.5" marker-end="url(#gm-arrow)"/>
+  <!-- NM -->
+  <rect x="335" y="28" width="155" height="50" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="412" y="47" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Normalize coords</text>
+  <text x="412" y="62" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">centroid → 0,0,0 · meters</text>
+  <!-- Arrow NM down to TR -->
+  <line x1="490" y1="53" x2="530" y2="53" stroke="#444" stroke-width="1.5"/>
+  <line x1="530" y1="53" x2="530" y2="130" stroke="#444" stroke-width="1.5"/>
+  <line x1="530" y1="130" x2="510" y2="130" stroke="#444" stroke-width="1.5" marker-end="url(#gm-arrow)"/>
+  <!-- Row 2: TR → RP (right to left) -->
+  <rect x="335" y="105" width="175" height="50" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="422" y="125" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Triangulate</text>
+  <text x="422" y="141" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">Delaunay / trimesh</text>
+  <line x1="335" y1="130" x2="315" y2="130" stroke="#444" stroke-width="1.5" marker-end="url(#gm-arrow)"/>
+  <!-- RP -->
+  <rect x="145" y="105" width="170" height="50" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="230" y="125" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Repair topology</text>
+  <text x="230" y="141" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">merge dups · fix normals</text>
+  <!-- Arrow RP down to AT -->
+  <line x1="145" y1="130" x2="80" y2="130" stroke="#444" stroke-width="1.5"/>
+  <line x1="80" y1="130" x2="80" y2="210" stroke="#444" stroke-width="1.5"/>
+  <line x1="80" y1="210" x2="170" y2="210" stroke="#444" stroke-width="1.5" marker-end="url(#gm-arrow)"/>
+  <!-- Row 3: AT → EX -->
+  <rect x="170" y="185" width="175" height="50" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="257" y="205" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Attach attributes</text>
+  <text x="257" y="221" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">materials · Psets · layers</text>
+  <line x1="345" y1="210" x2="365" y2="210" stroke="#444" stroke-width="1.5" marker-end="url(#gm-arrow)"/>
+  <!-- EX -->
+  <rect x="365" y="185" width="175" height="50" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="452" y="205" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">Export</text>
+  <text x="452" y="221" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">glTF · OBJ · STL</text>
+</svg>
+</figure>
 
 ### Source Ingestion & Entity Filtering
 

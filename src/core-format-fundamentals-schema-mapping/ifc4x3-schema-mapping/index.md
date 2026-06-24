@@ -41,23 +41,64 @@ Convert STEP-based geometry (`IfcShapeRepresentation`) to coordinate arrays or G
 ### 5. Serialization & Pipeline Export
 Structure mapped data into interoperable formats (GeoJSON, Parquet, or relational tables). Validate against target schema constraints before pipeline handoff. Implement chunked serialization for large infrastructure models to prevent memory exhaustion during batch processing.
 
-```mermaid
-flowchart TB
-    P[IfcProject] --> S[IfcSite]
-    S --> A[IfcAlignment]
-    S --> Br[IfcBridge]
-    S --> Ry[IfcRailway]
-    S --> Rd[IfcRoad]
-    A --> H[IfcLinearPosition<br/>IfcReferent]
-    Br --> BP[IfcBridgePart]
-    Ry --> RP[IfcRailwayPart]
-    classDef root fill:#e2ecf6,stroke:#1e3a5f,stroke-width:1.5px;
-    classDef civil fill:#d1f4ee,stroke:#0d9488;
-    classDef linear fill:#fdecd3,stroke:#c2410c;
-    class P,S root
-    class A,Br,Ry,Rd civil
-    class H,BP,RP linear
-```
+<figure aria-label="IFC4x3 spatial hierarchy: IfcProject → IfcSite → civil entities (IfcAlignment, IfcBridge, IfcRailway, IfcRoad) → linear sub-entities">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 310" role="img" aria-label="IFC4x3 schema hierarchy diagram" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="ifc4-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+  </defs>
+  <!-- P: IfcProject -->
+  <rect x="245" y="10" width="150" height="38" rx="6" fill="#e2ecf6" stroke="#1e3a5f" stroke-width="2"/>
+  <text x="320" y="34" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#1e3a5f">IfcProject</text>
+  <line x1="320" y1="48" x2="320" y2="68" stroke="#444" stroke-width="1.5" marker-end="url(#ifc4-arrow)"/>
+  <!-- S: IfcSite -->
+  <rect x="245" y="68" width="150" height="38" rx="6" fill="#e2ecf6" stroke="#1e3a5f" stroke-width="2"/>
+  <text x="320" y="92" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#1e3a5f">IfcSite</text>
+  <!-- Fan out from S to 4 civil nodes -->
+  <line x1="320" y1="106" x2="320" y2="136" stroke="#444" stroke-width="1.5"/>
+  <!-- Horizontal bar -->
+  <line x1="60" y1="136" x2="580" y2="136" stroke="#444" stroke-width="1.5"/>
+  <!-- Verticals down to A, Br, Ry, Rd -->
+  <line x1="60" y1="136" x2="60" y2="156" stroke="#444" stroke-width="1.5" marker-end="url(#ifc4-arrow)"/>
+  <line x1="220" y1="136" x2="220" y2="156" stroke="#444" stroke-width="1.5" marker-end="url(#ifc4-arrow)"/>
+  <line x1="420" y1="136" x2="420" y2="156" stroke="#444" stroke-width="1.5" marker-end="url(#ifc4-arrow)"/>
+  <line x1="580" y1="136" x2="580" y2="156" stroke="#444" stroke-width="1.5" marker-end="url(#ifc4-arrow)"/>
+  <!-- A: IfcAlignment -->
+  <rect x="5" y="156" width="110" height="38" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="60" y="180" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">IfcAlignment</text>
+  <!-- Br: IfcBridge -->
+  <rect x="165" y="156" width="110" height="38" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="220" y="180" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">IfcBridge</text>
+  <!-- Ry: IfcRailway -->
+  <rect x="365" y="156" width="110" height="38" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="420" y="180" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">IfcRailway</text>
+  <!-- Rd: IfcRoad -->
+  <rect x="525" y="156" width="110" height="38" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="580" y="180" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">IfcRoad</text>
+  <!-- Arrows to linear sub-entities -->
+  <line x1="60" y1="194" x2="60" y2="234" stroke="#444" stroke-width="1.5" marker-end="url(#ifc4-arrow)"/>
+  <line x1="220" y1="194" x2="220" y2="234" stroke="#444" stroke-width="1.5" marker-end="url(#ifc4-arrow)"/>
+  <line x1="420" y1="194" x2="420" y2="234" stroke="#444" stroke-width="1.5" marker-end="url(#ifc4-arrow)"/>
+  <!-- H: IfcLinearPosition / IfcReferent -->
+  <rect x="5" y="234" width="110" height="52" rx="6" fill="#fdecd3" stroke="#c2410c" stroke-width="1.5"/>
+  <text x="60" y="255" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7c2d12">IfcLinearPosition</text>
+  <text x="60" y="272" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7c2d12">IfcReferent</text>
+  <!-- BP: IfcBridgePart -->
+  <rect x="165" y="234" width="110" height="38" rx="6" fill="#fdecd3" stroke="#c2410c" stroke-width="1.5"/>
+  <text x="220" y="258" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7c2d12">IfcBridgePart</text>
+  <!-- RP: IfcRailwayPart -->
+  <rect x="365" y="234" width="110" height="38" rx="6" fill="#fdecd3" stroke="#c2410c" stroke-width="1.5"/>
+  <text x="420" y="258" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7c2d12">IfcRailwayPart</text>
+  <!-- Legend -->
+  <rect x="5" y="296" width="14" height="10" fill="#e2ecf6" stroke="#1e3a5f" stroke-width="1"/>
+  <text x="22" y="306" font-family="sans-serif" font-size="9" fill="#555">Root spatial</text>
+  <rect x="110" y="296" width="14" height="10" fill="#d1f4ee" stroke="#0d9488" stroke-width="1"/>
+  <text x="127" y="306" font-family="sans-serif" font-size="9" fill="#555">Civil element</text>
+  <rect x="220" y="296" width="14" height="10" fill="#fdecd3" stroke="#c2410c" stroke-width="1"/>
+  <text x="237" y="306" font-family="sans-serif" font-size="9" fill="#555">Linear / part</text>
+</svg>
+</figure>
 
 > **Tip:** Always resolve `IsDecomposedBy` and `ContainsElements` relationships in *both directions* before serializing — parent-only traversal silently drops nested civil components like `IfcAlignmentCant` or `IfcReferent` that sit outside the spatial containment tree.
 

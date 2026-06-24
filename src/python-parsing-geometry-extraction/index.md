@@ -16,24 +16,38 @@ This guide outlines the architectural patterns, library ecosystems, and extracti
 
 A robust interoperability pipeline separates concerns into discrete, testable stages. Python parsing & geometry extraction typically occupies the ingestion and normalization layers, feeding structured outputs into spatial indexing or visualization tiers.
 
-```
-Raw Files (.dwg, .dxf, .ifc, .shp, .gdb)
-        │
-        ▼
-[1] Ingestion & Format Detection
-        │
-        ▼
-[2] Parser Dispatch (ezdxf / ifcopenshell / pydwg / GDAL)
-        │
-        ▼
-[3] Geometry Extraction & Topology Reconstruction
-        │
-        ▼
-[4] Coordinate Normalization & CRS Alignment
-        │
-        ▼
-[5] Serialization (GeoJSON / glTF / Parquet / PostGIS)
-```
+<figure aria-label="Python parsing pipeline: Raw Files → Ingestion → Parser Dispatch → Geometry Extraction → Coordinate Normalization → Serialization">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 350" role="img" aria-label="Five-stage Python parsing and geometry extraction pipeline" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="pp-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+  </defs>
+  <!-- Stage 0: Raw Files -->
+  <rect x="60" y="10" width="360" height="40" rx="6" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="240" y="35" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#1e3a5f">Raw Files (.dwg · .dxf · .ifc · .shp · .gdb)</text>
+  <line x1="240" y1="50" x2="240" y2="70" stroke="#444" stroke-width="2" marker-end="url(#pp-arrow)"/>
+  <!-- Stage 1 -->
+  <rect x="80" y="70" width="320" height="40" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="240" y="95" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">[1] Ingestion &amp; Format Detection</text>
+  <line x1="240" y1="110" x2="240" y2="130" stroke="#444" stroke-width="2" marker-end="url(#pp-arrow)"/>
+  <!-- Stage 2 -->
+  <rect x="30" y="130" width="420" height="40" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="240" y="155" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">[2] Parser Dispatch (ezdxf / ifcopenshell / pydwg / GDAL)</text>
+  <line x1="240" y1="170" x2="240" y2="190" stroke="#444" stroke-width="2" marker-end="url(#pp-arrow)"/>
+  <!-- Stage 3 -->
+  <rect x="30" y="190" width="420" height="40" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="240" y="215" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">[3] Geometry Extraction &amp; Topology Reconstruction</text>
+  <line x1="240" y1="230" x2="240" y2="250" stroke="#444" stroke-width="2" marker-end="url(#pp-arrow)"/>
+  <!-- Stage 4 -->
+  <rect x="55" y="250" width="370" height="40" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="240" y="275" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">[4] Coordinate Normalization &amp; CRS Alignment</text>
+  <line x1="240" y1="290" x2="240" y2="310" stroke="#444" stroke-width="2" marker-end="url(#pp-arrow)"/>
+  <!-- Stage 5 -->
+  <rect x="60" y="310" width="360" height="36" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="240" y="333" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">[5] Serialization (GeoJSON / glTF / Parquet / PostGIS)</text>
+</svg>
+</figure>
 
 The critical boundary between stages 2 and 3 is where most pipelines fail. Parsers return vendor-specific entity objects (e.g., `DXF LWPOLYLINE`, `IFC IfcExtrudedAreaSolid`, `DWG AcDbBlockReference`). These must be decomposed into mathematical primitives—vertices, edges, faces, or parametric curves—before they can be normalized. Geometry extraction is not merely reading coordinates; it involves resolving block references, applying transformation matrices, handling nested assemblies, and reconciling unit systems.
 

@@ -8,6 +8,38 @@ In multi-disciplinary infrastructure delivery, spatial datasets rarely originate
 
 This operation forms the mathematical backbone of robust [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) strategies. Unlike rigid transformations, which only adjust translation and orientation, scale-aware synchronization explicitly accounts for drafting unit mismatches, survey instrument calibration drift, and authoring environment defaults. For AEC tech engineers and platform teams building automated ingestion pipelines, implementing this mathematically sound alignment step prevents downstream topology failures, spatial query mismatches, and rendering artifacts.
 
+---
+
+<svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Similarity transformation pipeline: source geometry flows through centroid normalization, SVD decomposition, and transform application to produce aligned geometry" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
+  <title>Similarity Transformation Pipeline</title>
+  <desc>Flow diagram showing source geometry entering centroid normalization, then SVD decomposition producing scale s and rotation R, then translation assembly, then transform application, finally producing aligned geometry with residual validation.</desc>
+  <defs>
+    <marker id="sr-arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <rect x="10" y="70" width="110" height="50" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="160" y="70" width="130" height="50" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="340" y="70" width="130" height="50" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="520" y="70" width="130" height="50" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="65" y="91" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">Source</text>
+  <text x="65" y="106" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">Geometry</text>
+  <text x="225" y="88" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">Centroid</text>
+  <text x="225" y="103" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">Normalization</text>
+  <text x="225" y="114" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif" opacity="0.7">+ scale factor</text>
+  <text x="405" y="88" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">SVD: R, s, t</text>
+  <text x="405" y="103" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif" opacity="0.7">reflection fix</text>
+  <text x="585" y="91" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">Aligned</text>
+  <text x="585" y="106" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">Geometry</text>
+  <line x1="120" y1="95" x2="158" y2="95" stroke="currentColor" stroke-width="1.5" marker-end="url(#sr-arr)"/>
+  <line x1="290" y1="95" x2="338" y2="95" stroke="currentColor" stroke-width="1.5" marker-end="url(#sr-arr)"/>
+  <line x1="470" y1="95" x2="518" y2="95" stroke="currentColor" stroke-width="1.5" marker-end="url(#sr-arr)"/>
+  <path d="M650,120 Q650,175 405,175 Q225,175 160,155" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#sr-arr)" opacity="0.6"/>
+  <text x="405" y="193" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif" opacity="0.7">RMSE &gt; threshold: reject / re-examine control points</text>
+</svg>
+
+---
+
 ## Prerequisites and Environment Configuration
 
 Before implementing synchronization logic, verify that the pipeline environment satisfies the following technical requirements:

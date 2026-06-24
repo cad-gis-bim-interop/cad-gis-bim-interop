@@ -25,21 +25,83 @@ Licensing constraints are a primary consideration. The DWG specification is cont
 
 A resilient pipeline must treat DWG as an opaque container rather than a directly queryable database. The following workflow standardizes ingestion while respecting format boundaries and minimizing silent data loss.
 
-```mermaid
-flowchart TB
-    F[(DWG file)] --> H[Inspect 6-byte<br/>header signature]
-    H --> Q{Supported<br/>AC code?}
-    Q -->|no| QUAR[Quarantine ·<br/>log signature]
-    Q -->|yes| C[ODA File Converter<br/>DWG → DXF]
-    C --> R{Exit code = 0?}
-    R -->|no| RETRY[Retry with legacy<br/>target ACAD2010]
-    RETRY --> R2{Success?}
-    R2 -->|no| MQ[Manual review<br/>queue]
-    R2 -->|yes| P
-    R -->|yes| P[ezdxf parse ·<br/>entity normalization]
-    P --> V[Spatial validation ·<br/>CRS / topology]
-    V --> S[Serialize GeoPackage /<br/>Parquet / GeoJSON]
-```
+<figure aria-label="DWG ingestion pipeline: DWG file → inspect header → check AC code → ODA converter → exit code check → ezdxf parse → spatial validation → serialize">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 440" role="img" aria-label="DWG proprietary ingestion workflow" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="dw-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+  </defs>
+  <!-- F: DWG file cylinder -->
+  <ellipse cx="320" cy="20" rx="60" ry="13" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <rect x="260" y="20" width="120" height="24" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <ellipse cx="320" cy="44" rx="60" ry="13" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="320" y="36" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">DWG file</text>
+  <line x1="320" y1="57" x2="320" y2="76" stroke="#444" stroke-width="1.5" marker-end="url(#dw-arrow)"/>
+  <!-- H: Inspect header -->
+  <rect x="215" y="76" width="210" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="320" y="93" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Inspect 6-byte</text>
+  <text x="320" y="109" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">header signature</text>
+  <line x1="320" y1="120" x2="320" y2="140" stroke="#444" stroke-width="1.5" marker-end="url(#dw-arrow)"/>
+  <!-- Q: Supported AC code? -->
+  <polygon points="320,140 420,165 320,190 220,165" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <text x="320" y="161" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">Supported</text>
+  <text x="320" y="177" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">AC code?</text>
+  <!-- no → QUAR (right) -->
+  <line x1="420" y1="165" x2="470" y2="165" stroke="#444" stroke-width="1.5" marker-end="url(#dw-arrow)"/>
+  <text x="443" y="159" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">no</text>
+  <rect x="470" y="143" width="170" height="44" rx="6" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <text x="555" y="161" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7b1111">Quarantine ·</text>
+  <text x="555" y="177" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7b1111">log signature</text>
+  <!-- yes → C -->
+  <line x1="320" y1="190" x2="320" y2="210" stroke="#444" stroke-width="1.5" marker-end="url(#dw-arrow)"/>
+  <text x="336" y="204" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">yes</text>
+  <!-- C: ODA File Converter -->
+  <rect x="200" y="210" width="240" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="320" y="228" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">ODA File Converter</text>
+  <text x="320" y="244" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">DWG → DXF</text>
+  <line x1="320" y1="254" x2="320" y2="274" stroke="#444" stroke-width="1.5" marker-end="url(#dw-arrow)"/>
+  <!-- R: Exit code = 0? -->
+  <polygon points="320,274 420,298 320,322 220,298" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <text x="320" y="293" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">Exit code</text>
+  <text x="320" y="309" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">= 0?</text>
+  <!-- no → RETRY (left) -->
+  <line x1="220" y1="298" x2="155" y2="298" stroke="#444" stroke-width="1.5" marker-end="url(#dw-arrow)"/>
+  <text x="185" y="292" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">no</text>
+  <rect x="15" y="276" width="140" height="44" rx="6" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <text x="85" y="293" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">Retry with legacy</text>
+  <text x="85" y="309" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7c3d00">target ACAD2010</text>
+  <!-- RETRY → R2 diamond -->
+  <line x1="85" y1="320" x2="85" y2="350" stroke="#444" stroke-width="1.5" marker-end="url(#dw-arrow)"/>
+  <polygon points="85,350 165,372 85,394 5,372" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <text x="85" y="368" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">Success?</text>
+  <!-- no → MQ -->
+  <line x1="85" y1="394" x2="85" y2="414" stroke="#444" stroke-width="1.5" marker-end="url(#dw-arrow)"/>
+  <text x="100" y="408" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">no</text>
+  <rect x="15" y="414" width="140" height="20" rx="6" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <text x="85" y="428" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7b1111">Manual review queue</text>
+  <!-- yes → back to P — label placed left of boxes to avoid overlap -->
+  <line x1="165" y1="372" x2="214" y2="372" stroke="#444" stroke-width="1.5"/>
+  <line x1="214" y1="344" x2="214" y2="372" stroke="#444" stroke-width="1.5"/>
+  <line x1="214" y1="344" x2="215" y2="344" stroke="#444" stroke-width="1.5" marker-end="url(#dw-arrow)"/>
+  <text x="195" y="360" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">yes</text>
+  <!-- yes directly from R → P -->
+  <line x1="320" y1="322" x2="320" y2="332" stroke="#444" stroke-width="1.5" marker-end="url(#dw-arrow)"/>
+  <text x="336" y="330" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">yes</text>
+  <!-- P: ezdxf parse -->
+  <rect x="215" y="332" width="210" height="14" rx="4" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1"/>
+  <text x="320" y="343" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">ezdxf parse · entity normalization</text>
+  <!-- V: Spatial validation -->
+  <rect x="215" y="356" width="210" height="30" rx="4" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1"/>
+  <text x="320" y="375" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">Spatial validation · CRS / topology</text>
+  <!-- S: Serialize -->
+  <rect x="215" y="394" width="210" height="30" rx="4" fill="#d1f4ee" stroke="#0d9488" stroke-width="1"/>
+  <text x="320" y="413" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">Serialize GeoPackage / Parquet / GeoJSON</text>
+  <!-- Connector lines between P V S -->
+  <line x1="320" y1="346" x2="320" y2="356" stroke="#444" stroke-width="1"/>
+  <line x1="320" y1="386" x2="320" y2="394" stroke="#444" stroke-width="1" marker-end="url(#dw-arrow)"/>
+</svg>
+</figure>
 
 > **Warning:** Never embed proprietary ODA/Teigha binaries in public container images. Build a thin internal base image with the licensed converter and pin worker pools to it; mount only inputs/outputs at runtime.
 

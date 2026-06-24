@@ -62,21 +62,84 @@ mappings:
 
 Validate this schema on pipeline initialization. Use `pydantic` or `jsonschema` to enforce required fields, validate priority ranges, and catch malformed regex patterns before they reach production. Schema validation acts as a circuit breaker, preventing malformed rules from corrupting downstream outputs.
 
-```mermaid
-flowchart TB
-    L[Source layer name<br/>e.g. A-WALL-EXT] --> NM[Normalize<br/>upper-case · trim]
-    NM --> P[Iterate rules by<br/>priority desc]
-    P --> R1{Regex rule<br/>matches?}
-    R1 -->|yes| OK[Emit target_layer<br/>log: regex]
-    R1 -->|no| R2{Exact rule<br/>matches?}
-    R2 -->|yes| OK2[Emit target_layer<br/>log: exact]
-    R2 -->|no| NXT{More rules?}
-    NXT -->|yes| P
-    NXT -->|no| FB[Emit __UNMAPPED__<br/>log: fallback]
-    OK --> A[(Audit log<br/>source → target)]
-    OK2 --> A
-    FB --> A
-```
+<figure aria-label="Layer mapping logic: source layer name → normalize → iterate rules by priority → regex match? → exact match? → more rules? → fallback → all results written to audit log">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 510" role="img" aria-label="Layer mapping decision flow diagram" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="lm-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+  </defs>
+  <!-- L: Source layer name -->
+  <rect x="185" y="10" width="220" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="295" y="28" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Source layer name</text>
+  <text x="295" y="44" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">e.g. A-WALL-EXT</text>
+  <line x1="295" y1="54" x2="295" y2="74" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
+  <!-- NM: Normalize -->
+  <rect x="195" y="74" width="200" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="295" y="92" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Normalize</text>
+  <text x="295" y="108" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">upper-case · trim</text>
+  <line x1="295" y1="118" x2="295" y2="138" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
+  <!-- P: Iterate rules -->
+  <rect x="185" y="138" width="220" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="295" y="156" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Iterate rules by</text>
+  <text x="295" y="172" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">priority desc</text>
+  <line x1="295" y1="182" x2="295" y2="202" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
+  <!-- R1: Regex rule matches? -->
+  <polygon points="295,202 400,228 295,254 190,228" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <text x="295" y="224" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">Regex rule</text>
+  <text x="295" y="240" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">matches?</text>
+  <!-- yes → OK (right) -->
+  <line x1="400" y1="228" x2="450" y2="228" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
+  <text x="423" y="222" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">yes</text>
+  <rect x="450" y="206" width="155" height="44" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="527" y="224" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">Emit target_layer</text>
+  <text x="527" y="240" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">log: regex</text>
+  <!-- no → R2 diamond -->
+  <line x1="295" y1="254" x2="295" y2="274" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
+  <text x="310" y="268" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">no</text>
+  <polygon points="295,274 400,300 295,326 190,300" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <text x="295" y="296" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">Exact rule</text>
+  <text x="295" y="312" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">matches?</text>
+  <!-- yes → OK2 (right) -->
+  <line x1="400" y1="300" x2="450" y2="300" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
+  <text x="423" y="294" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">yes</text>
+  <rect x="450" y="278" width="155" height="44" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="527" y="296" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">Emit target_layer</text>
+  <text x="527" y="312" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">log: exact</text>
+  <!-- no → NXT diamond -->
+  <line x1="295" y1="326" x2="295" y2="346" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
+  <text x="310" y="340" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">no</text>
+  <polygon points="295,346 390,368 295,390 200,368" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <text x="295" y="364" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">More</text>
+  <text x="295" y="380" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">rules?</text>
+  <!-- yes → back to P (left loop) -->
+  <line x1="200" y1="368" x2="100" y2="368" stroke="#444" stroke-width="1.5"/>
+  <line x1="100" y1="368" x2="100" y2="160" stroke="#444" stroke-width="1.5"/>
+  <line x1="100" y1="160" x2="185" y2="160" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
+  <text x="148" y="361" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">yes</text>
+  <!-- no → FB -->
+  <line x1="295" y1="390" x2="295" y2="410" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
+  <text x="310" y="404" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">no</text>
+  <rect x="175" y="410" width="240" height="44" rx="6" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <text x="295" y="428" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7b1111">Emit __UNMAPPED__</text>
+  <text x="295" y="444" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7b1111">log: fallback</text>
+  <!-- All three results converge to A cylinder -->
+  <!-- OK down -->
+  <line x1="527" y1="250" x2="527" y2="470" stroke="#444" stroke-width="1.5"/>
+  <line x1="527" y1="470" x2="365" y2="470" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
+  <!-- OK2 down -->
+  <line x1="527" y1="322" x2="527" y2="250" stroke="#444" stroke-width="1.5"/>
+  <!-- FB down to A -->
+  <line x1="295" y1="454" x2="295" y2="470" stroke="#444" stroke-width="1.5"/>
+  <line x1="295" y1="470" x2="315" y2="470" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
+  <!-- A: Audit log cylinder -->
+  <ellipse cx="340" cy="470" rx="50" ry="13" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <rect x="290" y="470" width="100" height="22" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <ellipse cx="340" cy="492" rx="50" ry="13" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="340" y="483" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">Audit log</text>
+  <text x="340" y="496" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">source → target</text>
+</svg>
+</figure>
 
 > **Note:** Priority is the only knob that controls rule order — higher numbers win. Tie-breaking falls back to insertion order, so write your most-specific patterns at high priorities and your `.*` catch-all at `priority: 0`.
 

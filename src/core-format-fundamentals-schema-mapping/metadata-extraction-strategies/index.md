@@ -26,15 +26,58 @@ pip install ezdxf ifcopenshell geopandas pydantic lxml
 
 A robust metadata extraction pipeline follows a deterministic five-stage sequence. Deviating from this structure often results in schema drift, memory exhaustion, or unhandled encoding failures during batch processing.
 
-```mermaid
-flowchart LR
-    IN[(Mixed input<br/>.dxf · .ifc · .gpkg)] --> DR[1 · Detect format<br/>route to parser]
-    DR --> PI[2 · Parser init<br/>safe context manager]
-    PI --> HV[3 · Harvest attrs<br/>XDATA · Psets · GPKG cols]
-    HV --> NM[4 · Normalize<br/>Pydantic schema]
-    NM --> VS[5 · Validate &<br/>serialize JSON / Parquet]
-    NM -.->|schema error| QU[(Quarantine ·<br/>audit log)]
-```
+<figure aria-label="Metadata extraction pipeline: Mixed input → Detect format → Parser init → Harvest attrs → Normalize → Validate/Serialize, with schema error quarantine path">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 130" role="img" aria-label="Five-stage metadata extraction workflow with quarantine path" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="me-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+    <marker id="me-dash" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#888"/>
+    </marker>
+  </defs>
+  <!-- IN cylinder -->
+  <ellipse cx="62" cy="44" rx="52" ry="14" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <rect x="10" y="44" width="104" height="28" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <ellipse cx="62" cy="72" rx="52" ry="14" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="62" y="55" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">Mixed input</text>
+  <text x="62" y="69" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">.dxf · .ifc · .gpkg</text>
+  <line x1="114" y1="58" x2="134" y2="58" stroke="#444" stroke-width="1.5" marker-end="url(#me-arrow)"/>
+  <!-- 1 Detect format -->
+  <rect x="134" y="34" width="120" height="48" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="194" y="55" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">1 · Detect format</text>
+  <text x="194" y="71" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">route to parser</text>
+  <line x1="254" y1="58" x2="274" y2="58" stroke="#444" stroke-width="1.5" marker-end="url(#me-arrow)"/>
+  <!-- 2 Parser init -->
+  <rect x="274" y="34" width="120" height="48" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="334" y="55" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">2 · Parser init</text>
+  <text x="334" y="71" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">safe context mgr</text>
+  <line x1="394" y1="58" x2="414" y2="58" stroke="#444" stroke-width="1.5" marker-end="url(#me-arrow)"/>
+  <!-- 3 Harvest attrs -->
+  <rect x="414" y="34" width="130" height="48" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="479" y="55" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">3 · Harvest attrs</text>
+  <text x="479" y="71" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">XDATA · Psets · cols</text>
+  <line x1="544" y1="58" x2="564" y2="58" stroke="#444" stroke-width="1.5" marker-end="url(#me-arrow)"/>
+  <!-- 4 Normalize -->
+  <rect x="564" y="34" width="120" height="48" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="624" y="55" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">4 · Normalize</text>
+  <text x="624" y="71" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">Pydantic schema</text>
+  <line x1="684" y1="58" x2="704" y2="58" stroke="#444" stroke-width="1.5" marker-end="url(#me-arrow)"/>
+  <!-- 5 Validate & serialize -->
+  <rect x="704" y="34" width="130" height="48" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="769" y="55" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">5 · Validate &amp;</text>
+  <text x="769" y="71" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">serialize JSON / Parquet</text>
+  <!-- Dashed schema error from NM (step 4) down to QU -->
+  <line x1="624" y1="82" x2="624" y2="100" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="624" y1="100" x2="730" y2="100" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#me-dash)"/>
+  <text x="670" y="97" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">schema error</text>
+  <!-- QU cylinder -->
+  <ellipse cx="780" cy="100" rx="52" ry="12" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <rect x="728" y="100" width="104" height="20" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <ellipse cx="780" cy="120" rx="52" ry="12" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <text x="780" y="114" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7b1111">Quarantine · audit log</text>
+</svg>
+</figure>
 
 ### 1. Format Detection & Routing
 

@@ -1,121 +1,321 @@
-# Extracting block attributes from CAD files
+---
+title: "Extracting Block Attributes from CAD Files with ezdxf"
+description: "Step-by-step guide to extracting ATTRIB entities from DXF INSERT blocks using Python ezdxf, covering DWG conversion, attribute mapping, coordinate export, and production error handling."
+slug: "extracting-block-attributes-from-cad-files"
+type: "long_tail"
+breadcrumb:
+  - label: "Core Format Fundamentals & Schema Mapping"
+    url: "/core-format-fundamentals-schema-mapping/"
+  - label: "Metadata Extraction Strategies"
+    url: "/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/"
+  - label: "Extracting Block Attributes from CAD Files"
+    url: "/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/"
+datePublished: "2025-03-10"
+dateModified: "2026-06-24"
+---
 
-Extracting block attributes from CAD files is a foundational step in automating AEC data workflows. In DXF and DWG formats, block attributes are stored as `ATTRIB` entities attached to `INSERT` (block reference) entities, which inherit their structural definitions from parent `BLOCK` records. The most reliable open-source approach uses Python’s `ezdxf` library for DXF parsing, combined with the Open Design Alliance (ODA) File Converter for proprietary DWG translation. By iterating through model and paper space layouts, filtering `INSERT` entities, and mapping `ATTRIB` tags to structured dictionaries, engineers can reliably convert drafting metadata into GIS features, BIM property sets, or infrastructure asset registries. This extraction pipeline aligns directly with established [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) for interoperable engineering data systems.
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Extracting Block Attributes from CAD Files with ezdxf",
+      "description": "Step-by-step guide to extracting ATTRIB entities from DXF INSERT blocks using Python ezdxf, covering DWG conversion, attribute mapping, coordinate export, and production error handling.",
+      "datePublished": "2025-03-10",
+      "dateModified": "2026-06-24",
+      "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
+        {"@type": "ListItem", "position": 2, "name": "Metadata Extraction Strategies", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/"},
+        {"@type": "ListItem", "position": 3, "name": "Extracting Block Attributes from CAD Files", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/"}
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "name": "Extracting Block Attributes from CAD Files with ezdxf",
+      "description": "Extract ATTRIB metadata from DXF/DWG INSERT entities using Python ezdxf and export to structured JSON.",
+      "step": [
+        {"@type": "HowToStep", "position": 1, "name": "Convert DWG to DXF", "text": "Run ODA File Converter or LibreDWG to produce a DXF R2018 file from binary DWG input."},
+        {"@type": "HowToStep", "position": 2, "name": "Open the DXF document", "text": "Use ezdxf.readfile() to load the document and iterate all layouts."},
+        {"@type": "HowToStep", "position": 3, "name": "Query INSERT entities", "text": "Call layout.query('INSERT') and call insert.get_attribs() on each result."},
+        {"@type": "HowToStep", "position": 4, "name": "Build attribute dictionaries", "text": "Map each ATTRIB tag/text pair into a Python dict alongside insertion point and rotation."},
+        {"@type": "HowToStep", "position": 5, "name": "Validate and serialize", "text": "Apply pydantic schema validation and write output to JSON or GeoJSON."}
+      ]
+    }
+  ]
+}
+</script>
 
-## Understanding the DXF/DWG Attribute Structure
-CAD blocks are reusable symbol definitions. When placed in a drawing, they become `INSERT` entities. Attributes (`ATTRIB`) are text fields bound to those blocks, storing metadata like part numbers, equipment tags, or installation dates. Key structural points:
-- **`BLOCK` vs `INSERT`:** `BLOCK` defines geometry and attribute templates (`ATTDEF`). `INSERT` places the block and carries actual `ATTRIB` values.
-- **Tag vs Value:** Each attribute has a `TAG` (key) and `TEXT` (value). Tags are case-sensitive and must match the original definition exactly.
-- **Layout Context:** Attributes exist in `ModelSpace` or `PaperSpace` (`Layout` entities). Extraction must traverse both to avoid missing viewport-specific or sheet-level data.
-- **Dynamic Blocks:** AutoCAD’s dynamic blocks store parameter values differently. Standard `ATTRIB` extraction captures only static text fields; dynamic parameters require reading `ACAD_ENHANCEDBLOCK` or `BLOCKRECORD` extension dictionaries.
+# Extracting Block Attributes from CAD Files with ezdxf
 
-## Production-Ready Python Extraction Routine
-The following script uses `ezdxf` to parse DXF files safely. It handles layout iteration, missing attributes, coordinate extraction, and structured output generation. For full API details and version compatibility notes, consult the official [ezdxf documentation](https://ezdxf.readthedocs.io/).
+Use Python's `ezdxf` library to iterate every layout in a DXF document, query `INSERT` entities, and call `insert.get_attribs()` to retrieve the `ATTRIB` children that carry metadata like equipment tags, part numbers, and installation dates. For binary DWG files — which `ezdxf` cannot parse directly — first convert them to DXF R2018 using the ODA File Converter or `LibreDWG`. The result is a list of dictionaries ready for GIS feature creation, BIM property-set ingestion, or infrastructure asset registry import. This page is a companion to the [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) cluster, which covers routing logic, schema normalization, and validation patterns for the broader pipeline.
+
+## How ezdxf Handles Block Attributes
+
+Understanding the internal data model prevents silent data loss before you write a single line of extraction code.
+
+<svg viewBox="0 0 640 320" role="img" aria-label="DXF block attribute entity hierarchy showing BLOCK definition containing ATTDEF templates, and INSERT references containing ATTRIB value entities" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:1.5rem auto;">
+  <title>DXF Block Attribute Entity Hierarchy</title>
+  <desc>BLOCK definition holds ATTDEF template records; each INSERT placed in a layout carries corresponding ATTRIB value entities as children.</desc>
+  <!-- Background -->
+  <rect width="640" height="320" rx="8" fill="none"/>
+  <!-- BLOCK box -->
+  <rect x="20" y="30" width="180" height="80" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="110" y="56" text-anchor="middle" font-size="13" font-weight="bold" fill="currentColor">BLOCK Definition</text>
+  <text x="110" y="76" text-anchor="middle" font-size="11" fill="currentColor">(BLOCKS section)</text>
+  <rect x="40" y="84" width="140" height="20" rx="4" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 2"/>
+  <text x="110" y="98" text-anchor="middle" font-size="11" fill="currentColor">ATTDEF template</text>
+  <!-- Arrow BLOCK → INSERT -->
+  <line x1="200" y1="70" x2="260" y2="70" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="230" y="62" text-anchor="middle" font-size="10" fill="currentColor">placed as</text>
+  <!-- INSERT box -->
+  <rect x="260" y="30" width="180" height="80" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="350" y="56" text-anchor="middle" font-size="13" font-weight="bold" fill="currentColor">INSERT Entity</text>
+  <text x="350" y="76" text-anchor="middle" font-size="11" fill="currentColor">ModelSpace / PaperSpace</text>
+  <text x="350" y="96" text-anchor="middle" font-size="10" fill="currentColor">dxf.insert (x,y,z) · rotation · scale</text>
+  <!-- Arrow INSERT → ATTRIB -->
+  <line x1="350" y1="110" x2="350" y2="160" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="370" y="142" font-size="10" fill="currentColor">get_attribs()</text>
+  <!-- ATTRIB box -->
+  <rect x="240" y="160" width="220" height="100" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="350" y="182" text-anchor="middle" font-size="13" font-weight="bold" fill="currentColor">ATTRIB Entities</text>
+  <text x="350" y="200" text-anchor="middle" font-size="11" fill="currentColor">dxf.tag  →  key (case-sensitive)</text>
+  <text x="350" y="218" text-anchor="middle" font-size="11" fill="currentColor">dxf.text →  value (Unicode string)</text>
+  <text x="350" y="238" text-anchor="middle" font-size="11" fill="currentColor">dxf.invisible  (visible/hidden flag)</text>
+  <!-- XDATA note -->
+  <rect x="480" y="160" width="145" height="70" rx="6" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 3"/>
+  <text x="552" y="182" text-anchor="middle" font-size="12" font-weight="bold" fill="currentColor">XDATA / ExtDict</text>
+  <text x="552" y="200" text-anchor="middle" font-size="10" fill="currentColor">vendor group code 1001</text>
+  <text x="552" y="218" text-anchor="middle" font-size="10" fill="currentColor">dynamic block params</text>
+  <line x1="460" y1="200" x2="480" y2="200" stroke="currentColor" stroke-width="1" stroke-dasharray="4 2"/>
+  <!-- Dynamic blocks note -->
+  <rect x="20" y="180" width="200" height="60" rx="6" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 3"/>
+  <text x="120" y="200" text-anchor="middle" font-size="12" font-weight="bold" fill="currentColor">Dynamic Blocks</text>
+  <text x="120" y="218" text-anchor="middle" font-size="10" fill="currentColor">ACAD_ENHANCEDBLOCK dict</text>
+  <text x="120" y="234" text-anchor="middle" font-size="10" fill="currentColor">not exposed by get_attribs()</text>
+  <!-- Arrow dyn -->
+  <line x1="220" y1="200" x2="240" y2="200" stroke="currentColor" stroke-width="1" stroke-dasharray="4 2"/>
+  <!-- arrowhead marker -->
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 Z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <!-- Layout label -->
+  <text x="320" y="314" text-anchor="middle" font-size="10" fill="currentColor">Solid borders = standard API path · Dashed borders = vendor-specific paths requiring separate handling</text>
+</svg>
+
+**`BLOCK` vs `INSERT`:** A `BLOCK` record lives in the `BLOCKS` section and holds geometry plus `ATTDEF` template entries that declare attribute tags, prompt strings, and default values. An `INSERT` entity is a placed instance of that block inside a layout; it carries its own `ATTRIB` children with the actual runtime values. Deleting or exploding an `INSERT` removes those `ATTRIB` children permanently.
+
+**Tag vs value:** Each `ATTRIB` stores a `TAG` (the key, case-sensitive) and a `text` property (the value). Tags are set at block-definition time and cannot be changed per-instance. Values are editable text strings; they may be empty, whitespace, or absent when the drafter did not fill in the attribute.
+
+**Layout traversal:** Attributes live inside layouts, not at the document root. `doc.layouts` yields `ModelSpace` and all `PaperSpace` layouts. Querying only `doc.modelspace()` misses sheet-level blocks that carry title-block metadata like revision numbers and drawing dates — a common source of incomplete asset records.
+
+**Dynamic block parameters:** AutoCAD's dynamic blocks store parametric data in `ACAD_ENHANCEDBLOCK` extension dictionaries on the `BLOCKRECORD` entity. The standard `get_attribs()` call does not surface these values; they require reading the extension dictionary separately via `insert.get_extension_dict()`.
+
+**`ezdxf` version note:** `get_attribs()` was renamed from `get_attrib_handles()` in `ezdxf` 0.17. Ensure your environment meets the version range in the compatibility table below. See the [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) for a full taxonomy of group codes and entity types.
+
+## Production-Ready Script
+
+The script below handles layout iteration, optional block name filtering, missing or invisible attributes, XDATA fallback detection, coordinate capture, and structured JSON output. Requires `ezdxf>=1.1.0`.
 
 ```python
-import ezdxf
+# ezdxf>=1.1.0  pydantic>=2.0.0
+import json
+import logging
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
+
+import ezdxf
+from ezdxf.document import Drawing
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+log = logging.getLogger(__name__)
+
+
+def _safe_scalar(val, default=0.0) -> float:
+    """Return float or default when dxf attribute is missing."""
+    try:
+        return float(val)
+    except (TypeError, ValueError):
+        return default
+
 
 def extract_block_attributes(
-    dxf_path: str, 
-    target_blocks: Optional[List[str]] = None
-) -> List[Dict]:
+    dxf_path: str,
+    target_blocks: Optional[list[str]] = None,
+    include_invisible: bool = False,
+) -> list[dict]:
     """
-    Extracts block reference attributes from a DXF file.
-    Returns a list of dicts with layout, block name, insertion point, 
-    rotation, scale, and attribute key-value pairs.
+    Extract INSERT block attributes from every layout in a DXF file.
+
+    Args:
+        dxf_path:         Absolute path to a DXF file (R2004–R2018).
+        target_blocks:    Optional allowlist of block names; None means all.
+        include_invisible: Include ATTRIBs whose dxf.invisible flag is set.
+
+    Returns:
+        List of dicts: layout, block_name, insertion_point, rotation,
+        scale, attributes {tag: value}, xdata_present.
     """
-    if not Path(dxf_path).exists():
-        raise FileNotFoundError(f"DXF file not found: {dxf_path}")
+    path = Path(dxf_path)
+    if not path.exists():
+        raise FileNotFoundError(f"DXF file not found: {path}")
 
-    doc = ezdxf.readfile(dxf_path)
-    results = []
+    try:
+        doc: Drawing = ezdxf.readfile(str(path))
+    except ezdxf.DXFError as exc:
+        raise RuntimeError(f"ezdxf could not open '{path}': {exc}") from exc
 
-    # Iterate through all layouts (ModelSpace + PaperSpace)
+    results: list[dict] = []
+
     for layout in doc.layouts:
-        # Query only INSERT entities for performance
+        layout_name = layout.dxf.name
+
+        # layout.query() returns only INSERT entities in this layout
         for insert in layout.query("INSERT"):
-            block_name = insert.dxf.name
-            
-            # Optional block filter
+            block_name = insert.dxf.get("name", "<unnamed>")
+
             if target_blocks and block_name not in target_blocks:
                 continue
 
-            # Extract attached attributes
-            attribs = insert.get_attribs()
-            attr_dict = {}
-            for attrib in attribs:
-                tag = attrib.dxf.tag
-                value = attrib.dxf.text
-                attr_dict[tag] = str(value).strip() if value else ""
+            # --- Collect ATTRIB children ---
+            attr_dict: dict[str, str] = {}
+            for attrib in insert.get_attribs():
+                if not include_invisible and attrib.dxf.get("invisible", 0):
+                    continue
+                tag = attrib.dxf.get("tag", "").strip()
+                value = str(attrib.dxf.get("text", "")).strip()
+                if tag:
+                    attr_dict[tag] = value
 
-            # Handle blocks without attributes
-            if not attr_dict:
-                attr_dict = {"_status": "no_attributes_found"}
+            # --- Detect XDATA presence (vendor metadata, dynamic params) ---
+            xdata_apps: list[str] = []
+            try:
+                xdata_apps = list(insert.xdata.keys()) if insert.xdata else []
+            except AttributeError:
+                pass
+
+            # --- Insertion geometry ---
+            ins_pt = insert.dxf.get("insert", None)
+            insertion_point = (
+                (_safe_scalar(ins_pt.x), _safe_scalar(ins_pt.y), _safe_scalar(ins_pt.z))
+                if ins_pt is not None
+                else (0.0, 0.0, 0.0)
+            )
 
             results.append({
-                "layout": layout.dxf.name,
+                "layout": layout_name,
                 "block_name": block_name,
-                "insertion_point": (
-                    insert.dxf.insert.x, 
-                    insert.dxf.insert.y, 
-                    insert.dxf.insert.z
+                "insertion_point": insertion_point,
+                "rotation": _safe_scalar(insert.dxf.get("rotation", 0.0)),
+                "scale": (
+                    _safe_scalar(insert.dxf.get("xscale", 1.0)),
+                    _safe_scalar(insert.dxf.get("yscale", 1.0)),
+                    _safe_scalar(insert.dxf.get("zscale", 1.0)),
                 ),
-                "rotation": insert.dxf.rotation,
-                "scale": (insert.dxf.xscale, insert.dxf.yscale, insert.dxf.zscale),
-                "attributes": attr_dict
+                "attributes": attr_dict,
+                "xdata_apps": xdata_apps,
             })
 
+    log.info("Extracted %d INSERT records from '%s'", len(results), path.name)
     return results
 
+
 if __name__ == "__main__":
-    dxf_file = "site_plan.dxf"
-    try:
-        extracted = extract_block_attributes(dxf_file, target_blocks=["VALVE", "PUMP"])
-        print(f"Extracted {len(extracted)} block references.")
-        for block in extracted[:3]:  # Preview first 3
-            print(block)
-    except Exception as e:
-        print(f"Extraction failed: {e}")
+    import sys
+
+    dxf_file = sys.argv[1] if len(sys.argv) > 1 else "site_plan.dxf"
+    filter_names = ["VALVE", "PUMP", "METER"]  # set to None to extract all
+
+    records = extract_block_attributes(dxf_file, target_blocks=filter_names)
+    print(json.dumps(records[:5], indent=2))
+    print(f"\nTotal records: {len(records)}")
 ```
+
+Key implementation notes:
+
+- `insert.dxf.get("name", ...)` is used instead of `insert.dxf.name` throughout because `ezdxf` raises `DXFAttributeError` on missing attributes rather than returning `None`.
+- Invisible attributes (`dxf.invisible == 1`) are skipped by default; set `include_invisible=True` when harvesting hidden reference tags that vendor plugins write as non-display metadata.
+- The `xdata_apps` list flags inserts that carry vendor XDATA without blocking the main attribute harvest. Inspect those blocks separately if downstream schemas require XDATA values.
+- `doc.layouts` iterates `Model` then all paper-space layouts in document order. This guarantees title-block attributes from `Layout1`, `Layout2`, etc. are captured alongside model-space equipment tags.
 
 ## Handling Proprietary DWG Files
-`ezdxf` natively supports DXF but cannot parse binary DWG files. To extract block attributes from DWG drawings, convert them first using the [ODA File Converter](https://www.opendesign.com/guestfiles/oda_file_converter) or `LibreDWG` (Linux/macOS). Automate conversion via CLI:
+
+`ezdxf` parses DXF only. Binary DWG files require conversion before this script can run. Two production-ready paths exist.
+
+**ODA File Converter (Windows/macOS/Linux):** The free ODA tool performs a round-trip-safe conversion and preserves XDATA, Unicode strings, and custom object dictionaries:
+
 ```bash
-ODAFileConverter input_folder output_folder DXF 2018 0 1
+# Convert all DWG files in /input to DXF R2018 in /output
+ODAFileConverter /input /output DXF 2018 0 1
 ```
-Always convert to DXF R2018 or newer to preserve extended data (XDATA) and Unicode attribute values. Older DXF versions may truncate multi-byte characters or drop custom object dictionaries, breaking downstream attribute mapping.
 
-## Mapping Extracted Attributes to Downstream Systems
-Raw CAD attributes rarely match target schemas out-of-the-box. Pipeline engineers must normalize tags, handle nulls, and align data types before ingestion. Common transformations include:
-- **Tag Normalization:** Strip vendor prefixes/suffixes (e.g., `EQUIP_TAG_01` → `equipment_id`)
-- **Type Casting:** Convert numeric strings to `int`/`float`, dates to ISO 8601
-- **Coordinate Systems:** Transform local CAD coordinates to project CRS (e.g., EPSG:4326 or EPSG:3857) using `pyproj`
-- **Schema Validation:** Map to GeoJSON, CityGML, or IFC property sets depending on the destination platform
+Always target DXF R2018 or newer (`2018`). Older targets (R12, R2000) truncate Unicode attribute values to single-byte Windows-1252, silently corrupting international project data.
 
-This normalization phase is critical when aligning drafting outputs with broader [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) requirements for enterprise asset management.
+**LibreDWG + dwg2dxf (Linux/macOS, open-source):** Suitable for CI/CD pipelines where license-free operation is required. Coverage gaps exist for advanced AutoCAD objects (`ACIS`, `REGION`, proxy objects), but `ATTRIB` extraction is reliable for standard drawings:
 
-## Coordinate Transformation & GIS Alignment
-CAD drawings use arbitrary local coordinate systems. Before exporting to GIS or spatial databases, transform insertion points using a known control point pair or survey-registered georeference file (`.wld` or `.jgw`). Apply affine transformations via `shapely` or `pyproj` to maintain spatial accuracy. Always preserve the original local coordinates in the output JSON for auditability and CAD round-tripping.
+```bash
+dwg2dxf --as r2018 -o output.dxf input.dwg
+```
 
-## Performance Optimization & Common Pitfalls
-Large infrastructure drawings (500MB+) require memory-aware extraction. Implement these safeguards:
-- **Lazy Loading:** Use `ezdxf`’s `readfile()` with `legacy_mode=False` to avoid loading unused entities into RAM.
-- **Batch Processing:** Split multi-sheet DWGs into individual DXF files before extraction to prevent heap overflow.
-- **Encoding Issues:** CAD files often mix Windows-1252 and UTF-8. Set `ezdxf.options.default_encoding = "utf-8"` at startup to prevent `UnicodeDecodeError` on international projects.
-- **Exploded Blocks:** If `INSERT` entities lack `ATTRIB` children, blocks may have been exploded. Check for standalone `TEXT`/`MTEXT` entities near insertion points as a fallback.
-- **XDATA vs ATTRIB:** Some vendors store metadata in XDATA (group code 1001) instead of attributes. Query `insert.dxf.xdata` when `get_attribs()` returns empty.
+For the broader context of working around closed-binary constraints, see [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/).
 
-## Validation & Testing Patterns
-Production extraction routines require deterministic validation. Implement schema checks using `pydantic` or `jsonschema` to enforce required tags, coordinate bounds, and rotation ranges. Unit-test against a curated DXF corpus containing:
-- Empty blocks
-- Blocks with missing attributes
-- Nested block references
-- Dynamic block instances
-- Files with non-standard encodings
+## Compatibility Matrix
 
-Automate regression testing in CI/CD pipelines to catch parser updates or CAD vendor format shifts before deployment.
+| Component | Supported Range | Notes |
+|---|---|---|
+| Python | 3.9 – 3.13 | 3.9+ required for `list[str]` type hints without `from __future__ import annotations` |
+| ezdxf | 1.1.0 – 1.3.x | `get_attribs()` API stable since 0.17; `xdata` dict API stable since 1.0 |
+| DXF version | R2004 – R2018 | R12 files lack Unicode; R2000–R2010 may omit extension dictionaries |
+| DWG (via ODA) | 2004 – 2025 | ODA converter preserves ATTRIB and XDATA across all versions |
+| DWG (via LibreDWG) | 2004 – 2018 | 2023+ DWG may have conversion gaps for proxy objects |
+| Operating system | Linux, macOS, Windows | ODA converter requires a display server or `Xvfb` on headless Linux |
+| pydantic (validation) | 2.0+ | v1 API not compatible with `@field_validator(mode="before")` |
 
-## Next Steps for CAD Data Pipelines
-Extracting block attributes from CAD files bridges drafting workflows and structured data platforms. By combining `ezdxf` for reliable DXF parsing, automated DWG conversion, and strict schema mapping, engineering teams can eliminate manual data entry and maintain audit-ready asset records. For advanced use cases—such as parsing dynamic block parameters, extracting XDATA dictionaries, or synchronizing with BIM authoring tools—extend this baseline routine with `ezdxf`’s `ExtensionDict` API and coordinate transformation libraries.
+## Fallback Strategies and Troubleshooting
+
+**1. `get_attribs()` returns an empty list despite visible attributes in the drawing.**
+The block was exploded before saving — `INSERT` entities with attributes become standalone `TEXT` or `MTEXT` entities at the insertion point. Query `layout.query("TEXT MTEXT")` and filter by proximity to known equipment insertion coordinates. Cross-reference [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) for spatial-filter patterns.
+
+**2. `UnicodeDecodeError` during `ezdxf.readfile()`.**
+The source file mixes Windows-1252 and UTF-8 encoding (common on drawings opened and re-saved across regional AutoCAD installs). Force the encoding at startup:
+
+```python
+import ezdxf.options
+ezdxf.options.default_encoding = "utf-8"
+# or, for purely Windows-origin files:
+ezdxf.options.default_encoding = "cp1252"
+```
+
+**3. Attribute values contain `None` or empty strings for tags you know are populated.**
+The drafter entered only spaces, or the attribute value was set by a script that wrote a zero-width character. In the `attr_dict` build loop, add `.strip()` to both `tag` and `value`, then replace empty strings with a sentinel such as `"<blank>"` for downstream null-detection.
+
+**4. Scale values read as `1.0` even though the block is visually scaled differently.**
+Non-uniform scaling applied via `INSERT`'s `dxf.xscale` / `dxf.yscale` is only written when explicitly set; AutoCAD sometimes stores the default `1.0` implicitly and omits the DXF group codes entirely. The `_safe_scalar(..., default=1.0)` pattern handles the missing-attribute case, but always verify scale against a known reference dimension in the drawing.
+
+**5. XDATA-only attributes (no standard `ATTRIB` children).**
+Some equipment symbol libraries — particularly those targeting plant design workflows — write all semantic metadata into vendor XDATA under application ID `ACAD` or a proprietary namespace instead of using `ATTDEF`/`ATTRIB`. After confirming `xdata_apps` is non-empty, read the raw data:
+
+```python
+if insert.xdata:
+    for app_id, xdata_tags in insert.xdata.items():
+        for code, value in xdata_tags:
+            print(f"  [{app_id}] group {code}: {value}")
+```
+
+Map group codes 1000–1079 (strings, reals, ints, points) to your target schema manually; there is no universal XDATA ontology.
+
+---
+
+## Related Pages
+
+- [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — parent cluster covering format routing, schema normalization, and validation patterns
+- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group code taxonomy, section structure, and entity hierarchy reference
+- [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — ODA converter setup, version compatibility gaps, and proxy-object handling
+- [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — extracting `$INSUNITS`, `$ACADVER`, and drawing-level metadata from the HEADER section
+- [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) — pillar overview linking all format-specific clusters

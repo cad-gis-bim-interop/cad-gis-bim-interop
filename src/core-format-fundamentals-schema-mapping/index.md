@@ -12,30 +12,68 @@ This guide outlines the structural realities of industry-standard formats, provi
 
 CAD, GIS, and BIM formats were engineered for distinct operational paradigms. Recognizing these paradigms is the first step in designing reliable Python translation layers. Each ecosystem optimizes for different data priorities: geometric fidelity, spatial topology, or semantic richness. Bridging them requires explicit schema mapping rather than naive file conversion.
 
-```mermaid
-flowchart TB
-    subgraph CAD["CAD — entity-centric drafting"]
-        C1[DXF / DWG]
-        C2[Discrete primitives<br/>Lines · Arcs · Blocks]
-        C3[Local coordinate<br/>system]
-        C1 --> C2 --> C3
-    end
-    subgraph GIS["GIS — spatial-relational"]
-        G1[Shapefile · GPKG · GeoJSON]
-        G2[Features + attribute<br/>table]
-        G3[Explicit CRS<br/>topology rules]
-        G1 --> G2 --> G3
-    end
-    subgraph BIM["BIM — object-oriented semantic"]
-        B1[IFC · EXPRESS schema]
-        B2[Typed objects with<br/>relations & Psets]
-        B3[Spatial containment<br/>hierarchy]
-        B1 --> B2 --> B3
-    end
-    C3 -.->|schema map| BR[("Python normalization<br/>layer")]
-    G3 -.->|schema map| BR
-    B3 -.->|schema map| BR
-```
+<figure aria-label="Three AEC/GIS paradigms — CAD (entity-centric), GIS (spatial-relational), BIM (object-oriented semantic) — converging via schema map into a Python normalization layer">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 280" role="img" aria-label="CAD, GIS, and BIM paradigms feeding into a Python normalization layer" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="cf-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+    <marker id="cf-dash" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#888"/>
+    </marker>
+  </defs>
+  <!-- CAD group -->
+  <rect x="5" y="10" width="220" height="200" rx="8" fill="#eef3fc" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="115" y="28" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1e3a5f">CAD — entity-centric drafting</text>
+  <rect x="25" y="38" width="180" height="36" rx="5" fill="#d0e0f7" stroke="#1e3a5f" stroke-width="1"/>
+  <text x="115" y="61" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">DXF / DWG</text>
+  <line x1="115" y1="74" x2="115" y2="88" stroke="#444" stroke-width="1.5" marker-end="url(#cf-arrow)"/>
+  <rect x="25" y="88" width="180" height="40" rx="5" fill="#d0e0f7" stroke="#1e3a5f" stroke-width="1"/>
+  <text x="115" y="103" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Discrete primitives</text>
+  <text x="115" y="119" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Lines · Arcs · Blocks</text>
+  <line x1="115" y1="128" x2="115" y2="142" stroke="#444" stroke-width="1.5" marker-end="url(#cf-arrow)"/>
+  <rect x="25" y="142" width="180" height="40" rx="5" fill="#d0e0f7" stroke="#1e3a5f" stroke-width="1"/>
+  <text x="115" y="157" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Local coordinate</text>
+  <text x="115" y="173" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">system</text>
+  <!-- GIS group -->
+  <rect x="275" y="10" width="220" height="200" rx="8" fill="#eef7f5" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="385" y="28" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#0d5c55">GIS — spatial-relational</text>
+  <rect x="295" y="38" width="180" height="36" rx="5" fill="#c5ede8" stroke="#0d9488" stroke-width="1"/>
+  <text x="385" y="61" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">Shapefile · GPKG · GeoJSON</text>
+  <line x1="385" y1="74" x2="385" y2="88" stroke="#444" stroke-width="1.5" marker-end="url(#cf-arrow)"/>
+  <rect x="295" y="88" width="180" height="40" rx="5" fill="#c5ede8" stroke="#0d9488" stroke-width="1"/>
+  <text x="385" y="103" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">Features + attribute</text>
+  <text x="385" y="119" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">table</text>
+  <line x1="385" y1="128" x2="385" y2="142" stroke="#444" stroke-width="1.5" marker-end="url(#cf-arrow)"/>
+  <rect x="295" y="142" width="180" height="40" rx="5" fill="#c5ede8" stroke="#0d9488" stroke-width="1"/>
+  <text x="385" y="157" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">Explicit CRS</text>
+  <text x="385" y="173" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">topology rules</text>
+  <!-- BIM group -->
+  <rect x="545" y="10" width="225" height="200" rx="8" fill="#fdf3e7" stroke="#c2410c" stroke-width="1.5"/>
+  <text x="657" y="28" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#7c2d12">BIM — object-oriented semantic</text>
+  <rect x="565" y="38" width="185" height="36" rx="5" fill="#fde8cc" stroke="#c2410c" stroke-width="1"/>
+  <text x="657" y="61" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c2d12">IFC · EXPRESS schema</text>
+  <line x1="657" y1="74" x2="657" y2="88" stroke="#444" stroke-width="1.5" marker-end="url(#cf-arrow)"/>
+  <rect x="565" y="88" width="185" height="40" rx="5" fill="#fde8cc" stroke="#c2410c" stroke-width="1"/>
+  <text x="657" y="103" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c2d12">Typed objects with</text>
+  <text x="657" y="119" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c2d12">relations &amp; Psets</text>
+  <line x1="657" y1="128" x2="657" y2="142" stroke="#444" stroke-width="1.5" marker-end="url(#cf-arrow)"/>
+  <rect x="565" y="142" width="185" height="40" rx="5" fill="#fde8cc" stroke="#c2410c" stroke-width="1"/>
+  <text x="657" y="157" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c2d12">Spatial containment</text>
+  <text x="657" y="173" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c2d12">hierarchy</text>
+  <!-- Central node -->
+  <ellipse cx="385" cy="255" rx="120" ry="20" fill="#fffde7" stroke="#b45309" stroke-width="1.5"/>
+  <text x="385" y="251" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">Python normalization</text>
+  <text x="385" y="265" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">layer</text>
+  <!-- Dashed schema map lines from C3, G3, B3 -->
+  <line x1="115" y1="210" x2="265" y2="252" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#cf-dash)"/>
+  <text x="170" y="238" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">schema map</text>
+  <line x1="385" y1="210" x2="385" y2="234" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#cf-dash)"/>
+  <text x="415" y="226" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">schema map</text>
+  <line x1="657" y1="210" x2="506" y2="252" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#cf-dash)"/>
+  <text x="600" y="238" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">schema map</text>
+</svg>
+</figure>
 
 ### CAD: Entity-Centric Drafting
 

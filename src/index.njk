@@ -47,9 +47,79 @@ eleventyNavigation:
   </div>
 </section>
 
-<section class="container" style="padding: var(--s-6) 0 var(--s-4);">
+{# ===== Start here / featured pages ===== #}
+<section class="container" style="padding: var(--s-5) 0 var(--s-6);">
+  <h2 style="margin-bottom: var(--s-5);">Start here</h2>
+  <div class="grid grid--cards">
+
+    <article class="card">
+      <span class="card__icon cta__icon--primary" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+        </svg>
+      </span>
+      <h3 class="card__title"><a href="/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/">How to Parse DXF Headers with Python</a></h3>
+      <p>Use ezdxf's <code>doc.header</code> interface to read $INSUNITS, $MEASUREMENT, and custom variables from any DXF version — with worked examples.</p>
+    </article>
+
+    <article class="card">
+      <span class="card__icon cta__icon--accent" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+        </svg>
+      </span>
+      <h3 class="card__title"><a href="/python-parsing-geometry-extraction/ezdxf-deep-dive/">ezdxf Deep Dive</a></h3>
+      <p>Production-grade DXF parsing: traverse block definitions, resolve XREFs, and extract vertex arrays without loading entire drawings into memory.</p>
+    </article>
+
+    <article class="card">
+      <span class="card__icon cta__icon--highlight" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+        </svg>
+      </span>
+      <h3 class="card__title"><a href="/coordinate-transformation-spatial-alignment/crs-normalization-workflows/">CRS Normalization Workflows</a></h3>
+      <p>Convert CAD local coordinates to EPSG:4326 and other CRS with pyproj — covering datum shifts, unit conversion, and grid shift files.</p>
+    </article>
+
+    <article class="card">
+      <span class="card__icon cta__icon--primary" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </span>
+      <h3 class="card__title"><a href="/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/">IFC4x3 Schema Mapping</a></h3>
+      <p>Map IFC property sets to GeoJSON attributes and other target schemas — covering IfcAlignment, IfcBridge, and infrastructure-specific entities.</p>
+    </article>
+
+    <article class="card">
+      <span class="card__icon cta__icon--accent" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+        </svg>
+      </span>
+      <h3 class="card__title"><a href="/python-parsing-geometry-extraction/ifcopenshell-workflow/">IFCOpenShell Workflow</a></h3>
+      <p>Extract IFC wall geometries to Shapely polygons with IFCOpenShell — traversing IfcProduct hierarchies and preserving GUIDs and classification codes.</p>
+    </article>
+
+    <article class="card">
+      <span class="card__icon cta__icon--highlight" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+        </svg>
+      </span>
+      <h3 class="card__title"><a href="/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/">Aligning BIM Models with GIS Survey Data</a></h3>
+      <p>Synchronize scale and rotation between BIM coordinate systems and survey-grade GIS datasets using affine transforms and control points.</p>
+    </article>
+
+  </div>
+</section>
+
+{# ===== Overview copy ===== #}
+<section class="container" style="padding: var(--s-4) 0 var(--s-5);">
   <div class="prose stack-lg" style="margin: 0 auto;">
-    <h2>What this site is</h2>
+    <h2>What this site covers</h2>
     <p>
       CAD, GIS, and BIM ecosystems evolved in isolation: each has its own file structures, coordinate conventions, and geometric representations.
       Python has emerged as the lingua franca for bridging them — but building a pipeline that survives production traffic takes more than reading coordinates.
@@ -57,17 +127,16 @@ eleventyNavigation:
     </p>
     <p>
       This site collects the architectural patterns, library walkthroughs, and extraction strategies needed to build interoperability pipelines that actually scale.
-      Every page is written for engineers and integrators who need to ship — not for browsing tutorials.
-    </p>
-    <p>
+      Every page is written for engineers and integrators who need to ship.
       Focus areas include <strong>DXF/DWG parsing</strong>, <strong>IFC integration</strong>, <strong>coordinate transformation</strong>,
       <strong>attribute mapping</strong>, <strong>batch conversion</strong>, <strong>quality control</strong>, and <strong>automation scripts</strong>.
     </p>
   </div>
 </section>
 
+{# ===== Section cards ===== #}
 <section class="container" style="padding: var(--s-5) 0 var(--s-8);">
-  <h2 style="margin-bottom: var(--s-5);">Browse the content</h2>
+  <h2 style="margin-bottom: var(--s-5);">Browse all sections</h2>
   <div class="grid grid--cards">
     {% for s in sections %}
     {% set kids = collections.allPages | childrenOf(s.url) %}
@@ -93,8 +162,7 @@ eleventyNavigation:
       {% if kids.length > 0 %}
       <ul>
         {% for k in kids %}
-          {% set slug = k.url.split('/').slice(-2, -1)[0] %}
-          <li><a href="{{ k.url }}">{{ slug | titleize }}</a></li>
+          <li><a href="{{ k.url }}">{{ k.data.title or (k.url.split('/').slice(-2, -1)[0] | titleize) }}</a></li>
         {% endfor %}
       </ul>
       {% endif %}

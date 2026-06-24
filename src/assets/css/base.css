@@ -122,6 +122,7 @@ hr {
 }
 
 img, svg, video { max-width: 100%; height: auto; }
+figure { max-width: 100%; overflow-x: hidden; margin: 0; }
 
 ::selection {
   background: var(--color-accent-100);

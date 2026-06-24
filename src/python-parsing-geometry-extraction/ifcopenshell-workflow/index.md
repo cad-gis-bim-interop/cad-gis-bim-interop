@@ -28,16 +28,65 @@ The architecture should separate concerns into distinct modules:
 3. **Transformation Layer**: Applies local placement matrices, scales units, and projects to target CRS.
 4. **Serialization Layer**: Exports to GeoJSON, OBJ, or 3D Tiles for downstream consumption.
 
-```mermaid
-flowchart LR
-    F[(model.ifc)] --> I[Ingestion<br/>schema · units]
-    I --> X[Extraction<br/>ifcopenshell.geom<br/>OpenCASCADE tessellate]
-    X --> P[Per-product<br/>verts · faces · GUID]
-    P --> T[Transformation<br/>local placement<br/>→ CRS via pyproj]
-    T --> S[Serialization<br/>GeoJSON · OBJ · 3D Tiles]
-    I -.->|invalid schema| QE[(Reject ·<br/>log GUID)]
-    X -.->|broken rep| QE
-```
+<figure aria-label="ifcopenshell pipeline: model.ifc → Ingestion → Extraction → Per-product geometry → Transformation → Serialization, with invalid schema and broken rep reject paths">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 140" role="img" aria-label="ifcopenshell workflow pipeline diagram" width="100%" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="ifc-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+    <marker id="ifc-dash" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#888"/>
+    </marker>
+  </defs>
+  <!-- model.ifc cylinder -->
+  <ellipse cx="50" cy="45" rx="42" ry="12" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <rect x="8" y="45" width="84" height="28" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <ellipse cx="50" cy="73" rx="42" ry="12" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="50" y="63" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">model.ifc</text>
+  <line x1="92" y1="59" x2="112" y2="59" stroke="#444" stroke-width="1.5" marker-end="url(#ifc-arrow)"/>
+  <!-- I: Ingestion -->
+  <rect x="112" y="36" width="120" height="46" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="172" y="53" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Ingestion</text>
+  <text x="172" y="69" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">schema · units</text>
+  <line x1="232" y1="59" x2="252" y2="59" stroke="#444" stroke-width="1.5" marker-end="url(#ifc-arrow)"/>
+  <!-- X: Extraction -->
+  <rect x="252" y="30" width="145" height="58" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="324" y="50" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Extraction</text>
+  <text x="324" y="65" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">ifcopenshell.geom</text>
+  <text x="324" y="80" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">OpenCASCADE tessellate</text>
+  <line x1="397" y1="59" x2="417" y2="59" stroke="#444" stroke-width="1.5" marker-end="url(#ifc-arrow)"/>
+  <!-- P: Per-product -->
+  <rect x="417" y="30" width="130" height="58" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="482" y="50" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Per-product</text>
+  <text x="482" y="65" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">verts · faces · GUID</text>
+  <line x1="547" y1="59" x2="567" y2="59" stroke="#444" stroke-width="1.5" marker-end="url(#ifc-arrow)"/>
+  <!-- T: Transformation -->
+  <rect x="567" y="30" width="135" height="58" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="634" y="50" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Transformation</text>
+  <text x="634" y="65" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">local placement</text>
+  <text x="634" y="80" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">→ CRS via pyproj</text>
+  <line x1="702" y1="59" x2="722" y2="59" stroke="#444" stroke-width="1.5" marker-end="url(#ifc-arrow)"/>
+  <!-- S: Serialization -->
+  <rect x="722" y="30" width="110" height="58" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="777" y="50" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">Serialization</text>
+  <text x="777" y="65" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">GeoJSON · OBJ</text>
+  <text x="777" y="80" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">3D Tiles</text>
+  <!-- QE cylinder -->
+  <ellipse cx="295" cy="118" rx="55" ry="12" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <rect x="240" y="118" width="110" height="14" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <ellipse cx="295" cy="132" rx="55" ry="12" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <text x="295" y="129" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7b1111">Reject · log GUID</text>
+  <!-- Dashed from I down to QE -->
+  <line x1="172" y1="82" x2="172" y2="107" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="172" y1="107" x2="240" y2="118" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#ifc-dash)"/>
+  <text x="190" y="112" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">invalid schema</text>
+  <!-- Dashed from X down to QE -->
+  <line x1="324" y1="88" x2="324" y2="106" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="324" y1="106" x2="324" y2="106" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#ifc-dash)"/>
+  <line x1="324" y1="106" x2="350" y2="118" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#ifc-dash)"/>
+  <text x="360" y="112" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">broken rep</text>
+</svg>
+</figure>
 
 When integrating with mixed-format environments, note that the same extraction logic can be adapted for [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) operations or extended with [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) to support legacy AutoCAD formats. Maintaining a unified abstraction layer across these formats prevents vendor lock-in and simplifies CI/CD testing.
 

@@ -27,23 +27,94 @@ DXF is a tagged-text format organized into strictly delineated sections. Each dr
 5. **ENTITIES**: Primary drawable objects (`LINE`, `CIRCLE`, `LWPOLYLINE`, `SPLINE`, `TEXT`, `INSERT`, `HATCH`)
 6. **OBJECTS**: Non-graphical data structures (layouts, dictionaries, `XRECORD`, `MATERIAL`)
 
-```mermaid
-flowchart TB
-    DXF[(DXF document)] --> H[HEADER<br/>$UNITS · $INSUNITS · $EXTMIN]
-    DXF --> CL[CLASSES<br/>custom object defs]
-    DXF --> T[TABLES]
-    DXF --> B[BLOCKS<br/>reusable geometry]
-    DXF --> E[ENTITIES<br/>drawable primitives]
-    DXF --> O[OBJECTS<br/>layouts · dictionaries]
-    T --> T1[LAYER]
-    T --> T2[LTYPE]
-    T --> T3[STYLE]
-    T --> T4[BLOCK_RECORD]
-    E --> E1[LINE · CIRCLE · ARC]
-    E --> E2[LWPOLYLINE · SPLINE]
-    E --> E3[INSERT → block ref]
-    E3 -.-> B
-```
+<figure aria-label="DXF document structure: root sections (HEADER, CLASSES, TABLES, BLOCKS, ENTITIES, OBJECTS) with TABLES and ENTITIES sub-items, and INSERT referencing BLOCKS">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" role="img" aria-label="DXF document hierarchical structure diagram" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="dx-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+    <marker id="dx-dash" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#888"/>
+    </marker>
+  </defs>
+  <!-- DXF root cylinder — centred in 760px wide canvas -->
+  <ellipse cx="380" cy="20" rx="80" ry="14" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <rect x="300" y="20" width="160" height="24" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <ellipse cx="380" cy="44" rx="80" ry="14" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="380" y="37" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#1e3a5f">DXF document</text>
+  <!-- Fan lines from root — 6 sections: HEADER 50, CLASSES 160, TABLES 290, BLOCKS 420, ENTITIES 570, OBJECTS 700 -->
+  <line x1="380" y1="58" x2="380" y2="78" stroke="#444" stroke-width="1.5"/>
+  <line x1="50" y1="78" x2="700" y2="78" stroke="#444" stroke-width="1.5"/>
+  <line x1="50" y1="78" x2="50" y2="98" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <line x1="160" y1="78" x2="160" y2="98" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <line x1="290" y1="78" x2="290" y2="98" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <line x1="420" y1="78" x2="420" y2="98" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <line x1="570" y1="78" x2="570" y2="98" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <line x1="700" y1="78" x2="700" y2="98" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <!-- HEADER -->
+  <rect x="5" y="98" width="90" height="50" rx="5" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="50" y="116" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">HEADER</text>
+  <text x="50" y="131" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">$UNITS</text>
+  <text x="50" y="143" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">$INSUNITS</text>
+  <!-- CLASSES -->
+  <rect x="110" y="98" width="100" height="50" rx="5" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="160" y="116" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">CLASSES</text>
+  <text x="160" y="131" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">custom object</text>
+  <text x="160" y="143" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">defs</text>
+  <!-- TABLES -->
+  <rect x="240" y="98" width="100" height="50" rx="5" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="290" y="124" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">TABLES</text>
+  <!-- BLOCKS -->
+  <rect x="365" y="98" width="110" height="50" rx="5" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="420" y="116" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">BLOCKS</text>
+  <text x="420" y="131" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">reusable</text>
+  <text x="420" y="143" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">geometry</text>
+  <!-- ENTITIES — shifted right to cx=570 -->
+  <rect x="520" y="98" width="100" height="50" rx="5" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="570" y="116" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">ENTITIES</text>
+  <text x="570" y="131" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">drawable</text>
+  <text x="570" y="143" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">primitives</text>
+  <!-- OBJECTS — shifted right to cx=700 -->
+  <rect x="655" y="98" width="100" height="50" rx="5" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="705" y="116" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">OBJECTS</text>
+  <text x="705" y="131" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">layouts ·</text>
+  <text x="705" y="143" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">dicts</text>
+  <!-- TABLES sub-items: LAYER 155-225, LTYPE 229-299, STYLE 303-373, BLOCK_REC 377-447 -->
+  <line x1="290" y1="148" x2="290" y2="168" stroke="#444" stroke-width="1.5"/>
+  <line x1="190" y1="168" x2="410" y2="168" stroke="#444" stroke-width="1.5"/>
+  <line x1="190" y1="168" x2="190" y2="188" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <line x1="260" y1="168" x2="260" y2="188" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <line x1="330" y1="168" x2="330" y2="188" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <line x1="410" y1="168" x2="410" y2="188" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <rect x="155" y="188" width="70" height="30" rx="5" fill="#d1f4ee" stroke="#0d9488" stroke-width="1"/>
+  <text x="190" y="208" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">LAYER</text>
+  <rect x="228" y="188" width="66" height="30" rx="5" fill="#d1f4ee" stroke="#0d9488" stroke-width="1"/>
+  <text x="261" y="208" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">LTYPE</text>
+  <rect x="298" y="188" width="66" height="30" rx="5" fill="#d1f4ee" stroke="#0d9488" stroke-width="1"/>
+  <text x="331" y="208" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">STYLE</text>
+  <rect x="368" y="188" width="86" height="30" rx="5" fill="#d1f4ee" stroke="#0d9488" stroke-width="1"/>
+  <text x="411" y="208" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">BLK_RECORD</text>
+  <!-- ENTITIES sub-items: start at 468 (gap of 14px from BLK_RECORD right=454) -->
+  <line x1="570" y1="148" x2="570" y2="168" stroke="#444" stroke-width="1.5"/>
+  <line x1="500" y1="168" x2="690" y2="168" stroke="#444" stroke-width="1.5"/>
+  <line x1="500" y1="168" x2="500" y2="188" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <line x1="594" y1="168" x2="594" y2="188" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <line x1="690" y1="168" x2="690" y2="188" stroke="#444" stroke-width="1.5" marker-end="url(#dx-arrow)"/>
+  <rect x="458" y="188" width="84" height="30" rx="5" fill="#fdecd3" stroke="#c2410c" stroke-width="1"/>
+  <text x="500" y="203" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#7c2d12">LINE · CIRCLE</text>
+  <text x="500" y="214" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#7c2d12">· ARC</text>
+  <rect x="546" y="188" width="96" height="30" rx="5" fill="#fdecd3" stroke="#c2410c" stroke-width="1"/>
+  <text x="594" y="203" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#7c2d12">LWPOLYLINE ·</text>
+  <text x="594" y="214" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#7c2d12">SPLINE</text>
+  <rect x="648" y="188" width="86" height="30" rx="5" fill="#fdecd3" stroke="#c2410c" stroke-width="1"/>
+  <text x="691" y="203" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#7c2d12">INSERT →</text>
+  <text x="691" y="214" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#7c2d12">block ref</text>
+  <!-- Dashed line from INSERT to BLOCKS -->
+  <line x1="691" y1="218" x2="691" y2="258" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="691" y1="258" x2="420" y2="258" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="420" y1="258" x2="420" y2="148" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#dx-dash)"/>
+</svg>
+</figure>
 
 Unlike proprietary formats such as DWG, DXF exposes its schema transparently, though this comes at the cost of file size and parsing overhead. Understanding these [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) clarifies why DXF remains the preferred interchange medium for cross-platform automation despite its verbosity. The explicit tag-value pairing eliminates the need for reverse-engineered binary offsets, making it highly suitable for deterministic parsing in CI/CD validation pipelines.
 

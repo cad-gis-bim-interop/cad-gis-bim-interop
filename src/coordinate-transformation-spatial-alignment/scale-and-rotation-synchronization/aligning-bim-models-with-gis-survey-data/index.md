@@ -16,20 +16,80 @@ A production-ready alignment workflow follows a strict sequence. Skipping steps 
 4. **Compute Transformation Matrix**: Solve for translation, rotation, and scale using a Procrustes/SVD-based similarity transform. This mathematical foundation underpins [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) in modern AEC data pipelines.
 5. **Apply & Export**: Transform the full BIM geometry, attach target CRS metadata, and write to interoperable formats (GeoJSON, GeoPackage, or IFC 4.3 with georeferencing extensions). Preserve original coordinate systems in metadata for auditability.
 
-```mermaid
-flowchart LR
-    BIM[(BIM model<br/>Revit · Civil 3D)] --> CP[Extract 3–6<br/>tie points]
-    GIS[(GIS survey<br/>GNSS · cadastral)] --> CP
-    CP --> U[Normalize units<br/>→ meters]
-    U --> PR[Project into shared<br/>PCS via pyproj]
-    PR --> SVD[Compute similarity<br/>transform via SVD]
-    SVD --> AP[Apply T · R · s<br/>to full geometry]
-    AP --> EX[Export GeoJSON / GPKG /<br/>IFC 4.3 + CRS metadata]
-    SVD -.->|residual check| RMSE{RMSE ≤ 0.05 m?}
-    RMSE -->|yes| AP
-    RMSE -->|no| RV[Review outliers ·<br/>add control points]
-    RV -.-> CP
-```
+<figure aria-label="BIM-to-GIS alignment: BIM and GIS inputs → extract tie points → normalize units → project to shared CRS → SVD similarity transform → residual RMSE check → apply transform → export">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 368" role="img" aria-label="BIM-to-GIS alignment pipeline diagram" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="bg-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+    <marker id="bg-dash" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#888"/>
+    </marker>
+  </defs>
+  <!-- BIM cylinder -->
+  <ellipse cx="72" cy="44" rx="62" ry="14" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <rect x="10" y="44" width="124" height="28" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <ellipse cx="72" cy="72" rx="62" ry="14" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="72" y="55" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">BIM model</text>
+  <text x="72" y="70" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">Revit · Civil 3D</text>
+  <!-- GIS cylinder -->
+  <ellipse cx="72" cy="124" rx="62" ry="14" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <rect x="10" y="124" width="124" height="28" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <ellipse cx="72" cy="152" rx="62" ry="14" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="72" y="136" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">GIS survey</text>
+  <text x="72" y="151" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">GNSS · cadastral</text>
+  <!-- Both arrows to CP -->
+  <line x1="134" y1="58" x2="185" y2="100" stroke="#444" stroke-width="1.5" marker-end="url(#bg-arrow)"/>
+  <line x1="134" y1="138" x2="185" y2="108" stroke="#444" stroke-width="1.5" marker-end="url(#bg-arrow)"/>
+  <!-- CP: Extract tie points -->
+  <rect x="185" y="86" width="130" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="250" y="103" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Extract 3–6</text>
+  <text x="250" y="119" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">tie points</text>
+  <line x1="315" y1="108" x2="335" y2="108" stroke="#444" stroke-width="1.5" marker-end="url(#bg-arrow)"/>
+  <!-- U: Normalize units -->
+  <rect x="335" y="86" width="130" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="400" y="103" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Normalize units</text>
+  <text x="400" y="119" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">→ meters</text>
+  <line x1="465" y1="108" x2="485" y2="108" stroke="#444" stroke-width="1.5" marker-end="url(#bg-arrow)"/>
+  <!-- PR: Project to shared PCS -->
+  <rect x="485" y="80" width="145" height="56" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="557" y="99" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Project into shared</text>
+  <text x="557" y="115" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">PCS via pyproj</text>
+  <!-- PR down to SVD -->
+  <line x1="557" y1="136" x2="557" y2="180" stroke="#444" stroke-width="1.5" marker-end="url(#bg-arrow)"/>
+  <!-- SVD: Compute similarity transform -->
+  <rect x="460" y="180" width="195" height="50" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="557" y="199" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Compute similarity</text>
+  <text x="557" y="215" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">transform via SVD</text>
+  <!-- Dashed to RMSE diamond -->
+  <line x1="557" y1="230" x2="557" y2="260" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <text x="580" y="248" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">residual check</text>
+  <!-- RMSE diamond -->
+  <polygon points="557,260 640,285 557,310 474,285" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <text x="557" y="281" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">RMSE</text>
+  <text x="557" y="297" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">≤ 0.05 m?</text>
+  <!-- yes → AP (left) -->
+  <line x1="474" y1="285" x2="400" y2="285" stroke="#444" stroke-width="1.5" marker-end="url(#bg-arrow)"/>
+  <text x="435" y="278" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">yes</text>
+  <rect x="260" y="263" width="140" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="330" y="280" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Apply T · R · s</text>
+  <text x="330" y="296" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">to full geometry</text>
+  <!-- AP → EX -->
+  <line x1="260" y1="285" x2="215" y2="285" stroke="#444" stroke-width="1.5" marker-end="url(#bg-arrow)"/>
+  <rect x="30" y="263" width="185" height="44" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="122" y="280" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">Export GeoJSON / GPKG /</text>
+  <text x="122" y="296" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">IFC 4.3 + CRS metadata</text>
+  <!-- no → RV -->
+  <line x1="557" y1="310" x2="557" y2="336" stroke="#444" stroke-width="1.5" marker-end="url(#bg-arrow)"/>
+  <text x="572" y="326" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">no</text>
+  <rect x="430" y="336" width="254" height="24" rx="6" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <text x="557" y="346" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7c3d00">Review outliers ·</text>
+  <text x="557" y="358" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7c3d00">add control points</text>
+  <!-- RV dashed back to CP -->
+  <line x1="430" y1="348" x2="250" y2="348" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="250" y1="348" x2="250" y2="130" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#bg-dash)"/>
+</svg>
+</figure>
 
 > **Important:** The Procrustes/SVD approach assumes a *similarity* transform (uniform scale, no shearing). If your BIM and GIS data exhibit different scales along different axes — common when one source applied a non-uniform stretch — switch to a full affine solve or flag for manual review.
 

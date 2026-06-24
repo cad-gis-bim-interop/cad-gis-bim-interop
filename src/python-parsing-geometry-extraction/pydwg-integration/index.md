@@ -24,19 +24,80 @@ Coordinate reference system (CRS) awareness is equally critical. DWG files store
 
 A production-grade pipeline follows a deterministic, memory-conscious sequence. The workflow begins with license validation and file initialization, proceeds through hierarchical entity traversal, and concludes with structured serialization. Unlike open formats that expose raw XML or text streams, DWG requires a database-level read approach where entities are accessed through a block table record iterator.
 
-```mermaid
-flowchart TB
-    L[ODA runtime init<br/>license check] --> A[Attach DB<br/>read-only]
-    A --> X{Resolve XREFs?}
-    X -->|yes| RX[Bind external<br/>references]
-    X -->|no| LT
-    RX --> LT[Iterate layer table]
-    LT --> BT[Iterate block table records]
-    BT --> EN[For each entity:<br/>type · coords · xdata]
-    EN --> N[Normalize units<br/>→ meters]
-    N --> O[Serialize GeoJSON /<br/>Parquet / SQLite]
-    A -.->|always run| CL[finally: close DB ·<br/>release license]
-```
+<figure aria-label="pydwg core workflow: ODA init → DB attach → XREF resolution → layer/block traversal → entity extraction → normalization → serialization, with a guaranteed cleanup path">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" role="img" aria-label="pydwg core workflow diagram" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="pd-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+    <marker id="pd-arrow-dash" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#888"/>
+    </marker>
+  </defs>
+  <!-- Node styles: rect fill #e8f0fb stroke #1e3a5f, diamond fill #fff3cd stroke #b45309 -->
+  <!-- Row 1: L -->
+  <rect x="290" y="10" width="160" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="370" y="27" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">ODA runtime init</text>
+  <text x="370" y="43" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">license check</text>
+  <!-- Arrow L→A -->
+  <line x1="370" y1="54" x2="370" y2="78" stroke="#444" stroke-width="1.5" marker-end="url(#pd-arrow)"/>
+  <!-- Row 2: A -->
+  <rect x="290" y="78" width="160" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="370" y="95" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Attach DB</text>
+  <text x="370" y="111" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">read-only</text>
+  <!-- Arrow A→X -->
+  <line x1="370" y1="122" x2="370" y2="146" stroke="#444" stroke-width="1.5" marker-end="url(#pd-arrow)"/>
+  <!-- Row 3: X diamond -->
+  <polygon points="370,146 440,168 370,190 300,168" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <text x="370" y="163" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">Resolve</text>
+  <text x="370" y="179" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">XREFs?</text>
+  <!-- yes branch right → RX -->
+  <line x1="440" y1="168" x2="560" y2="168" stroke="#444" stroke-width="1.5" marker-end="url(#pd-arrow)"/>
+  <text x="495" y="162" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">yes</text>
+  <rect x="560" y="146" width="150" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="635" y="163" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Bind external</text>
+  <text x="635" y="179" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">references</text>
+  <!-- RX down to LT level, then left -->
+  <line x1="635" y1="190" x2="635" y2="240" stroke="#444" stroke-width="1.5"/>
+  <line x1="635" y1="240" x2="451" y2="240" stroke="#444" stroke-width="1.5" marker-end="url(#pd-arrow)"/>
+  <!-- no branch down to LT -->
+  <line x1="370" y1="190" x2="370" y2="218" stroke="#444" stroke-width="1.5" marker-end="url(#pd-arrow)"/>
+  <text x="352" y="208" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">no</text>
+  <!-- Row 4: LT -->
+  <rect x="290" y="218" width="160" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="370" y="235" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Iterate</text>
+  <text x="370" y="251" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">layer table</text>
+  <!-- Arrow LT→BT -->
+  <line x1="370" y1="262" x2="370" y2="286" stroke="#444" stroke-width="1.5" marker-end="url(#pd-arrow)"/>
+  <!-- Row 5: BT -->
+  <rect x="270" y="286" width="200" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="370" y="303" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Iterate block</text>
+  <text x="370" y="319" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">table records</text>
+  <!-- Arrow BT→EN -->
+  <line x1="370" y1="330" x2="370" y2="354" stroke="#444" stroke-width="1.5" marker-end="url(#pd-arrow)"/>
+  <!-- Row 6: EN, N, O side by side -->
+  <rect x="200" y="354" width="170" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="285" y="371" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">For each entity:</text>
+  <text x="285" y="387" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">type · coords · xdata</text>
+  <line x1="370" y1="376" x2="390" y2="376" stroke="#444" stroke-width="1.5" marker-end="url(#pd-arrow)"/>
+  <rect x="390" y="354" width="150" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="465" y="371" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Normalize units</text>
+  <text x="465" y="387" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">→ meters</text>
+  <line x1="540" y1="376" x2="558" y2="376" stroke="#444" stroke-width="1.5" marker-end="url(#pd-arrow)"/>
+  <rect x="558" y="354" width="170" height="44" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="643" y="371" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d4d44">Serialize GeoJSON /</text>
+  <text x="643" y="387" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d4d44">Parquet / SQLite</text>
+  <!-- Dashed arrow from A down-left to CL -->
+  <line x1="290" y1="100" x2="120" y2="100" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="120" y1="100" x2="120" y2="376" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="120" y1="376" x2="198" y2="376" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#pd-arrow-dash)"/>
+  <text x="50" y="240" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">always run</text>
+  <!-- CL node (part of EN row, on left) -->
+  <rect x="5" y="354" width="193" height="44" rx="6" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <text x="101" y="371" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7b1111">finally: close DB ·</text>
+  <text x="101" y="387" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7b1111">release license</text>
+</svg>
+</figure>
 
 ### 1. License & Runtime Initialization
 Load the ODA environment and verify license tokens before instantiating any database objects. This step must occur exactly once per process lifecycle to avoid license server throttling. Implement a singleton or module-level guard to prevent redundant initialization during concurrent task execution.

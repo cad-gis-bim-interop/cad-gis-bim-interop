@@ -21,15 +21,65 @@ Validate your installation and verify the library version against your target DX
 
 A production-ready DXF parsing pipeline follows a deterministic sequence. Deviating from this order often results in orphaned geometry, broken block references, or coordinate drift.
 
-```mermaid
-flowchart LR
-    F[(input.dxf)] --> H[1 · Validate header<br/>$ACADVER · $MEASUREMENT]
-    H --> T[2 · Stream entities<br/>filter by layer]
-    T --> R[3 · Resolve INSERT<br/>flatten block refs]
-    R --> N[4 · Normalize coords<br/>apply unit scale]
-    N --> O[(Clean primitive arrays<br/>→ GeoJSON / GPKG)]
-    H -.->|version reject| Q[(Quarantine queue)]
-```
+<figure aria-label="ezdxf extraction workflow: input DXF → validate header → stream entities → resolve INSERT → normalize coords → clean output, with version reject path to quarantine">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 150" role="img" aria-label="ezdxf step-by-step extraction workflow" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="ez-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+    <marker id="ez-dash" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#888"/>
+    </marker>
+  </defs>
+  <!-- input.dxf cylinder -->
+  <ellipse cx="52" cy="52" rx="42" ry="12" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <rect x="10" y="52" width="84" height="30" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <ellipse cx="52" cy="82" rx="42" ry="12" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="52" y="71" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">input.dxf</text>
+  <!-- arrow to H -->
+  <line x1="94" y1="62" x2="114" y2="62" stroke="#444" stroke-width="1.5" marker-end="url(#ez-arrow)"/>
+  <!-- 1 Validate header — split long label onto two lines -->
+  <rect x="114" y="30" width="148" height="60" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="188" y="52" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">1 · Validate header</text>
+  <text x="188" y="67" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">$ACADVER ·</text>
+  <text x="188" y="80" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">$MEASUREMENT</text>
+  <!-- arrow H→T -->
+  <line x1="262" y1="62" x2="282" y2="62" stroke="#444" stroke-width="1.5" marker-end="url(#ez-arrow)"/>
+  <!-- 2 Stream entities -->
+  <rect x="282" y="36" width="130" height="52" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="347" y="57" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">2 · Stream entities</text>
+  <text x="347" y="73" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">filter by layer</text>
+  <!-- arrow T→R -->
+  <line x1="412" y1="62" x2="432" y2="62" stroke="#444" stroke-width="1.5" marker-end="url(#ez-arrow)"/>
+  <!-- 3 Resolve INSERT -->
+  <rect x="432" y="36" width="130" height="52" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="497" y="57" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">3 · Resolve INSERT</text>
+  <text x="497" y="73" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">flatten block refs</text>
+  <!-- arrow R→N -->
+  <line x1="562" y1="62" x2="582" y2="62" stroke="#444" stroke-width="1.5" marker-end="url(#ez-arrow)"/>
+  <!-- 4 Normalize coords -->
+  <rect x="582" y="36" width="130" height="52" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="647" y="57" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">4 · Normalize coords</text>
+  <text x="647" y="73" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">apply unit scale</text>
+  <!-- arrow N→O -->
+  <line x1="712" y1="62" x2="730" y2="62" stroke="#444" stroke-width="1.5" marker-end="url(#ez-arrow)"/>
+  <!-- O cylinder -->
+  <ellipse cx="785" cy="50" rx="48" ry="12" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <rect x="737" y="50" width="96" height="28" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <ellipse cx="785" cy="78" rx="48" ry="12" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="785" y="61" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">Clean arrays</text>
+  <text x="785" y="75" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">→ GeoJSON / GPKG</text>
+  <!-- Dashed version reject from H down -->
+  <line x1="188" y1="90" x2="188" y2="110" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="188" y1="110" x2="330" y2="110" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#ez-dash)"/>
+  <text x="258" y="107" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">version reject</text>
+  <!-- Quarantine cylinder — fits within viewBox height 150 -->
+  <ellipse cx="390" cy="110" rx="50" ry="10" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <rect x="340" y="110" width="100" height="22" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <ellipse cx="390" cy="132" rx="50" ry="10" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
+  <text x="390" y="125" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7b1111">Quarantine queue</text>
+</svg>
+</figure>
 
 ### 1. Document Ingestion & Header Validation
 

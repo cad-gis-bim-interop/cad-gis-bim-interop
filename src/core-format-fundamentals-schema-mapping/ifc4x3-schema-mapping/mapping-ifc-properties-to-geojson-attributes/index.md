@@ -17,16 +17,58 @@ A reliable translation routine follows a deterministic sequence to prevent attri
 5. **Coordinate Transformation** – Reproject geometry from the IFC project CRS to EPSG:4326 using `pyproj` or a precomputed transformation matrix.
 6. **GeoJSON Serialization** – Assemble `Feature` objects with `geometry`, `properties`, and optional `id`, then wrap in a `FeatureCollection`.
 
-```mermaid
-flowchart LR
-    M[(model.ifc)] --> F[Filter elements<br/>IfcBuildingElement /<br/>IfcCivilElement]
-    F --> RD[Traverse IsDefinedBy<br/>→ IfcPropertySet /<br/>IfcElementQuantity]
-    RD --> FL[Flatten Pset hierarchy<br/>Name → NominalValue]
-    FL --> NV[Normalize types<br/>IfcLabel · IfcReal → Python]
-    NV --> PR[Reproject geometry<br/>local CRS → EPSG:4326]
-    PR --> G[Build geojson.Feature<br/>geom + props + GlobalId]
-    G --> FC[FeatureCollection<br/>output.geojson]
-```
+<figure aria-label="IFC-to-GeoJSON pipeline: model.ifc → filter elements → traverse IsDefinedBy → flatten Pset → normalize types → reproject → build Feature → FeatureCollection output">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 110" role="img" aria-label="IFC properties to GeoJSON mapping workflow" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="ig-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+  </defs>
+  <!-- M: model.ifc cylinder -->
+  <ellipse cx="46" cy="36" rx="38" ry="12" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <rect x="8" y="36" width="76" height="28" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <ellipse cx="46" cy="64" rx="38" ry="12" fill="#d0e8ff" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="46" y="52" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">model.ifc</text>
+  <line x1="84" y1="50" x2="104" y2="50" stroke="#444" stroke-width="1.5" marker-end="url(#ig-arrow)"/>
+  <!-- F: Filter -->
+  <rect x="104" y="24" width="100" height="52" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="154" y="42" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Filter elements</text>
+  <text x="154" y="57" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1e3a5f">IfcBuildingElement</text>
+  <text x="154" y="70" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1e3a5f">IfcCivilElement</text>
+  <line x1="204" y1="50" x2="224" y2="50" stroke="#444" stroke-width="1.5" marker-end="url(#ig-arrow)"/>
+  <!-- RD: Traverse IsDefinedBy -->
+  <rect x="224" y="20" width="120" height="60" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="284" y="38" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Traverse IsDefinedBy</text>
+  <text x="284" y="53" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1e3a5f">→ IfcPropertySet /</text>
+  <text x="284" y="67" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1e3a5f">IfcElementQuantity</text>
+  <line x1="344" y1="50" x2="364" y2="50" stroke="#444" stroke-width="1.5" marker-end="url(#ig-arrow)"/>
+  <!-- FL: Flatten Pset -->
+  <rect x="364" y="24" width="115" height="52" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="421" y="42" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Flatten Pset</text>
+  <text x="421" y="57" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1e3a5f">Name → NominalValue</text>
+  <line x1="479" y1="50" x2="499" y2="50" stroke="#444" stroke-width="1.5" marker-end="url(#ig-arrow)"/>
+  <!-- NV: Normalize types -->
+  <rect x="499" y="24" width="115" height="52" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="556" y="42" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Normalize types</text>
+  <text x="556" y="57" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1e3a5f">IfcLabel · IfcReal</text>
+  <text x="556" y="70" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1e3a5f">→ Python</text>
+  <line x1="614" y1="50" x2="634" y2="50" stroke="#444" stroke-width="1.5" marker-end="url(#ig-arrow)"/>
+  <!-- PR: Reproject -->
+  <rect x="634" y="24" width="100" height="52" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="684" y="42" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Reproject</text>
+  <text x="684" y="57" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1e3a5f">local CRS</text>
+  <text x="684" y="70" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1e3a5f">→ EPSG:4326</text>
+  <line x1="734" y1="50" x2="754" y2="50" stroke="#444" stroke-width="1.5" marker-end="url(#ig-arrow)"/>
+  <!-- G + FC stacked vertically at right -->
+  <rect x="754" y="14" width="100" height="36" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="804" y="30" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">Build Feature</text>
+  <text x="804" y="44" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1e3a5f">geom+props+GUID</text>
+  <line x1="804" y1="50" x2="804" y2="62" stroke="#444" stroke-width="1.5" marker-end="url(#ig-arrow)"/>
+  <rect x="754" y="62" width="100" height="36" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="804" y="78" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">FeatureCollection</text>
+  <text x="804" y="92" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#0d5c55">output.geojson</text>
+</svg>
+</figure>
 
 ## Production-Ready Python Implementation
 

@@ -1,0 +1,71 @@
+{
+  "notes": "All code blocks must be Python 3.9+ compatible and use explicit library versions in comments (e.g. # ezdxf>=1.1.0). Mermaid diagrams should be used for pipeline data-flow and format-version branching logic. KaTeX should be used for any affine/Helmert matrix equations. FAQ sections must be rendered as HTML detail/summary accordions per the site requirements. Inline code spans (library names, variable names, file extensions) must not use borders \u2014 blend with prose per site requirements. Every long-tail page title should be phrased as a specific engineering action or question to maximize long-tail SEO capture. JSON-LD HowTo schema should be applied to all long-tail and cluster pages that contain step-by-step procedures. FAQPage schema applies only to pages with a genuine FAQ section.",
+  "schema": [
+    "Article",
+    "BreadcrumbList",
+    "HowTo",
+    "FAQPage"
+  ],
+  "customized": true,
+  "page_types": {
+    "pillar": {
+      "skeleton": [
+        "H1: Full topic title \u2014 positions the domain problem (CAD/GIS/BIM context, why misalignment or parsing failures occur without this knowledge)",
+        "Problem framing paragraph \u2014 concrete cost of getting this wrong (misaligned assets, corrupt spatial queries, CI/CD failures)",
+        "## Foundations \u2014 core concepts, standards bodies, format specs, or library ecosystem relevant to this pillar (with inline links to clusters)",
+        "## Pipeline Architecture \u2014 how this pillar fits as a stage in a broader Python interoperability pipeline; data-flow diagram (Mermaid) showing ingestion \u2192 transformation \u2192 validation \u2192 export",
+        "## Core Workflows \u2014 subsections (H3) for each major cluster topic, each subsection briefly characterizes the workflow and links to its cluster page",
+        "## Implementation Patterns & Code Safety \u2014 cross-cutting patterns: geometry validation, error isolation, memory management, vectorized ops; short runnable code snippet per pattern",
+        "## Validation, Tolerance & Troubleshooting \u2014 precision loss, tolerance configuration, common failure modes with root-cause table (format: symptom | cause | fix)",
+        "## Production Deployment Considerations \u2014 CI/CD integration, performance tuning, audit/compliance logging, fallback strategies",
+        "## Conclusion \u2014 synthesis paragraph reinforcing the pillar's role in reliable interoperability",
+        "Related Pages block \u2014 4\u20136 links (clusters within this pillar + one cross-pillar link)"
+      ],
+      "target_words": 4500
+    },
+    "cluster": {
+      "skeleton": [
+        "H1: Cluster title \u2014 1-sentence definition anchoring concept to parent pillar domain",
+        "Context paragraph \u2014 explains where this cluster fits in the pipeline, up-link to parent pillar",
+        "## Prerequisites \u2014 bulleted checklist: Python version, library versions (pip install lines), assumed knowledge of CRS/entity types/format specifics",
+        "## Architectural Overview \u2014 how the cluster's mechanism works internally (e.g. group code taxonomy, affine matrix math, schema binding rules); compatibility/version table where applicable",
+        "## Step-by-Step Implementation \u2014 numbered procedural steps, each with a minimal runnable Python code block; mermaid flow diagram where logical branches exist",
+        "## Edge Cases & Gotchas \u2014 3\u20136 named failure modes specific to this format/library/workflow (e.g. axis flip, ACIS encryption, missing $INSUNITS, datum ambiguity); each with a short fix snippet",
+        "## Validation & Testing \u2014 how to verify correctness (assertions, control-point checks, schema diff logging); example test function",
+        "## Performance & Scale \u2014 chunked processing, memory budgets, vectorization tips relevant to this specific cluster topic",
+        "## FAQ \u2014 3\u20135 questions rendered as accordions; questions drawn from real format/library ambiguities (e.g. 'Does ezdxf reconstruct B-Rep topology?', 'What does $INSUNITS=2 mean?')",
+        "Related Pages block \u2014 parent pillar up-link + 3\u20134 sibling/long-tail links"
+      ],
+      "target_words": 3500
+    },
+    "long_tail": {
+      "skeleton": [
+        "H1: Specific task title phrased as an engineering action (e.g. 'Reading 3D Solids with ezdxf Python')",
+        "TL;DR answer paragraph \u2014 2\u20134 sentences giving the direct answer/solution upfront before any preamble; up-link to parent cluster",
+        "## How [Library/Format] Handles [Feature] \u2014 mechanism explanation (what happens internally, what the API does and does not do)",
+        "## Production-Ready Script \u2014 complete, copy-pasteable Python script with inline comments; key implementation notes bulleted below the block",
+        "## Compatibility Matrix \u2014 table: component | supported range | notes (Python version, library version, format version, OS, known limitations)",
+        "## Fallback Strategies / Troubleshooting \u2014 3\u20135 ordered fallback steps or named error scenarios with concrete fixes; no generic advice",
+        "Related Pages block \u2014 parent cluster up-link + 2\u20133 sibling long-tail or cluster links"
+      ],
+      "target_words": 2000
+    }
+  },
+  "frontmatter": [
+    "title",
+    "description",
+    "slug",
+    "type",
+    "breadcrumb",
+    "datePublished",
+    "dateModified"
+  ],
+  "interlinking": "Wiki-style inline cross-linking is mandatory. Rules: (1) Pillar pages \u2014 every named cluster topic (e.g. 'CRS Normalization Workflows', 'Layer Mapping Logic') becomes an inline hyperlink at its first mention in the prose, using anchor text that matches the cluster page title exactly; add 3\u20136 such inline links per pillar. (2) Cluster pages \u2014 link up to the parent pillar in the opening paragraph with phrasing such as 'as part of the [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) pipeline'; link sideways to sibling clusters and down to long-tail children at first mention. (3) Long-tail pages \u2014 link up to the parent cluster in the opening paragraph (e.g. 'consult the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) for context'); link to at least one sibling long-tail and one pillar concept inline. (4) Every page ends with a 'Related' block (3\u20135 items, titled 'Related Pages') listing the parent, relevant siblings, and one cross-pillar link. No bare URL links; all anchors must use descriptive noun-phrase text drawn from the niche (library names, format names, workflow names).",
+  "expansion_priorities": [
+    "The python-parsing-geometry-extraction pillar has only 2 long-tail pages so far (reading-3d-solids-with-ezdxf-python, converting-cad-local-coordinates-to-epsg4326); each cluster (ezdxf-deep-dive, ifcopenshell-workflow, geometry-mesh-conversion, pydwg-integration) needs at least 3\u20134 long-tail how-to pages covering specific API tasks (e.g. 'Extracting LWPOLYLINE vertices with ezdxf', 'Batch converting IFC to GeoJSON with ifcopenshell')",
+    "coordinate-transformation-spatial-alignment clusters (crs-normalization-workflows, unit-conversion-pipelines, scale-and-rotation-synchronization, layer-mapping-logic) each lack long-tail pages \u2014 add task-specific pages like 'Applying Helmert 7-parameter transform in Python' and 'Converting DXF millimeters to meters before pyproj reprojection'",
+    "core-format-fundamentals-schema-mapping has ifc4x3-schema-mapping and metadata-extraction-strategies clusters with no visible long-tail pages \u2014 add format-specific long-tails covering IFC property set extraction, DXF XDATA parsing, and DWG-to-DXF batch conversion gotchas",
+    "Add cross-pillar comparison/decision pages (cluster-level) covering 'Choosing between ezdxf, pydwg, and ODA for production pipelines' and 'DXF vs IFC as interchange format for GIS ingestion' \u2014 these serve high-intent navigational queries and link across all three pillars"
+  ],
+  "page_anatomy_rationale": "This is a technical automation/engineering reference site for Python-driven CAD/GIS/BIM pipelines; every page must move from 'why this matters' through prerequisites, runnable code, compatibility constraints, and failure modes \u2014 the exact mental model an AEC platform engineer uses when integrating a new library or format."
+}

@@ -1,33 +1,171 @@
+---
+title: "DWG-to-Python Integration: Building Reliable CAD Extraction Pipelines"
+description: "How to parse DWG files in Python using ODA File Converter, libredwg, and ezdxf — covering version detection, headless conversion, XREF handling, and production scaling patterns."
+slug: "pydwg-integration"
+type: "cluster"
+breadcrumb:
+  - label: "Python Parsing & Geometry Extraction"
+    url: "/python-parsing-geometry-extraction/"
+  - label: "DWG-to-Python Integration"
+    url: "/python-parsing-geometry-extraction/pydwg-integration/"
+datePublished: "2024-03-01"
+dateModified: "2026-06-24"
+---
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "DWG-to-Python Integration: Building Reliable CAD Extraction Pipelines",
+      "description": "How to parse DWG files in Python using ODA File Converter, libredwg, and ezdxf — covering version detection, headless conversion, XREF handling, and production scaling patterns.",
+      "datePublished": "2024-03-01",
+      "dateModified": "2026-06-24",
+      "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "DWG-to-Python Integration", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/"}
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "name": "Integrate DWG files into a Python parsing pipeline",
+      "step": [
+        {"@type": "HowToStep", "position": 1, "name": "Detect the DWG version from the file header"},
+        {"@type": "HowToStep", "position": 2, "name": "Convert DWG to DXF using ODA File Converter or libredwg"},
+        {"@type": "HowToStep", "position": 3, "name": "Parse the resulting DXF with ezdxf"},
+        {"@type": "HowToStep", "position": 4, "name": "Resolve INSERT entities and block definitions"},
+        {"@type": "HowToStep", "position": 5, "name": "Route extracted geometry to downstream BIM or GIS pipelines"}
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is there a pip-installable pydwg package for parsing DWG geometry?",
+          "acceptedAnswer": {"@type": "Answer", "text": "No. There is no distributable `pydwg` package on PyPI. References to it in older documentation refer to internal wrappers built on top of ODA or RealDWG libraries. Any tutorial claiming `pip install pydwg` followed by direct DWG geometry access describes a fabricated workflow. Production pipelines either convert DWG to DXF first, or wrap a licensed C++ SDK via subprocess."}
+        },
+        {
+          "@type": "Question",
+          "name": "Does libredwg support the current DWG format (AC1032)?",
+          "acceptedAnswer": {"@type": "Answer", "text": "libredwg lags behind the official DWG schema by one to two major releases. As of 2026, AC1032 (used by AutoCAD 2019–2026) has partial support, but entity coverage is incomplete compared with the ODA File Converter. For maximum compatibility in production, prefer ODA for AC1032 files and use libredwg only where GPL licensing permits and file vintage is R2013 or earlier."}
+        },
+        {
+          "@type": "Question",
+          "name": "Why does the ODA File Converter work on directories, not individual files?",
+          "acceptedAnswer": {"@type": "Answer", "text": "The ODA CLI batch-converts all matching files in the source directory in a single pass. To convert a single file, place it in a temporary directory and pass that directory as the input argument. The output directory receives one DXF per DWG found. This design enables bulk conversion without repeated process-start overhead, which matters at scale."}
+        },
+        {
+          "@type": "Question",
+          "name": "What happens to XREFs during headless DWG-to-DXF conversion?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Headless converters typically drop unbound XREFs or convert them to empty INSERT entities. To preserve referenced geometry, bind all XREFs into the host drawing before conversion using AutoCAD's XBIND command, or automate the binding step via the AutoCAD COM API or a Civil 3D script. After conversion, inspect INSERT entities in the DXF whose block definition has no geometry — those are unresolved XREFs."}
+        },
+        {
+          "@type": "Question",
+          "name": "Should I target ACAD2013 or ACAD2018 when converting to DXF?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Target ACAD2018 (AC1032) for maximum entity fidelity, including 3D solids, mesh objects, and surface entities. Target ACAD2013 only if a downstream tool has known issues with R2018 DXF. Using ACAD2010 or earlier forces lossy downgrade of newer entities. Always log the target version alongside the source DWG version in your audit record so conversion-introduced regressions are traceable."}
+        }
+      ]
+    }
+  ]
+}
+</script>
+
 # DWG-to-Python Integration: Building Reliable CAD Extraction Pipelines
 
-DWG remains the de facto standard for AEC deliverables, yet its proprietary binary structure makes direct Python access non-trivial. No general-purpose pure-Python DWG parser exists that covers the full modern format. Production pipelines take one of two approaches: convert DWG to DXF using the Open Design Alliance (ODA) File Converter or `libredwg`, then parse the resulting DXF with `ezdxf`; or use a licensed SDK (ODA Teigha, RealDWG) exposed through subprocess calls or C-extension wrappers. When architected correctly, either approach becomes a foundational component of broader [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) strategies, feeding clean spatial data into downstream BIM validation, mesh generation, or geospatial transformation pipelines.
+DWG is the de facto delivery format for AEC projects, yet its proprietary binary structure makes direct Python access non-trivial. No general-purpose pure-Python DWG parser covers the full modern schema. As part of the broader [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) pipeline, DWG integration sits at the ingestion boundary: your code must negotiate format version, invoke an external converter, and hand a clean DXF to the rest of the stack before any geometry or attribute work can begin.
 
-## Understanding the DWG Parsing Landscape
+Getting this wrong has real costs. A pipeline that silently skips unrecognised DWG versions or drops XREF-bound geometry delivers incomplete spatial data to downstream [Geometry & Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) stages and produces alignment errors when the output feeds GIS validation or IFC assembly workflows.
 
-DWG files store data in a version-specific binary schema. The primary options for Python access are:
+## Prerequisites
 
-| Approach | Library / Tool | License | Tradeoffs |
-|----------|---------------|---------|-----------|
-| DWG→DXF conversion | ODA File Converter CLI | Commercial (free for non-commercial) | Best compatibility, headless, batch-capable |
-| DWG→DXF conversion | `libredwg` CLI | GPL v3 | Open-source; lags on newest DWG versions |
-| Native SDK wrapping | ODA Teigha (C++) | Commercial | Full feature access; requires compiled bindings |
-| Read-only header probe | Python `struct` | None | Version detection only; no geometry |
+- **Python 3.9+** — type annotations and `pathlib` used throughout.
+- **ezdxf ≥ 1.1.0** — `pip install "ezdxf>=1.1.0"` — handles DXF R12 through R2018 after conversion.
+- **ODA File Converter** (binary install, free for non-commercial use) or **libredwg ≥ 0.12** (`libredwg` GPL v3) — for DWG-to-DXF conversion; neither is a Python package.
+- Familiarity with [DXF entity structure](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group codes, entity handles, and block tables are assumed knowledge.
+- Understanding of [DWG version codes and their compatibility constraints](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — AC1009 through AC1032 behave differently under every converter.
 
-There is no `pydwg` package on PyPI. References to it in older documentation refer to internal wrappers built on top of ODA libraries — not a distributable package. Any pipeline claiming to `pip install pydwg` and immediately parse DWG geometry is fabricated.
+## Architectural Overview
 
-## The DWG-to-DXF-to-Python Workflow
+Production pipelines take one of two approaches. The first — and most widely applicable — converts DWG to DXF offline using the ODA File Converter or `libredwg`, then parses the result with `ezdxf`. The second wraps a licensed SDK (ODA Teigha, RealDWG) through subprocess calls or compiled C-extension bindings, preserving full native access at the cost of licence management and build complexity.
 
-The most reliable production pattern converts DWG to DXF offline, then ingests the result with `ezdxf`. This decouples format negotiation from business logic and maintains pure-Python parsing for all downstream stages.
+The table below summarises the trade-offs:
 
-### Step 1: Version Detection
+| Approach | Tool | Licence | Trade-offs |
+|---|---|---|---|
+| DWG→DXF | ODA File Converter CLI | Commercial (free non-commercial) | Best compatibility; headless; batch-capable |
+| DWG→DXF | `libredwg` CLI | GPL v3 | Open-source; lags on AC1032 entity coverage |
+| Native SDK | ODA Teigha (C++) | Commercial | Full entity access; compiled bindings required |
+| Header probe only | Python `struct` | None | Version detection only; no geometry extracted |
 
-Read the 6-byte header to determine the DWG release before invoking any converter, and route unsupported files immediately.
+There is no `pydwg` package on PyPI. References to it in older documentation describe internal wrappers built on top of ODA libraries — not a distributable package. Any pipeline claiming `pip install pydwg` for direct DWG geometry access is fabricated.
+
+The diagram below shows the recommended conversion-first architecture:
+
+<svg viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DWG-to-Python pipeline: version probe feeds converter selection, converter produces DXF, ezdxf parses entities, then geometry routes to BIM or GIS" style="width:100%;max-width:640px;display:block;margin:1.5rem auto">
+  <title>DWG-to-Python Integration Pipeline</title>
+  <desc>Flowchart showing DWG files entering a version probe step, branching to ODA Converter or libredwg based on version, producing a DXF file, parsed by ezdxf, then routing geometry to BIM validation or GIS transformation stages.</desc>
+  <!-- Stage boxes -->
+  <rect x="8" y="130" width="100" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="58" y="149" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">DWG Files</text>
+  <text x="58" y="164" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif">(.dwg)</text>
+  <rect x="152" y="130" width="120" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="212" y="149" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">Version Probe</text>
+  <text x="212" y="164" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif">AC1009 – AC1032</text>
+  <!-- Converter branch boxes -->
+  <rect x="152" y="30" width="120" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="212" y="49" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">ODA Converter</text>
+  <text x="212" y="64" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif">AC1032 / latest</text>
+  <rect x="152" y="240" width="120" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="212" y="259" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">libredwg</text>
+  <text x="212" y="274" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif">R2013 and earlier</text>
+  <rect x="332" y="130" width="100" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="382" y="149" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">DXF Output</text>
+  <text x="382" y="164" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif">ezdxf parse</text>
+  <rect x="492" y="90" width="110" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="547" y="109" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">BIM Validation</text>
+  <text x="547" y="124" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif">IFC assembly</text>
+  <rect x="492" y="180" width="110" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="547" y="199" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">GIS Transform</text>
+  <text x="547" y="214" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif">CRS alignment</text>
+  <!-- Arrows: DWG → Version Probe -->
+  <line x1="108" y1="152" x2="150" y2="152" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- Version Probe → ODA (up) -->
+  <line x1="212" y1="130" x2="212" y2="76" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- Version Probe → libredwg (down) -->
+  <line x1="212" y1="174" x2="212" y2="238" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- ODA → DXF -->
+  <path d="M272 52 Q382 52 382 128" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- libredwg → DXF -->
+  <path d="M272 262 Q382 262 382 176" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- DXF → BIM -->
+  <line x1="432" y1="145" x2="490" y2="120" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- DXF → GIS -->
+  <line x1="432" y1="160" x2="490" y2="195" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
+    </marker>
+  </defs>
+</svg>
+
+## Step-by-Step Implementation
+
+### Step 1: Detect the DWG Version
+
+Read the 6-byte header before invoking any converter. This routes unsupported files immediately, before wasting converter I/O time.
 
 ```python
+# ezdxf>=1.1.0 not required here; this uses only the stdlib
 from pathlib import Path
 from typing import Optional
 
-DWG_VERSION_MAP = {
+DWG_VERSION_MAP: dict[bytes, str] = {
     b"AC1009": "R12",
     b"AC1012": "R13",
     b"AC1014": "R14",
@@ -36,25 +174,27 @@ DWG_VERSION_MAP = {
     b"AC1021": "2007",
     b"AC1024": "2010",
     b"AC1027": "2013",
-    b"AC1032": "2018",
-    b"AC1035": "2021/2024",
+    b"AC1032": "2018",  # AutoCAD 2019–2026 all write the AC1032 schema
 }
 
 def detect_dwg_version(file_path: Path) -> Optional[str]:
-    """Return the AutoCAD release string or None for unrecognized headers."""
+    """Return the AutoCAD release string or None for unrecognised headers."""
     try:
-        with open(file_path, "rb") as f:
-            header = f.read(6)
+        with open(file_path, "rb") as fh:
+            header = fh.read(6)
         return DWG_VERSION_MAP.get(header)
-    except IOError:
+    except OSError:
         return None
 ```
 
-### Step 2: Headless Conversion
+Route the result: send AC1032 files to the ODA File Converter, R2013-or-earlier files to `libredwg` if ODA is unavailable, and log any `None` returns as unsupported format errors.
 
-Invoke the ODA File Converter from a subprocess. The converter is a separate installed binary, not a Python library.
+### Step 2: Convert DWG to DXF with ODA File Converter
+
+The ODA File Converter is a binary CLI tool, not a Python library. Invoke it via `subprocess`. The converter operates on directories, not individual files — place each source file in a dedicated temporary directory.
 
 ```python
+# Requires: ODA File Converter binary installed and on PATH (or provide full path)
 import subprocess
 import logging
 from pathlib import Path
@@ -65,91 +205,267 @@ def convert_dwg_to_dxf(
     dwg_path: Path,
     output_dir: Path,
     dxf_version: str = "ACAD2018",
-    converter_exe: str = "ODAFileConverter"
+    converter_exe: str = "ODAFileConverter",
 ) -> Path:
     """
     Convert a single DWG file to DXF using ODA File Converter.
 
     ODAFileConverter CLI signature:
-        ODAFileConverter <input_dir> <output_dir> <output_format> <version> <recurse> <audit>
+        ODAFileConverter <input_dir> <output_dir> <format> <version> <recurse> <audit>
 
     Args:
-        dwg_path:      Path to the .dwg file (must be in its own folder or matched by glob)
-        output_dir:    Destination folder for the converted .dxf
-        dxf_version:   ODA version string, e.g. "ACAD2018" or "ACAD2013"
-        converter_exe: Name or full path of the ODA CLI binary
+        dwg_path:      Path to the .dwg file (must be the sole .dwg in its parent dir,
+                       or use a dedicated temp dir to avoid batch collisions).
+        output_dir:    Destination directory for the converted .dxf.
+        dxf_version:   ODA version string — "ACAD2018" for R2018, "ACAD2013" for R2013.
+        converter_exe: Name or absolute path of the ODA CLI binary.
 
     Returns:
-        Path to the generated .dxf file
+        Path to the generated .dxf file.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-    # ODA converter works on directories; place the single file in its own temp dir
     cmd = [
         converter_exe,
-        str(dwg_path.parent),   # input directory
-        str(output_dir),         # output directory
-        "DXF",                   # output format
-        dxf_version,             # DXF version target
-        "0",                     # recurse (0 = no)
-        "1",                     # audit (1 = yes)
+        str(dwg_path.parent),  # input directory
+        str(output_dir),        # output directory
+        "DXF",                  # output format
+        dxf_version,            # DXF version target
+        "0",                    # recurse: 0 = no
+        "1",                    # audit: 1 = yes
     ]
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
     if result.returncode != 0:
-        logger.error("ODA conversion failed: %s", result.stderr)
-        raise RuntimeError(f"ODA converter exited with code {result.returncode}")
-
+        logger.error("ODA conversion failed for %s: %s", dwg_path.name, result.stderr)
+        raise RuntimeError(
+            f"ODA converter exited with code {result.returncode} for {dwg_path.name}"
+        )
     out_path = output_dir / f"{dwg_path.stem}.dxf"
     if not out_path.exists():
         raise FileNotFoundError(f"Expected DXF not found at {out_path}")
     return out_path
 ```
 
-### Step 3: DXF Parsing with ezdxf
+For `libredwg`, replace the subprocess call with `dwg2dxf <input.dwg> -o <output.dxf>`. The Python wrapper logic around error checking and output path verification remains identical.
 
-Once converted, parse the DXF with `ezdxf`. The full entity and layer APIs are available.
+### Step 3: Parse the DXF with ezdxf
+
+Once converted, pass the DXF path to `ezdxf`. The full entity and layer APIs are available, identical to parsing a natively authored DXF file. For entity-level detail, consult the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/).
 
 ```python
+# ezdxf>=1.1.0
 import ezdxf
-from typing import Dict, List, Any
+from typing import Any
 
-def extract_layer_geometry(dxf_path: Path) -> List[Dict[str, Any]]:
-    """Extract entity metadata grouped by layer from a DXF file."""
+def extract_layer_geometry(dxf_path: Path) -> list[dict[str, Any]]:
+    """Return entity metadata (layer, type, handle) from the model space."""
     doc = ezdxf.readfile(str(dxf_path))
     msp = doc.modelspace()
-    results = []
-
-    for entity in msp:
-        layer = entity.dxf.get("layer", "0")
-        results.append({
-            "layer": layer,
+    return [
+        {
+            "layer": entity.dxf.get("layer", "0"),
             "type": entity.dxftype(),
             "handle": entity.dxf.handle,
-        })
+        }
+        for entity in msp
+    ]
+```
 
+For files exceeding 100 MB, iterate `msp` as a generator (it already is one) rather than wrapping the comprehension in `list()`. This keeps peak memory bounded to entity-batch size rather than total entity count.
+
+### Step 4: Resolve INSERT Entities and Block Definitions
+
+DWG files use blocks extensively. After conversion the DXF's `INSERT` entities reference block definitions in `doc.blocks`. Flatten nested blocks when your downstream stage requires flat geometry:
+
+```python
+# ezdxf>=1.1.0
+from ezdxf.document import Drawing
+
+def iter_block_geometry(doc: Drawing) -> list[dict[str, Any]]:
+    """Yield entity metadata from all named blocks (excludes *Model_Space)."""
+    results: list[dict[str, Any]] = []
+    for block in doc.blocks:
+        if block.name.startswith("*"):  # skip internal layout blocks
+            continue
+        for entity in block:
+            results.append({
+                "block": block.name,
+                "type": entity.dxftype(),
+                "handle": entity.dxf.handle,
+            })
     return results
 ```
 
-## Handling XREFs and Nested Blocks
+## Edge Cases and Gotchas
 
-DWG files frequently reference external drawings (XREFs) and contain deeply nested block hierarchies. Headless converters typically flatten or ignore XREFs. Enforce a pre-ingestion XRef binding policy at the CAD authoring stage, or use AutoLISP/COM automation to bind XREFs before conversion. After conversion, resolve `INSERT` entities and their block definitions using `doc.blocks` to reconstruct the full geometry hierarchy.
+### Unresolved XREFs Produce Empty INSERT Entities
 
-## Downstream Pipeline Integration
+Headless converters drop unbound external references or write them as empty `INSERT` entities. Detect this before downstream processing:
 
-Extracted DWG data rarely remains isolated. Infrastructure platforms route parsed geometry into validation engines, spatial databases, or 3D mesh generators. When feeding data into openBIM workflows, align your extraction schema with IFC property sets to maintain semantic continuity. Teams adopting [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) strategies often use DWG conversion as a pre-processor, normalizing proprietary CAD layers into standardized IFC-compatible representations before ingestion.
+```python
+# ezdxf>=1.1.0
+def find_empty_inserts(dxf_path: Path) -> list[str]:
+    """Return handles of INSERT entities whose block has no geometry."""
+    doc = ezdxf.readfile(str(dxf_path))
+    empty = []
+    for entity in doc.modelspace().query("INSERT"):
+        block_name = entity.dxf.name
+        if block_name in doc.blocks:
+            if sum(1 for _ in doc.blocks[block_name]) == 0:
+                empty.append(entity.dxf.handle)
+    return empty
+```
 
-For GIS alignment, apply affine transformations immediately after extraction. DWG files frequently use local coordinate systems (e.g., `0,0` at a project corner). Store the original insertion point, scale factor, and rotation angle in a companion metadata table to enable reversible transformations when merging with municipal shapefiles or LiDAR point clouds.
+Enforce pre-ingestion XRef binding at the CAD authoring stage, or automate `XBIND` via the AutoCAD COM API before conversion.
 
-## Performance Optimization & Scaling
+### $INSUNITS Carries Through to the DXF
 
-High-volume DWG processing introduces predictable bottlenecks. Address them systematically:
+The DWG `$INSUNITS` header variable survives conversion. If the source drawing omits it, the DXF will inherit `$INSUNITS=0` (unitless), which causes silent scale errors when [converting CAD local coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/). Always read this header group code after conversion:
 
-1. **Parallelized Conversion:** Run multiple ODA CLI instances concurrently, one per CPU core. Each instance is a separate OS process, so there are no shared-memory concerns.
-2. **Idempotent Output Caching:** Hash the input DWG path and target DXF version; skip conversion if the output already exists. This eliminates redundant work during pipeline retries.
-3. **Memory Chunking in ezdxf:** For converted DXF files exceeding 100 MB, iterate entities via `doc.modelspace()` as a generator rather than materializing the full list with `list(msp)`.
-4. **Error Budgeting:** Set a per-batch failure threshold (e.g., 5%). If the converter fails on more than 5% of files in a batch, halt and emit a diagnostic report rather than silently dropping data.
+```python
+# ezdxf>=1.1.0
+INSUNITS_MAP = {0: "unitless", 1: "inches", 2: "feet", 4: "mm", 5: "cm", 6: "m"}
 
-Monitor pipeline health using structured logging. Record `dwg_version`, `conversion_duration_ms`, `entity_count`, and `layer_count` for every file. Non-zero failure rates on specific version codes indicate converter compatibility gaps that require upgrading the ODA binary.
+def get_drawing_units(dxf_path: Path) -> str:
+    doc = ezdxf.readfile(str(dxf_path))
+    code = doc.header.get("$INSUNITS", 0)
+    return INSUNITS_MAP.get(code, f"unknown ({code})")
+```
 
-## Conclusion
+### AC1032 Files from AutoCAD 2024+ May Use Newer Entity Sub-types
 
-Reliable DWG-to-Python integration treats the format as an opaque container that must be converted before entering the open-source parsing stack. The ODA File Converter plus `ezdxf` combination provides full entity access, cross-version compatibility, and legal compliance without requiring compiled ODA bindings in your Python environment. When combined with standardized downstream routing and rigorous error handling, this approach establishes a repeatable foundation for automated AEC data pipelines, GIS synchronization, and computational design workflows.
+AutoCAD 2024 introduced sub-type changes to `ACDBASSOCNETWORK` and related constraint entities. The ODA converter faithfully translates these, but `ezdxf` may return them as `UNKNOWN` entity types. Filter them before passing to geometry extraction:
+
+```python
+UNSUPPORTED_TYPES = {"ACDBASSOCNETWORK", "ACDBPERSSUBENTMANAGER", "ACDBBODYITEM"}
+
+def filter_supported_entities(entities):
+    return [e for e in entities if e.dxftype() not in UNSUPPORTED_TYPES]
+```
+
+### libredwg Silently Truncates Arc Definitions on R2004 Files
+
+`libredwg` 0.12–0.13 incorrectly reads some `ARC` entities in AC1018 (R2004) files, writing zero-radius arcs to the output DXF. Validate arc radius after parsing and route affected files to ODA conversion as a fallback:
+
+```python
+# ezdxf>=1.1.0
+def validate_arcs(dxf_path: Path) -> list[str]:
+    """Return handles of zero-radius ARC entities (libredwg truncation indicator)."""
+    doc = ezdxf.readfile(str(dxf_path))
+    return [
+        e.dxf.handle
+        for e in doc.modelspace().query("ARC")
+        if e.dxf.radius == 0.0
+    ]
+```
+
+### Batch Directory Collisions When Converting Multiple Files
+
+The ODA converter processes all `.dwg` files in the input directory in one pass. Running concurrent converter invocations against the same input directory causes output file collisions. Assign each file a unique temporary subdirectory:
+
+```python
+import tempfile
+
+def safe_convert(dwg_path: Path, output_root: Path) -> Path:
+    with tempfile.TemporaryDirectory(dir=output_root) as tmp_in:
+        import shutil
+        tmp_dwg = Path(tmp_in) / dwg_path.name
+        shutil.copy2(dwg_path, tmp_dwg)
+        return convert_dwg_to_dxf(tmp_dwg, output_root / dwg_path.stem)
+```
+
+## Validation and Testing
+
+After conversion and parsing, verify round-trip fidelity at three levels:
+
+1. **Entity count parity** — compare entity counts between the DWG version reported by your CAD authoring tool and the parsed DXF. A significant drop (>5%) indicates converter coverage gaps.
+2. **Bounding box sanity** — compute the model space bounding box using `ezdxf`'s `bbox` utility and confirm it matches the design extents stored in `$EXTMIN`/`$EXTMAX`.
+3. **Layer inventory** — assert that every layer name in `doc.layers` appears at least once in the entity layer attributes. Orphaned layers indicate dropped entities.
+
+```python
+# ezdxf>=1.1.0
+from ezdxf import bbox as ezdxf_bbox
+
+def validate_conversion(dxf_path: Path) -> dict[str, Any]:
+    doc = ezdxf.readfile(str(dxf_path))
+    msp = doc.modelspace()
+    entities = list(msp)
+    extents = ezdxf_bbox.extents(msp, fast=True)
+    return {
+        "entity_count": len(entities),
+        "layer_count": len(doc.layers),
+        "extents_valid": extents is not None,
+        "insunits": doc.header.get("$INSUNITS", 0),
+    }
+```
+
+Run this function as part of a pytest fixture for every file in your test corpus:
+
+```python
+# ezdxf>=1.1.0; pytest>=7.0
+import pytest
+
+@pytest.mark.parametrize("dxf_file", list(Path("tests/fixtures/dxf").glob("*.dxf")))
+def test_conversion_validity(dxf_file: Path) -> None:
+    result = validate_conversion(dxf_file)
+    assert result["entity_count"] > 0, f"No entities in {dxf_file.name}"
+    assert result["extents_valid"], f"Invalid bounding box in {dxf_file.name}"
+```
+
+## Performance and Scale
+
+High-volume DWG conversion introduces predictable bottlenecks. Address them systematically:
+
+**Parallelised conversion.** Each ODA CLI invocation is a separate OS process with no shared memory. Run one converter process per CPU core using `concurrent.futures.ProcessPoolExecutor`. Assign each file its own temporary input directory (see the `safe_convert` pattern above).
+
+**Idempotent output caching.** Hash the DWG file path and target DXF version string to produce a cache key. Skip conversion entirely if the output DXF already exists under that key. This eliminates redundant work during pipeline retries after partial failures.
+
+**Memory-bounded entity iteration.** For DXF files exceeding 100 MB, iterate the model space generator directly rather than materialising the full entity list. `ezdxf` yields entities lazily from its internal structure.
+
+**Error budgeting.** Set a per-batch failure threshold — for example, 5%. If the converter fails on more than that fraction of files, halt and emit a diagnostic report rather than silently dropping data. Record `dwg_version`, `conversion_duration_ms`, `entity_count`, `layer_count`, and `converter_exit_code` for every file in structured logs. Non-zero failure rates on specific version codes indicate a converter binary upgrade is needed.
+
+**Downstream routing.** Once geometry is extracted, route it according to target system requirements. For openBIM workflows via the [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/), align the extraction schema with IFC property sets before ingestion. For GIS pipelines applying [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/), apply affine transformations and record the original insertion point, scale factor, and rotation angle in a companion metadata table to enable reversible georeferencing.
+
+## FAQ
+
+<details>
+<summary>Is there a pip-installable pydwg package for parsing DWG geometry?</summary>
+
+No. There is no distributable `pydwg` package on PyPI. References to it in older documentation describe internal wrappers built on top of ODA or RealDWG libraries. Production pipelines either convert DWG to DXF first, or wrap a licensed C++ SDK via subprocess.
+
+</details>
+
+<details>
+<summary>Does libredwg support the current DWG format (AC1032)?</summary>
+
+`libredwg` lags behind the official DWG schema by one to two major releases. As of 2026, AC1032 has partial support, but entity coverage is incomplete compared with the ODA File Converter. For maximum compatibility, prefer ODA for AC1032 files and use `libredwg` only where GPL licensing is acceptable and file vintage is R2013 or earlier.
+
+</details>
+
+<details>
+<summary>Why does the ODA File Converter work on directories, not individual files?</summary>
+
+The ODA CLI batch-converts all matching files in a source directory in one pass. To convert a single file, place it in a temporary directory and pass that directory as the input argument. This design enables bulk conversion without repeated process-start overhead, which matters at scale.
+
+</details>
+
+<details>
+<summary>What happens to XREFs during headless DWG-to-DXF conversion?</summary>
+
+Headless converters typically drop unbound XREFs or write them as empty INSERT entities. Bind all XREFs into the host drawing before conversion using AutoCAD's `XBIND` command or COM automation. After conversion, inspect INSERT entities whose block definition contains no geometry — those are unresolved XREFs.
+
+</details>
+
+<details>
+<summary>Should I target ACAD2013 or ACAD2018 when converting to DXF?</summary>
+
+Target ACAD2018 (AC1032) for maximum entity fidelity, including 3D solids, mesh objects, and surface entities. Use ACAD2013 only if a downstream tool has documented issues with R2018 DXF. Using ACAD2010 or earlier forces lossy downgrade of newer entities. Always log the target version alongside the source DWG version in your audit record.
+
+</details>
+
+## Related Pages
+
+- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — parent pipeline overview
+- [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — full entity and layer API reference for the DXF files this workflow produces
+- [Parsing DWG Layers with Python Scripts](/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/) — layer-scoped extraction after conversion
+- [Understanding DWG Version Compatibility](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — DWG schema evolution and AC-code reference
+- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — georeferencing the geometry this pipeline extracts

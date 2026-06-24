@@ -8,6 +8,51 @@ In AEC technology, spatial data rarely arrives in a consistent measurement syste
 
 As a foundational component of broader [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) strategies, these pipelines must operate statelessly, idempotently, and with explicit dimensional awareness. This guide details the architecture, implementation patterns, and validation strategies required to build production-grade unit normalization systems for infrastructure platform teams and Python automation builders.
 
+---
+
+<svg viewBox="0 0 780 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Unit Conversion Pipeline showing four sequential stages: Metadata Extraction, Canonical Normalization, Coordinate and Attribute Transformation, and Validation and Export" style="width:100%;max-width:780px;display:block;margin:2rem auto;">
+  <title>Unit Conversion Pipeline Architecture</title>
+  <desc>Four sequential pipeline stages connected by arrows: Metadata Extraction reads DXF INSUNITS, IFC IfcUnitAssignment, and GeoJSON CRS; Canonical Normalization converts to meters using pint; Coordinate and Attribute Transformation applies numpy vectorized scaling; Validation and Export enforces tolerance thresholds and writes unit-declared outputs.</desc>
+  <defs>
+    <marker id="ucp-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.6"/>
+    </marker>
+  </defs>
+  <rect x="10" y="60" width="160" height="100" rx="8" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
+  <rect x="210" y="60" width="160" height="100" rx="8" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
+  <rect x="410" y="60" width="160" height="100" rx="8" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
+  <rect x="610" y="60" width="160" height="100" rx="8" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
+  <line x1="170" y1="110" x2="208" y2="110" stroke="currentColor" stroke-width="1.5" opacity="0.6" marker-end="url(#ucp-arr)"/>
+  <line x1="370" y1="110" x2="408" y2="110" stroke="currentColor" stroke-width="1.5" opacity="0.6" marker-end="url(#ucp-arr)"/>
+  <line x1="570" y1="110" x2="608" y2="110" stroke="currentColor" stroke-width="1.5" opacity="0.6" marker-end="url(#ucp-arr)"/>
+  <text x="90" y="90" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">Metadata</text>
+  <text x="90" y="106" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">Extraction</text>
+  <text x="90" y="126" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">$INSUNITS</text>
+  <text x="90" y="141" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">IfcUnitAssignment</text>
+  <text x="290" y="90" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">Canonical</text>
+  <text x="290" y="106" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">Normalization</text>
+  <text x="290" y="126" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">pint algebra</text>
+  <text x="290" y="141" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">to meters</text>
+  <text x="490" y="90" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">Coordinate &amp;</text>
+  <text x="490" y="106" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">Attr Transform</text>
+  <text x="490" y="126" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">numpy vectorized</text>
+  <text x="490" y="141" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">recursive blocks</text>
+  <text x="690" y="90" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">Validation &amp;</text>
+  <text x="690" y="106" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">Export</text>
+  <text x="690" y="126" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">epsilon checks</text>
+  <text x="690" y="141" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">unit declarations</text>
+  <circle cx="30" cy="72" r="9" fill="currentColor" opacity="0.15"/>
+  <text x="30" y="76" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">1</text>
+  <circle cx="230" cy="72" r="9" fill="currentColor" opacity="0.15"/>
+  <text x="230" y="76" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">2</text>
+  <circle cx="430" cy="72" r="9" fill="currentColor" opacity="0.15"/>
+  <text x="430" y="76" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">3</text>
+  <circle cx="630" cy="72" r="9" fill="currentColor" opacity="0.15"/>
+  <text x="630" y="76" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">4</text>
+</svg>
+
+---
+
 ## Prerequisites & Environmental Setup
 
 Before implementing a conversion pipeline, establish a controlled execution environment that prevents silent data corruption during ingestion. Spatial unit conversion is not merely scalar multiplication; it requires explicit handling of implicit drawing units, coordinate reference system (CRS) scaling factors, and floating-point accumulation.

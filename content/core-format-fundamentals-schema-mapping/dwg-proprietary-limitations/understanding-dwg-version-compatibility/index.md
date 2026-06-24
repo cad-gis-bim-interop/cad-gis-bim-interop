@@ -1,44 +1,157 @@
-Understanding DWG version compatibility requires mapping AutoCAD release codes (`ACADxxxx`) to binary schema revisions, as each major release introduces proprietary object extensions, header structure changes, and compression algorithms that break naive parsers. For Python-based CAD/GIS and BIM interoperability pipelines, compatibility is never guaranteed by the `.dwg` extension alone. You must inspect the 6-byte version header, route files through version-aware converters, and implement strict fallbacks for unsupported codes. Direct binary parsing without licensed SDKs violates Autodesk’s intellectual property, which is why production teams rely on [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) workarounds like DXF intermediate conversion or ODA-based translation layers.
+---
+title: "Detecting and Routing DWG Version Compatibility in Python Pipelines"
+description: "Read the 6-byte ACAD header, map it to the correct AutoCAD release schema, and route DWG files through version-aware converters to prevent silent data loss in CAD/GIS/BIM interoperability pipelines."
+slug: "understanding-dwg-version-compatibility"
+type: "long_tail"
+breadcrumb:
+  - label: "Core Format Fundamentals & Schema Mapping"
+    url: "/core-format-fundamentals-schema-mapping/"
+  - label: "DWG Proprietary Limitations"
+    url: "/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/"
+  - label: "Detecting and Routing DWG Version Compatibility in Python Pipelines"
+    url: "/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/"
+datePublished: "2025-01-15"
+dateModified: "2026-06-24"
+---
 
-## How the 6-Byte Header Dictates Parsing
-Every DWG file begins with a 6-byte ASCII version identifier at file offset `0x00`. This string dictates which parser or converter can safely read the file. The format has evolved through multiple binary schema shifts, with Autodesk introducing LZ77 compression in 2004, 64-bit object IDs in 2013, and cloud metadata in 2018. Because the specification remains proprietary, reverse-engineered parsers often fail on newer releases or silently drop custom entities. The [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) layer in your pipeline should normalize these versions before downstream GIS/BIM ingestion.
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Detecting and Routing DWG Version Compatibility in Python Pipelines",
+      "description": "Read the 6-byte ACAD header, map it to the correct AutoCAD release schema, and route DWG files through version-aware converters to prevent silent data loss in CAD/GIS/BIM interoperability pipelines.",
+      "datePublished": "2025-01-15",
+      "dateModified": "2026-06-24",
+      "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
+      "publisher": {"@type": "Organization", "name": "CAD GIS BIM Interop"}
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
+        {"@type": "ListItem", "position": 2, "name": "DWG Proprietary Limitations", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/"},
+        {"@type": "ListItem", "position": 3, "name": "Detecting and Routing DWG Version Compatibility in Python Pipelines", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/"}
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "name": "Detecting and Routing DWG Version Compatibility in Python Pipelines",
+      "description": "Inspect the DWG 6-byte ACAD version header, map it to the correct schema release, and route files through an authorised CLI converter to prevent silent data loss.",
+      "step": [
+        {"@type": "HowToStep", "position": 1, "name": "Read the 6-byte header", "text": "Open the DWG file in binary mode and read the first 6 bytes to extract the ACAD version code."},
+        {"@type": "HowToStep", "position": 2, "name": "Map the code to a schema release", "text": "Look up the byte string in the VERSION_MAP dictionary to determine the AutoCAD release and the appropriate export target."},
+        {"@type": "HowToStep", "position": 3, "name": "Route to version-aware converter", "text": "Pass the file and target version string to odafileconverter, capturing stderr for structured error logging."},
+        {"@type": "HowToStep", "position": 4, "name": "Apply fallback on unknown codes", "text": "If the code is absent from the registry, fall back to AC1032 (R2018) and emit a structured warning before conversion."},
+        {"@type": "HowToStep", "position": 5, "name": "Normalise the output schema", "text": "Strip proxy objects and custom dictionaries from the converted DXF before handing off to GIS or BIM ingestion stages."}
+      ]
+    }
+  ]
+}
+</script>
 
-## ACAD Version Matrix
-The table below maps critical `ACAD` codes to their release years, compatibility tiers, and architectural changes. Infrastructure platform teams use this registry to route files safely.
+# Detecting and Routing DWG Version Compatibility in Python Pipelines
 
-| ACAD Code | Release Year | Compatibility Tier | Key Architectural Changes |
-|-----------|--------------|-------------------|---------------------------|
-| `AC1009` | R11/R12 | Legacy | Early binary/ASCII hybrid; universally supported |
-| `AC1012` | R13 | Stable | First true binary DWG; baseline for legacy GIS |
-| `AC1014` | R14 | Stable | Standardized entity dictionaries |
-| `AC1015` | 2000 | High | Introduced Object Enablers and proxy objects |
-| `AC1018` | 2004 | High | LZ77 compression, 3D solid improvements |
-| `AC1021` | 2007 | Moderate | ACIS 7.0 kernel, extended XREF handling |
-| `AC1024` | 2010 | Moderate | Dynamic blocks, parametric constraints |
-| `AC1027` | 2013 | Low | 64-bit object IDs, new hash tables |
-| `AC1032` | 2018–2025 | Low | Enhanced PDF underlay, cloud sync metadata; still the current DWG schema — AutoCAD 2019–2025 retained the R2018 format |
-| `AC1035` | — | Reserved | No public DWG format beyond R2018 (`AC1032`) has shipped as of 2026; treat newer codes as unconfirmed |
+Detecting DWG version compatibility requires mapping the 6-byte `ACADxxxx` binary header at file offset `0x00` to a schema revision, then routing the file through a version-aware converter before any GIS or BIM ingestion stage runs. The `.dwg` extension alone carries no schema guarantee — each major AutoCAD release introduces new compression algorithms, object-ID widths, or cloud metadata blocks that silently corrupt naive parsers. As part of the [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) workflow, header-first routing is the minimal safeguard that keeps interoperability pipelines deterministic.
 
-Files newer than your converter’s maximum supported version will either raise parsing exceptions or silently drop entities. To prevent data loss, implement a three-tier routing strategy:
-1. **Header Inspection:** Read the first 6 bytes synchronously before loading the full file into memory.
-2. **Version Routing:** Match the header against a known `ACAD` code registry.
-3. **Safe Conversion:** Downgrade unsupported versions to a stable baseline (typically `AC1015` or `AC1018`) using an authorized CLI tool. For official reference on supported formats and CLI flags, consult the [Open Design Alliance File Converter documentation](https://www.opendesign.com/guestfiles/oda_file_converter).
+---
 
-## Production Python Implementation
-The following module detects DWG versions, routes them to a CLI-based converter, and enforces compatibility boundaries. It assumes `odafileconverter` is installed and available in `$PATH`.
+## How the 6-Byte Header Controls Parsing
+
+Every DWG file stores a 6-byte ASCII version string starting at file offset `0x00`. This code is the sole reliable signal of the binary schema in use — no reliable fallback exists once parsing has started. Autodesk introduced `LZ77` section compression at `AC1018` (2004), widened object IDs from 32-bit to 64-bit at `AC1027` (2013), and embedded cloud-sync metadata blocks at `AC1032` (2018). Each change breaks parsers that were not written against that schema.
+
+Because the DWG specification is proprietary, reverse-engineered parsers — including the Open Design Alliance (ODA) libraries — sometimes fail silently on unsupported codes rather than raising exceptions. This means the failure mode you must guard against is not a crash but a silently truncated geometry set that passes downstream validation while missing entire layer groups or 3D solids. The [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) layer in your pipeline is the right place to gate files by version before any geometry or attribute extraction runs.
+
+<svg viewBox="0 0 760 320" role="img" aria-label="DWG version routing pipeline: header inspection, version lookup, converter routing, and schema normalisation stages" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:760px;display:block;margin:1.5rem auto;">
+  <title>DWG Version Routing Pipeline</title>
+  <desc>Four-stage pipeline diagram showing: 1) Read 6-byte header from DWG file, 2) Lookup ACAD code in version registry, 3) Route to ODA converter with target version, 4) Normalised DXF output for GIS/BIM ingestion.</desc>
+  <defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" opacity="0.7"/>
+    </marker>
+  </defs>
+  <!-- Stage boxes -->
+  <!-- Stage 1 -->
+  <rect x="20" y="110" width="140" height="70" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
+  <text x="90" y="138" text-anchor="middle" font-size="12" font-family="system-ui,sans-serif" fill="currentColor" font-weight="600">DWG File</text>
+  <text x="90" y="155" text-anchor="middle" font-size="11" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.75">Read 6 bytes</text>
+  <text x="90" y="171" text-anchor="middle" font-size="10" font-family="monospace,monospace" fill="currentColor" opacity="0.65">offset 0x00</text>
+  <!-- Arrow 1→2 -->
+  <line x1="160" y1="145" x2="196" y2="145" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.7"/>
+  <!-- Stage 2 -->
+  <rect x="200" y="110" width="150" height="70" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
+  <text x="275" y="138" text-anchor="middle" font-size="12" font-family="system-ui,sans-serif" fill="currentColor" font-weight="600">Version Registry</text>
+  <text x="275" y="155" text-anchor="middle" font-size="11" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.75">ACAD code lookup</text>
+  <text x="275" y="171" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.65">→ export target</text>
+  <!-- Arrow 2→3 -->
+  <line x1="350" y1="145" x2="386" y2="145" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.7"/>
+  <!-- Stage 3 -->
+  <rect x="390" y="110" width="160" height="70" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
+  <text x="470" y="138" text-anchor="middle" font-size="12" font-family="system-ui,sans-serif" fill="currentColor" font-weight="600">ODA Converter</text>
+  <text x="470" y="155" text-anchor="middle" font-size="11" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.75">odafileconverter</text>
+  <text x="470" y="171" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.65">DWG → DXF</text>
+  <!-- Arrow 3→4 -->
+  <line x1="550" y1="145" x2="586" y2="145" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.7"/>
+  <!-- Stage 4 -->
+  <rect x="590" y="110" width="148" height="70" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
+  <text x="664" y="138" text-anchor="middle" font-size="12" font-family="system-ui,sans-serif" fill="currentColor" font-weight="600">Normalised DXF</text>
+  <text x="664" y="155" text-anchor="middle" font-size="11" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.75">proxy objects stripped</text>
+  <text x="664" y="171" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.65">GIS / BIM ingestion</text>
+  <!-- Fallback path label -->
+  <text x="275" y="228" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.6">unknown code → fall back to AC1032</text>
+  <line x1="275" y1="180" x2="275" y2="215" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" opacity="0.5" marker-end="url(#arrowhead)"/>
+  <!-- Labels below boxes -->
+  <text x="90" y="198" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.55">Stage 1</text>
+  <text x="275" y="198" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.55">Stage 2</text>
+  <text x="470" y="198" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.55">Stage 3</text>
+  <text x="664" y="198" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="currentColor" opacity="0.55">Stage 4</text>
+</svg>
+
+### ACAD Version Registry
+
+The table below maps every `ACAD` code encountered in production to its AutoCAD release year, a routing compatibility tier, and the architectural changes that affect parser behaviour.
+
+| ACAD Code | Release | Routing Tier | Key Schema Changes |
+|-----------|---------|-------------|-------------------|
+| `AC1009` | R11 / R12 | Legacy — universal | Early binary/ASCII hybrid; all ODA versions accept this |
+| `AC1012` | R13 | Stable | First fully binary DWG; baseline for legacy GIS ingestion |
+| `AC1014` | R14 | Stable | Standardised entity dictionaries; widely interoperable |
+| `AC1015` | 2000 | High | Object Enablers and proxy objects introduced |
+| `AC1018` | 2004 | High | `LZ77` section compression; 3D solid kernel update |
+| `AC1021` | 2007 | Moderate | ACIS 7.0 kernel; extended `XREF` handling |
+| `AC1024` | 2010 | Moderate | Dynamic blocks; parametric constraints added |
+| `AC1027` | 2013 | Low | 64-bit object IDs; new hash-table structures |
+| `AC1032` | 2018–2026 | Low | PDF underlay enhancement; cloud-sync metadata; current schema — AutoCAD 2019–2026 all use R2018 |
+| Unknown | — | Reject / warn | No public DWG schema beyond `AC1032` has shipped as of mid-2026; treat unrecognised codes as unconfirmed and apply the `AC1032` fallback |
+
+Files whose `ACAD` code exceeds your converter's maximum supported version will either raise a parsing exception or — more dangerously — silently drop entities. The three-stage routing strategy is:
+
+1. **Header inspection:** read the first 6 bytes synchronously before loading the full binary into memory.
+2. **Code lookup:** match the header against the registry; emit a structured warning and apply the fallback version for any code not in the map.
+3. **Authorised conversion:** downgrade to a stable baseline (`AC1015` or `AC1018` for most GIS consumers) using the ODA File Converter CLI — see the [Open Design Alliance File Converter documentation](https://www.opendesign.com/guestfiles/oda_file_converter) for supported flags.
+
+---
+
+## Production-Ready Script
+
+The module below detects the DWG version, resolves the export target from the registry, calls `odafileconverter`, and enforces all four fallback paths. It requires Python 3.9+ and `odafileconverter` on `$PATH`.
 
 ```python
+# dwg_version_router.py
+# Requires: Python >= 3.9, odafileconverter installed from Open Design Alliance
 import os
 import subprocess
 import logging
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-# ACAD code to target export version mapping
-VERSION_MAP: Dict[bytes, str] = {
+# Maps 6-byte ACAD header bytes to the ODA File Converter target-version string.
+# AC1032 is the current DWG schema; AutoCAD 2019–2026 all write this version.
+VERSION_MAP: dict[bytes, str] = {
     b"AC1009": "R12",
     b"AC1012": "R13",
     b"AC1014": "R14",
@@ -47,75 +160,192 @@ VERSION_MAP: Dict[bytes, str] = {
     b"AC1021": "2007",
     b"AC1024": "2010",
     b"AC1027": "2013",
-    b"AC1032": "2018",  # R2018 remains the current DWG format (AutoCAD 2019–2025)
+    b"AC1032": "2018",
 }
 
-# Fallback target for unsupported/newer versions
-DEFAULT_EXPORT_VERSION = "2018"
+# Fallback target for any unrecognised ACAD code (e.g. future releases).
+FALLBACK_VERSION = "2018"
+
+# Minimum plausible DWG file size; rejects stubs and zero-byte placeholders.
+MIN_DWG_BYTES = 1024
+
 
 def read_dwg_version(file_path: Path) -> Optional[bytes]:
-    """Extract the 6-byte ACAD version header from a DWG file."""
+    """
+    Extract the 6-byte ACAD version header from a DWG file.
+
+    Returns None on I/O error or if the file is smaller than MIN_DWG_BYTES.
+    Does NOT raise — callers must treat None as a hard rejection signal.
+    """
     if not file_path.exists():
         logger.error("File not found: %s", file_path)
         return None
+    if file_path.stat().st_size < MIN_DWG_BYTES:
+        logger.error(
+            "File too small (%d bytes); rejecting before subprocess invocation: %s",
+            file_path.stat().st_size,
+            file_path,
+        )
+        return None
     try:
-        with open(file_path, "rb") as f:
-            return f.read(6)
-    except IOError as e:
-        logger.error("Failed to read header: %s", e)
+        with open(file_path, "rb") as fh:
+            header = fh.read(6)
+        if not header.startswith(b"AC"):
+            logger.error(
+                "Missing ACAD prefix in first 6 bytes of %s — not a DWG file",
+                file_path,
+            )
+            return None
+        return header
+    except OSError as exc:
+        logger.error("Failed to read header from %s: %s", file_path, exc)
         return None
 
-def convert_dwg(input_path: Path, output_dir: Path, target_version: str = DEFAULT_EXPORT_VERSION) -> Path:
-    """Route a DWG file through ODA File Converter for version normalization."""
+
+def convert_dwg_to_dxf(
+    input_path: Path,
+    output_dir: Path,
+    target_version: str = FALLBACK_VERSION,
+    timeout_seconds: int = 120,
+) -> Path:
+    """
+    Convert a DWG file to DXF at the given target version using odafileconverter.
+
+    Raises RuntimeError on non-zero exit, FileNotFoundError if the CLI is absent,
+    and TimeoutExpired if conversion exceeds timeout_seconds.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / f"{input_path.stem}_v{target_version.replace(' ', '')}.dxf"
+    safe_version = target_version.replace(" ", "")
+    output_path = output_dir / f"{input_path.stem}_v{safe_version}.dxf"
 
     cmd = [
         "odafileconverter",
-        str(input_path),
+        str(input_path.parent),  # ODA takes an input directory
         str(output_dir),
         "DXF",
-        target_version
+        target_version,
+        "0",   # recurse flag (0 = no recursion)
+        "1",   # audit flag (1 = audit on read)
     ]
-
-    logger.info("Converting %s to %s using %s", input_path.name, target_version, cmd[0])
+    logger.info(
+        "Converting %s → DXF (target schema: %s)", input_path.name, target_version
+    )
     try:
-        subprocess.run(cmd, check=True, capture_output=True, text=True, timeout=120)
-        logger.info("Conversion successful: %s", output_file)
-        return output_file
-    except subprocess.CalledProcessError as e:
-        logger.error("Conversion failed: %s", e.stderr)
-        raise RuntimeError(f"ODA converter exited with code {e.returncode}") from e
+        result = subprocess.run(
+            cmd,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+        )
+        if result.stdout:
+            logger.debug("odafileconverter stdout: %s", result.stdout.strip())
+        logger.info("Conversion complete: %s", output_path)
+        return output_path
+    except subprocess.CalledProcessError as exc:
+        logger.error(
+            "odafileconverter exited %d: %s", exc.returncode, exc.stderr.strip()
+        )
+        raise RuntimeError(
+            f"ODA converter failed with exit code {exc.returncode}"
+        ) from exc
     except FileNotFoundError:
-        logger.error("odafileconverter not found in PATH. Install from Open Design Alliance.")
+        logger.error(
+            "odafileconverter not found in PATH — install from Open Design Alliance"
+        )
         raise
     except subprocess.TimeoutExpired:
-        logger.error("Conversion timed out after 120s")
+        logger.error("Conversion timed out after %ds for %s", timeout_seconds, input_path)
         raise
 
-def process_dwg_pipeline(file_path: Path, output_dir: Path) -> Path:
-    """End-to-end DWG version detection and conversion pipeline."""
+
+def process_dwg(file_path: Path, output_dir: Path) -> Path:
+    """
+    End-to-end DWG version detection and DXF conversion pipeline.
+
+    Returns the Path to the converted DXF file ready for GIS or BIM ingestion.
+    """
     header = read_dwg_version(file_path)
-    if not header:
-        raise ValueError("Invalid or unreadable DWG file")
+    if header is None:
+        raise ValueError(f"Cannot process {file_path}: invalid or unreadable DWG")
 
     if header not in VERSION_MAP:
-        logger.warning("Unknown ACAD code %s. Falling back to %s.", header.decode("ascii", errors="ignore"), DEFAULT_EXPORT_VERSION)
-        target = DEFAULT_EXPORT_VERSION
+        logger.warning(
+            "Unrecognised ACAD code %r — applying fallback target %s",
+            header.decode("ascii", errors="replace"),
+            FALLBACK_VERSION,
+        )
+        target = FALLBACK_VERSION
     else:
         target = VERSION_MAP[header]
-        logger.info("Detected DWG version %s (AutoCAD %s)", header.decode("ascii"), target)
+        logger.info(
+            "Detected %s → AutoCAD %s",
+            header.decode("ascii"),
+            target,
+        )
 
-    return convert_dwg(file_path, output_dir, target)
+    return convert_dwg_to_dxf(file_path, output_dir, target)
+
+
+# ---------------------------------------------------------------------------
+# CLI usage example
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) != 3:
+        print("Usage: python dwg_version_router.py <input.dwg> <output_dir>")
+        sys.exit(1)
+
+    dxf_out = process_dwg(Path(sys.argv[1]), Path(sys.argv[2]))
+    print(f"Output: {dxf_out}")
 ```
 
-## Fallbacks & Schema Normalization
-When a file cannot be converted natively, route it to an intermediate format. DXF remains the most reliable interchange layer because Autodesk publishes the full ASCII specification. Refer to the [Autodesk DXF Reference](https://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-235B22E0-A567-4CF6-92D3-38A2306D73F3) for entity mapping rules and coordinate system transformations. 
+Key implementation notes:
 
-For high-throughput pipelines, implement these safeguards:
-- **Pre-flight validation:** Reject files smaller than 1 KB or missing the `ACAD` prefix before invoking subprocesses.
-- **Idempotent routing:** Cache converted DXF outputs using a hash of the original file path + target version to avoid redundant conversions.
-- **Graceful degradation:** If the CLI converter fails, fall back to a read-only metadata extraction pass that logs the version, layer count, and bounding box without attempting full geometry parsing.
-- **Schema normalization:** Strip proxy objects and custom dictionaries during conversion. GIS/BIM engines typically require clean, standardized geometry; retaining proprietary extensions will corrupt spatial joins and coordinate transformations.
+- `odafileconverter` takes an **input directory**, not an individual file path. The script passes `input_path.parent` so only the target file is in scope; isolate files in a temporary directory if you process batches to avoid converting siblings.
+- The audit flag (`1`) instructs ODA to run an internal consistency check on read, which surfaces corrupted entity references that would otherwise produce silent geometry gaps.
+- `capture_output=True` prevents ODA's verbose progress output from polluting the calling process's stdout while still making stderr available for structured error logging.
+- Cache converted DXF outputs by hashing `input_path` + `target_version` to avoid redundant conversions in high-throughput pipelines. A simple `{hash}.dxf` naming convention in a shared cache directory is sufficient.
 
-By enforcing strict header inspection, version-aware routing, and licensed conversion layers, your interoperability pipeline will maintain deterministic behavior across AutoCAD releases while remaining compliant with Autodesk’s licensing boundaries.
+---
+
+## Compatibility Matrix
+
+| Component | Supported Range | Notes |
+|-----------|----------------|-------|
+| Python | 3.9 – 3.13 | Uses `dict[bytes, str]` PEP 585 syntax; requires 3.9+ |
+| odafileconverter | ODA 25.x – 26.x | Free download from Open Design Alliance; no Python binding — subprocess only |
+| Input DWG schema | `AC1009` – `AC1032` | `AC1032` is the current ceiling; codes beyond it are treated as unknown |
+| Output DXF target | R12 – 2018 | R2018 (`AC1032`) is the recommended target for ezdxf and most GIS consumers |
+| Operating system | Linux, Windows, macOS | `odafileconverter` ships as a native binary per platform; PATH setup differs |
+| [ezdxf](https://ezdxf.readthedocs.io/) downstream | ezdxf >= 1.1.0 | Use ezdxf to parse the converted DXF for geometry extraction and layer filtering |
+
+---
+
+## Fallback Strategies and Troubleshooting
+
+**1. `FileNotFoundError: odafileconverter`**
+The ODA binary is not on `$PATH`. On Linux, install the `.run` bundle from the Open Design Alliance and add the install directory to `~/.bashrc`. On Docker-based pipelines, bake the binary into the image and verify with `which odafileconverter` at container startup.
+
+**2. Unrecognised ACAD code in the registry**
+If `read_dwg_version` returns a header not in `VERSION_MAP` (e.g. a future `AC1035`), the pipeline logs a warning and attempts `AC1032` as the conversion target. If ODA also rejects that code, the only option is a read-only metadata pass: log the raw header bytes, the file size, and any layer names extractable from the ASCII sections of the DWG header, then quarantine the file for manual review.
+
+**3. Silent entity loss after conversion**
+Compare the layer count in the input DWG (readable via `odafileconverter` audit output or a lightweight binary scan for the `LAYER` section marker) against the layer count in the converted DXF parsed with [ezdxf](/python-parsing-geometry-extraction/ezdxf-deep-dive/). A mismatch signals proxy objects that were silently dropped. Re-run with a lower target version (`AC1015`) to see if ODA can reconstruct the geometry without the proprietary extensions.
+
+**4. `RuntimeError: ODA converter failed with exit code 1`**
+ODA exit code 1 usually indicates an encrypted or password-protected DWG. There is no programmatic bypass — request an unprotected export from the source. Log the file hash and notify the upstream data provider.
+
+**5. Conversion timeout on large DWG files**
+Increase `timeout_seconds` in `convert_dwg_to_dxf`. For files above 500 MB, pre-split the DWG into model-space and paper-space portions using an authorised tool before invoking the converter; monolithic files with thousands of xrefs frequently exceed 120-second limits on commodity hardware.
+
+---
+
+## Related Pages
+
+- [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — parent: routing strategies, ODA environment setup, and licensing boundaries
+- [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) — pillar overview: format normalisation, schema mapping, and pipeline architecture
+- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — sibling cluster: group code taxonomy and entity parsing after DWG-to-DXF conversion
+- [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — downstream task: extracting `$ACADVER`, `$INSUNITS`, and variable section values from the converted DXF output
+- [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) — cross-pillar: alternative DWG parsing approach using pydwg without an ODA converter dependency

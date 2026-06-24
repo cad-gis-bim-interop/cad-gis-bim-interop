@@ -29,15 +29,59 @@ A robust Python interoperability pipeline treats coordinate transformation as a 
 4. **Transformation & Alignment**: Apply datum shifts, projections, and local-to-global registration matrices. Execute operations in a vectorized, memory-efficient manner.
 5. **Validation & Export**: Verify coordinate bounds, check for precision degradation, and write aligned outputs to target formats with updated CRS metadata.
 
-```mermaid
-flowchart LR
-    A[Ingest & Parse<br/>ezdxf · geopandas · ifcopenshell] --> B[Metadata Extraction<br/>WKT · EPSG · base points]
-    B --> C[Normalization<br/>units · axis order · topology]
-    C --> D[Transformation<br/>datum · projection · affine]
-    D --> E[Validation & Export<br/>bounds · CRS metadata]
-    B -.->|missing CRS| F[(Flag &<br/>fallback)]
-    F -.-> C
-```
+<figure aria-label="Spatial alignment pipeline: Ingest/Parse → Metadata Extraction → Normalization → Transformation → Validation/Export, with missing-CRS fallback loop">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 152" role="img" aria-label="Five-stage coordinate transformation pipeline with CRS fallback" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <marker id="ct-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
+    </marker>
+    <marker id="ct-dash" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="#888"/>
+    </marker>
+  </defs>
+  <!-- A: Ingest & Parse — height 58 to fit 3 lines -->
+  <rect x="5" y="26" width="145" height="58" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="77" y="46" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Ingest &amp; Parse</text>
+  <text x="77" y="62" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">ezdxf · geopandas</text>
+  <text x="77" y="76" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">ifcopenshell</text>
+  <line x1="150" y1="55" x2="170" y2="55" stroke="#444" stroke-width="1.5" marker-end="url(#ct-arrow)"/>
+  <!-- B: Metadata Extraction -->
+  <rect x="170" y="26" width="145" height="58" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="242" y="46" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Metadata Extraction</text>
+  <text x="242" y="62" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">WKT · EPSG</text>
+  <text x="242" y="76" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">base points</text>
+  <line x1="315" y1="55" x2="335" y2="55" stroke="#444" stroke-width="1.5" marker-end="url(#ct-arrow)"/>
+  <!-- C: Normalization -->
+  <rect x="335" y="26" width="140" height="58" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="405" y="46" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Normalization</text>
+  <text x="405" y="62" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">units · axis order</text>
+  <text x="405" y="76" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">topology</text>
+  <line x1="475" y1="55" x2="495" y2="55" stroke="#444" stroke-width="1.5" marker-end="url(#ct-arrow)"/>
+  <!-- D: Transformation -->
+  <rect x="495" y="26" width="140" height="58" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="565" y="46" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Transformation</text>
+  <text x="565" y="62" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">datum · projection</text>
+  <text x="565" y="76" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">affine</text>
+  <line x1="635" y1="55" x2="655" y2="55" stroke="#444" stroke-width="1.5" marker-end="url(#ct-arrow)"/>
+  <!-- E: Validation & Export -->
+  <rect x="655" y="26" width="175" height="58" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="742" y="46" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">Validation &amp; Export</text>
+  <text x="742" y="62" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">bounds ·</text>
+  <text x="742" y="76" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">CRS metadata</text>
+  <!-- Dashed missing CRS from B down to F cylinder -->
+  <line x1="242" y1="84" x2="242" y2="112" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="242" y1="112" x2="330" y2="112" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#ct-dash)"/>
+  <text x="276" y="109" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">missing CRS</text>
+  <!-- F cylinder — fits within viewBox height 152 -->
+  <ellipse cx="375" cy="112" rx="42" ry="10" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <rect x="333" y="112" width="84" height="20" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <ellipse cx="375" cy="132" rx="42" ry="10" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
+  <text x="375" y="126" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7c3d00">Flag &amp; fallback</text>
+  <!-- Dashed from F to C -->
+  <line x1="417" y1="122" x2="445" y2="122" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="445" y1="122" x2="445" y2="84" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#ct-dash)"/>
+</svg>
+</figure>
 
 This architecture ensures reproducibility and simplifies debugging. Each stage should log input/output schemas, transformation parameters, and validation metrics, creating an audit trail that satisfies engineering compliance requirements.
 
