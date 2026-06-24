@@ -61,12 +61,29 @@
   <!-- Discoverability -->
   <link rel="sitemap" type="application/xml" href="/sitemap.xml">
 
-  <!-- Fonts (system stack with Inter fallback) -->
+  <!-- Fonts (system stack with Inter enhancement). The Inter stylesheet is loaded
+       non-render-blocking (media swap) so it never sits on the critical path; the system
+       font stack renders immediately and Inter swaps in once fetched. -->
   <link rel="preconnect" href="https://rsms.me/">
-  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://rsms.me/inter/inter.css"></noscript>
 
-  <!-- KaTeX (for rendered math) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+  <!-- KaTeX (for rendered math) — only emitted on pages that actually render math, and injected
+       after window load so the render-blocking third-party stylesheet never enters the critical
+       path or repaints the LCP element. <noscript> keeps math styled without JS. -->
+  {%- if content and "katex" in content %}
+  <script>
+    addEventListener('load', function () {
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css';
+      l.integrity = 'sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww';
+      l.crossOrigin = 'anonymous';
+      document.head.appendChild(l);
+    });
+  </script>
+  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous"></noscript>
+  {%- endif %}
 
   <!-- Styles -->
   <link rel="stylesheet" href="/assets/css/main.css">

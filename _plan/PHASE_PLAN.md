@@ -4,7 +4,7 @@
 
 - **Niche:** Python for CAD/GIS & BIM Interoperability Pipelines
 - **Audience:** AEC tech engineers, GIS/CAD integrators, Python automation builders, infrastructure platform teams
-- **Live now:** 25 pages, 29,731 words
+- **Live now:** 25 pages, 74,575 words
 - **Current phase:** foundation
 - **Next phase to build:** expansion
 
