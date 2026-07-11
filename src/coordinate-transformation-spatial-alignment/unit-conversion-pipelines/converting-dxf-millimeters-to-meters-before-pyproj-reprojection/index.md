@@ -155,9 +155,9 @@ The `$INSUNITS` code maps directly to a metre scale factor. The values you will 
 |---|---|---|
 | 0 | Undefined | (no default — see fallbacks) |
 | 1 | Inches | 0.0254 |
-| 2 | Centimetres | 0.01 |
+| 2 | Feet | 0.3048 |
 | 4 | Millimetres | 0.001 |
-| 5 | Micrometres | 0.000001 |
+| 5 | Centimetres | 0.01 |
 | 6 | Metres | 1.0 |
 | 7 | Kilometres | 1000.0 |
 
@@ -182,9 +182,9 @@ log = logging.getLogger("dxf_reproject")
 # $INSUNITS code -> metre scale factor. 0 is intentionally absent (undefined).
 INSUNITS_TO_METRES = {
     1: 0.0254,      # inches
-    2: 0.01,        # centimetres
+    2: 0.3048,      # feet
     4: 0.001,       # millimetres
-    5: 0.000001,    # micrometres
+    5: 0.01,        # centimetres
     6: 1.0,         # metres
     7: 1000.0,      # kilometres
 }
@@ -290,7 +290,7 @@ if __name__ == "__main__":
 | Python | `3.9+` | Uses `dict`, `pathlib`, and PEP 604 `X | None` type hints. |
 | DXF format | `R2000` (`AC1015`) – `R2018` (`AC1032`) | `$INSUNITS` present since R2000; older files may omit it (reads as 0). |
 | Source CRS | Any projected EPSG in metres | For feet-based state-plane CRS, the CRS linear unit is not metres — scale to the CRS unit, not to metres. |
-| `$INSUNITS` codes | 1, 2, 4, 5, 6, 7 | Code 0 (undefined) requires an explicit default; codes 8–20 (miles, feet, yards, etc.) can be added to the lookup as needed. |
+| `$INSUNITS` codes | 1, 2, 4, 5, 6, 7 | Code 0 (undefined) requires an explicit default; codes 3, 10, 13 and 21–24 (miles, yards, microns, US survey units, etc.) can be added to the lookup as needed. |
 
 ## Fallback Strategies
 

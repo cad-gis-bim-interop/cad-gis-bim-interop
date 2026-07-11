@@ -52,7 +52,7 @@ dateModified: "2026-07-11"
         {
           "@type": "Question",
           "name": "What does each $INSUNITS value mean?",
-          "acceptedAnswer": {"@type": "Answer", "text": "$INSUNITS is an integer code for the drawing's base unit: 0 undefined, 1 inches (0.0254 m), 2 centimetres (0.01 m), 4 millimetres (0.001 m), 5 micrometres (0.000001 m), 6 metres (1.0 m), 7 kilometres (1000 m). Higher codes cover feet, miles, and other units. Map the code to a metre scale factor before doing spatial work."}
+          "acceptedAnswer": {"@type": "Answer", "text": "$INSUNITS is an integer code for the drawing's base unit: 0 undefined, 1 inches (0.0254 m), 2 feet (0.3048 m), 4 millimetres (0.001 m), 5 centimetres (0.01 m), 6 metres (1.0 m), 7 kilometres (1000 m). Higher codes cover miles, yards, microns, and other units. Map the code to a metre scale factor before doing spatial work."}
         },
         {
           "@type": "Question",
@@ -145,9 +145,9 @@ log = logging.getLogger("dxf_autoscale")
 # Canonical $INSUNITS -> metres lookup. Code 0 is intentionally absent: undefined.
 INSUNITS_TO_METRES: dict[int, float] = {
     1: 0.0254,      # inches
-    2: 0.01,        # centimetres
+    2: 0.3048,      # feet
     4: 0.001,       # millimetres
-    5: 0.000001,    # micrometres
+    5: 0.01,        # centimetres
     6: 1.0,         # metres
     7: 1000.0,      # kilometres
 }
@@ -295,7 +295,7 @@ def test_undefined_uses_measurement():
 <details>
 <summary><strong>What does each $INSUNITS value mean?</strong></summary>
 
-`$INSUNITS` is an integer code for the drawing's base unit: 0 undefined, 1 inches (`0.0254 m`), 2 centimetres (`0.01 m`), 4 millimetres (`0.001 m`), 5 micrometres (`0.000001 m`), 6 metres (`1.0 m`), 7 kilometres (`1000 m`). Higher codes cover miles, feet, yards, and others. Map the code to a metre scale factor before any spatial computation.
+`$INSUNITS` is an integer code for the drawing's base unit: 0 undefined, 1 inches (`0.0254 m`), 2 feet (`0.3048 m`), 4 millimetres (`0.001 m`), 5 centimetres (`0.01 m`), 6 metres (`1.0 m`), 7 kilometres (`1000 m`). Higher codes cover miles, yards, microns, and others. Map the code to a metre scale factor before any spatial computation.
 
 </details>
 

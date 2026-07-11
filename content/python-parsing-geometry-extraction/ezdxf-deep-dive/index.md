@@ -56,7 +56,7 @@ dateModified: "2026-06-24"
         {
           "@type": "Question",
           "name": "What does $INSUNITS=2 mean in a DXF header?",
-          "acceptedAnswer": {"@type": "Answer", "text": "$INSUNITS defines the drawing's base unit. Value 2 indicates centimeters. Value 4 is millimeters, value 6 is meters, and value 1 is inches. Always read $INSUNITS before applying any unit scale factor; missing this value defaults to 0 (undefined), which requires a fallback assumption documented in your pipeline."}
+          "acceptedAnswer": {"@type": "Answer", "text": "$INSUNITS defines the drawing's base unit. Per the DXF specification, value 2 indicates feet. Value 1 is inches, value 4 is millimeters, value 5 is centimeters, and value 6 is meters. Always read $INSUNITS before applying any unit scale factor; missing this value defaults to 0 (undefined), which requires a fallback assumption documented in your pipeline."}
         },
         {
           "@type": "Question",
@@ -188,12 +188,12 @@ Open the file, verify `$ACADVER` against your supported revision matrix, and con
 import ezdxf
 from pathlib import Path
 
-# $INSUNITS values: 0=undefined, 1=inches, 2=cm, 4=mm, 6=m, 14=micrometers
+# $INSUNITS values (DXF spec): 0=undefined, 1=inches, 2=feet, 4=mm, 5=cm, 6=m, 7=km, 13=microns
 INSUNITS_SCALE_TO_METERS: dict[int, float] = {
     1: 0.0254,   # inches
-    2: 0.01,     # centimeters
+    2: 0.3048,   # feet
     4: 0.001,    # millimeters
-    5: 0.00001,  # micrometers (less common)
+    5: 0.01,     # centimeters
     6: 1.0,      # meters
     7: 1000.0,   # kilometers
 }
@@ -508,7 +508,7 @@ No. `ezdxf` exposes the raw ACIS/SAT payload stored inside `3DSOLID` group codes
 <details>
 <summary><strong>What does $INSUNITS=2 mean in a DXF header?</strong></summary>
 
-`$INSUNITS` defines the drawing's base measurement unit as a numeric code. Value 2 is centimetres. Value 4 is millimetres (common in architectural drawings), value 6 is metres (common in civil/survey drawings), and value 1 is inches (common in North American imperial drawings). Always read `$INSUNITS` before applying any unit scale factor. A value of 0 means undefined and requires a fallback strategy — do not silently assume millimetres.
+`$INSUNITS` defines the drawing's base measurement unit as a numeric code. Per the DXF specification, value 2 is feet — a common off-by-one trap, since value 1 is inches. Value 4 is millimetres (common in architectural drawings), value 5 is centimetres, value 6 is metres (common in civil/survey drawings), and value 1 is inches (common in North American imperial drawings). Always read `$INSUNITS` before applying any unit scale factor. A value of 0 means undefined and requires a fallback strategy — do not silently assume millimetres.
 
 </details>
 
