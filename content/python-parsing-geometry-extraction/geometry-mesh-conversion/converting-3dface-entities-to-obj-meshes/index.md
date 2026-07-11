@@ -2,7 +2,6 @@
 title: "Converting 3DFACE Entities to OBJ Meshes"
 description: "Read DXF 3DFACE corner points with ezdxf, deduplicate a shared vertex list with tolerance, and emit 1-indexed Wavefront OBJ meshes with triangle and quad face handling."
 slug: "converting-3dface-entities-to-obj-meshes"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -29,9 +28,9 @@ dateModified: "2026-07-11"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "Geometry Mesh Conversion", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/"},
-        {"@type": "ListItem", "position": 3, "name": "Converting 3DFACE Entities to OBJ Meshes", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-3dface-entities-to-obj-meshes/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "Geometry Mesh Conversion", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/"},
+        {"@type": "ListItem", "position": 3, "name": "Converting 3DFACE Entities to OBJ Meshes", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-3dface-entities-to-obj-meshes/"}
       ]
     },
     {
@@ -77,7 +76,7 @@ dateModified: "2026-07-11"
 
 # Converting 3DFACE Entities to OBJ Meshes
 
-A DXF `3DFACE` entity stores up to four corner points and nothing else — no shared vertex table, no connectivity — so converting a drawing full of them into a compact Wavefront OBJ mesh means reading `vtx0` through `vtx3`, deduplicating coincident corners into a shared vertex list, and emitting 1-indexed `f` lines. The reliable Python route is `ezdxf` for entity access plus a dictionary keyed on rounded coordinate tuples for the dedup. This page is part of the [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) workflow inside the wider [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) pipeline, and it sits alongside [Triangulating CAD Polygons with Earcut in Python](/python-parsing-geometry-extraction/geometry-mesh-conversion/triangulating-cad-polygons-with-earcut-in-python/), which handles the ringed faces that `3DFACE` never encodes.
+A DXF `3DFACE` entity stores up to four corner points and nothing else — no shared vertex table, no connectivity — so converting a drawing full of them into a compact Wavefront OBJ mesh means reading `vtx0` through `vtx3`, deduplicating coincident corners into a shared vertex list, and emitting 1-indexed `f` lines. The reliable Python route is `ezdxf` for entity access plus a dictionary keyed on rounded coordinate tuples for the dedup. This page is part of the [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) workflow inside the wider [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) pipeline, and it sits alongside [Triangulating CAD Polygons with Earcut in Python](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/triangulating-cad-polygons-with-earcut-in-python/), which handles the ringed faces that `3DFACE` never encodes.
 
 ## How ezdxf Handles 3DFACE Corner Points
 
@@ -212,7 +211,7 @@ Key implementation notes:
 - **OBJ indices are 1-based.** The `f` line writer adds `1` to every 0-based Python index. Forgetting this shifts the entire mesh and is the single most common cause of scrambled OBJ output.
 - **Quads stay quads.** OBJ supports polygonal faces, so a genuine four-corner `3DFACE` is written as `f a b c d`. Split into two triangles only when the consumer demands it.
 - **Tolerance rounding is coarse on purpose.** `ndigits=6` merges corners within one micron for metre-unit drawings. Raise it for millimetre CAD or lower it for survey data; matching the tolerance to the drawing's units prevents both over-merging and duplicate vertices.
-- **Local-origin shift preserves precision.** Subtracting the bounding-box minimum keeps OBJ coordinates small; record the offset in a comment so the mesh can be georeferenced later — the same concern that drives coordinate handling across [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/).
+- **Local-origin shift preserves precision.** Subtracting the bounding-box minimum keeps OBJ coordinates small; record the offset in a comment so the mesh can be georeferenced later — the same concern that drives coordinate handling across [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/).
 
 ## Compatibility Matrix
 
@@ -224,7 +223,7 @@ Key implementation notes:
 | Wavefront OBJ | 1.0 | Vertex-only mesh; add `vn`/`vt` lines separately if normals or UVs are required. |
 | OS | Linux, macOS, Windows | Pure Python; use `pathlib.Path` for cross-platform file paths. |
 
-For the entity's exact group-code layout, see the [Autodesk DXF 3DFACE reference](https://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-747865D9-4F1B-4F73-9C4B-2A5A7A8B5A0A), and cross-check against the group-code taxonomy in the [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/).
+For the entity's exact group-code layout, see the [Autodesk DXF 3DFACE reference](https://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-747865D9-4F1B-4F73-9C4B-2A5A7A8B5A0A), and cross-check against the group-code taxonomy in the [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/).
 
 ## Fallback Strategies
 
@@ -236,7 +235,7 @@ For the entity's exact group-code layout, see the [Autodesk DXF 3DFACE reference
 
 **3. Winding consistency.** `3DFACE` corner order is not guaranteed to be consistent across a drawing, so exported normals may point in mixed directions. OBJ itself stores no per-face normal, but downstream renderers compute them from winding. Normalize after import with `trimesh.repair.fix_winding(mesh)` (BFS winding propagation) rather than trying to reorder corners in the DXF.
 
-**4. Very large coordinate origins.** Files referenced to a survey datum place geometry at coordinates in the millions. When an OBJ viewer stores positions as 32-bit floats, that magnitude leaves only centimetre precision. The local-origin shift in the script handles the common case; for assemblies spanning multiple tiles, compute a single shared offset across all files so the meshes stay aligned — the same discipline documented in [Understanding DWG Version Compatibility](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) for cross-file coordinate consistency.
+**4. Very large coordinate origins.** Files referenced to a survey datum place geometry at coordinates in the millions. When an OBJ viewer stores positions as 32-bit floats, that magnitude leaves only centimetre precision. The local-origin shift in the script handles the common case; for assemblies spanning multiple tiles, compute a single shared offset across all files so the meshes stay aligned — the same discipline documented in [Understanding DWG Version Compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) for cross-file coordinate consistency.
 
 One more attribute is worth reading: `face.dxf.invisible` is a bitmask marking which of the four edges are hidden in the CAD viewport. It does not affect geometry, so OBJ export ignores it, but if you later reconstruct wireframe display you can test bits 1–8 to reproduce the original edge visibility.
 
@@ -274,8 +273,8 @@ Survey-referenced DXF files place geometry at full state-plane or UTM coordinate
 
 ## Related Pages
 
-- [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) — parent workflow covering vertex deduplication, normal repair, and mesh export formats
-- [Triangulating CAD Polygons with Earcut in Python](/python-parsing-geometry-extraction/geometry-mesh-conversion/triangulating-cad-polygons-with-earcut-in-python/) — sibling guide for ringed faces with holes that `3DFACE` cannot represent
-- [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — sibling guide for 2D linework extraction from the same DXF sources
-- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — top-level pipeline covering ingestion, extraction, and serialization stages
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — cross-topic reference for the group-code layout behind `3DFACE` corner storage
+- [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) — parent workflow covering vertex deduplication, normal repair, and mesh export formats
+- [Triangulating CAD Polygons with Earcut in Python](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/triangulating-cad-polygons-with-earcut-in-python/) — sibling guide for ringed faces with holes that `3DFACE` cannot represent
+- [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — sibling guide for 2D linework extraction from the same DXF sources
+- [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — top-level pipeline covering ingestion, extraction, and serialization stages
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — cross-topic reference for the group-code layout behind `3DFACE` corner storage

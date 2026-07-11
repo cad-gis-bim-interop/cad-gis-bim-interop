@@ -2,7 +2,6 @@
 title: "Triangulating CAD Polygons with Earcut in Python"
 description: "Triangulate CAD faces with holes into render-ready triangles using mapbox_earcut and ezdxf, with Shapely validity checks, winding normalization, and degenerate-vertex fallbacks."
 slug: "triangulating-cad-polygons-with-earcut-in-python"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -29,9 +28,9 @@ dateModified: "2026-07-11"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "Geometry Mesh Conversion", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/"},
-        {"@type": "ListItem", "position": 3, "name": "Triangulating CAD Polygons with Earcut", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/triangulating-cad-polygons-with-earcut-in-python/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "Geometry Mesh Conversion", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/"},
+        {"@type": "ListItem", "position": 3, "name": "Triangulating CAD Polygons with Earcut", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/triangulating-cad-polygons-with-earcut-in-python/"}
       ]
     },
     {
@@ -77,7 +76,7 @@ dateModified: "2026-07-11"
 
 # Triangulating CAD Polygons with Earcut in Python
 
-CAD faces arrive as closed rings — an outer boundary plus zero or more interior holes — that must be decomposed into triangles before they can enter a mesh, a glTF buffer, or a WebGL draw call. The most robust Python route is ear-clipping triangulation: `mapbox_earcut.triangulate_float64(verts, ring_end_indices)` turns a flat vertex array and a set of ring boundaries into a triangle index list, handling concave outlines and holes that naive fan triangulation corrupts. This page is part of the [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) workflow within the broader [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) pipeline, and it pairs directly with [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/), which produces the closed rings this stage consumes.
+CAD faces arrive as closed rings — an outer boundary plus zero or more interior holes — that must be decomposed into triangles before they can enter a mesh, a glTF buffer, or a WebGL draw call. The most robust Python route is ear-clipping triangulation: `mapbox_earcut.triangulate_float64(verts, ring_end_indices)` turns a flat vertex array and a set of ring boundaries into a triangle index list, handling concave outlines and holes that naive fan triangulation corrupts. This page is part of the [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) workflow within the broader [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) pipeline, and it pairs directly with [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/), which produces the closed rings this stage consumes.
 
 ## How Earcut Handles CAD Polygons with Holes
 
@@ -262,7 +261,7 @@ def snap(coords, tol: float = 1e-6):
     return np.round(arr / tol) * tol
 ```
 
-This mirrors the tolerance-based vertex snapping used across the [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) pipeline and keeps earcut output free of zero-area faces that would later fail `trimesh.is_watertight`.
+This mirrors the tolerance-based vertex snapping used across the [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) pipeline and keeps earcut output free of zero-area faces that would later fail `trimesh.is_watertight`.
 
 ## FAQ
 
@@ -298,8 +297,8 @@ Overlapping or inverted triangles usually mean the input ring was self-intersect
 
 ## Related Pages
 
-- [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) — parent workflow covering coordinate normalization, topology repair, and mesh export that surrounds this triangulation step
-- [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — sibling guide that extracts the closed `LWPOLYLINE` rings this page triangulates
-- [Converting 3DFACE Entities to OBJ Meshes](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-3dface-entities-to-obj-meshes/) — sibling guide for the already-faceted DXF geometry that needs no ear-clipping
-- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — top-level pipeline covering DXF, IFC, and DWG ingestion feeding this mesh stage
-- [Reading 3D Solids with ezdxf Python](/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — cross-topic reference for the parametric solids that must be faceted before triangulation applies
+- [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) — parent workflow covering coordinate normalization, topology repair, and mesh export that surrounds this triangulation step
+- [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — sibling guide that extracts the closed `LWPOLYLINE` rings this page triangulates
+- [Converting 3DFACE Entities to OBJ Meshes](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-3dface-entities-to-obj-meshes/) — sibling guide for the already-faceted DXF geometry that needs no ear-clipping
+- [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — top-level pipeline covering DXF, IFC, and DWG ingestion feeding this mesh stage
+- [Reading 3D Solids with ezdxf Python](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — cross-topic reference for the parametric solids that must be faceted before triangulation applies

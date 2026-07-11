@@ -2,7 +2,6 @@
 title: "Parsing DWG Layers with Python Scripts"
 description: "Step-by-step guide to extracting DWG layer metadata, visibility states, and entity counts in Python using the DWG→DXF→ezdxf pipeline. Includes a production-ready script, compatibility matrix, and concrete troubleshooting steps."
 slug: "parsing-dwg-layers-with-python-scripts"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -29,9 +28,9 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "DWG-to-Python Integration", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/"},
-        {"@type": "ListItem", "position": 3, "name": "Parsing DWG Layers with Python Scripts", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "DWG-to-Python Integration", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/"},
+        {"@type": "ListItem", "position": 3, "name": "Parsing DWG Layers with Python Scripts", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/"}
       ]
     },
     {
@@ -52,7 +51,7 @@ dateModified: "2026-06-24"
 
 # Parsing DWG Layers with Python Scripts
 
-Extracting DWG layer metadata requires an intermediate normalization step. Because Autodesk's DWG format is proprietary and version-fragmented, direct binary parsing is unstable in production pipelines. The reliable approach converts DWG to DXF using the [Open Design Alliance File Converter](https://www.opendesign.com/guestfiles/oda_file_converter) or `libredwg`, then queries layer names, visibility states, color indices, and entity counts via `ezdxf`. This is covered in depth in the [DWG-to-Python Integration](/python-parsing-geometry-extraction/pydwg-integration/) guide, which this page extends with a focused implementation for layer extraction.
+Extracting DWG layer metadata requires an intermediate normalization step. Because Autodesk's DWG format is proprietary and version-fragmented, direct binary parsing is unstable in production pipelines. The reliable approach converts DWG to DXF using the [Open Design Alliance File Converter](https://www.opendesign.com/guestfiles/oda_file_converter) or `libredwg`, then queries layer names, visibility states, color indices, and entity counts via `ezdxf`. This is covered in depth in the [DWG-to-Python Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) guide, which this page extends with a focused implementation for layer extraction.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 160" role="img" aria-label="DWG layer extraction pipeline: DWG file → DXF converter → ezdxf layer table → JSON manifest" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>DWG Layer Extraction Pipeline</title>
@@ -259,7 +258,7 @@ The converter likely wrote an empty or structurally broken DXF. Re-run ODA with 
 
 **2. `DXFStructureError` on `ezdxf.readfile()`**
 
-The DXF was written with a DXF version string the installed `ezdxf` does not recognise (e.g., a future AC103x code). Pin ODA output to `ACAD2018` (AC1032) to produce a stable target version. Pass `dxf_version="ACAD2018"` to the converter subprocess call documented in the [DWG-to-Python Integration](/python-parsing-geometry-extraction/pydwg-integration/) workflow.
+The DXF was written with a DXF version string the installed `ezdxf` does not recognise (e.g., a future AC103x code). Pin ODA output to `ACAD2018` (AC1032) to produce a stable target version. Pass `dxf_version="ACAD2018"` to the converter subprocess call documented in the [DWG-to-Python Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) workflow.
 
 **3. Layer states all read as `False` (never frozen/off)**
 
@@ -277,7 +276,7 @@ AutoCAD encodes a layer-off state by negating the ACI color value in older DXF v
 
 ## Related Pages
 
-- [DWG-to-Python Integration](/python-parsing-geometry-extraction/pydwg-integration/) — parent guide covering version detection, headless ODA conversion, and the full DWG parsing landscape
-- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — the broader pipeline this page feeds into, from raw CAD files to validated spatial data
-- [Reading 3D Solids with ezdxf Python](/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — sibling task page covering ACIS/B-Rep entity access with the same `ezdxf` API
-- [Understanding DWG Version Compatibility](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — cross-topic reference for the AC10xx header codes and format fragmentation this pipeline works around
+- [DWG-to-Python Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) — parent guide covering version detection, headless ODA conversion, and the full DWG parsing landscape
+- [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — the broader pipeline this page feeds into, from raw CAD files to validated spatial data
+- [Reading 3D Solids with ezdxf Python](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — sibling task page covering ACIS/B-Rep entity access with the same `ezdxf` API
+- [Understanding DWG Version Compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — cross-topic reference for the AC10xx header codes and format fragmentation this pipeline works around

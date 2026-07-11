@@ -2,7 +2,6 @@
 title: "Applying a Helmert 7-Parameter Transform in Python"
 description: "Implement the Bursa-Wolf 7-parameter datum transform in Python with numpy and pyproj: translations, arc-second rotations, ppm scale, and the position_vector convention."
 slug: "applying-helmert-7-parameter-transform-in-python"
-type: "long_tail"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
     url: "/coordinate-transformation-spatial-alignment/"
@@ -29,9 +28,9 @@ dateModified: "2026-07-11"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
-        {"@type": "ListItem", "position": 2, "name": "CRS Normalization Workflows", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/"},
-        {"@type": "ListItem", "position": 3, "name": "Applying a Helmert 7-Parameter Transform in Python", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/applying-helmert-7-parameter-transform-in-python/"}
+        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
+        {"@type": "ListItem", "position": 2, "name": "CRS Normalization Workflows", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/"},
+        {"@type": "ListItem", "position": 3, "name": "Applying a Helmert 7-Parameter Transform in Python", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/applying-helmert-7-parameter-transform-in-python/"}
       ]
     },
     {
@@ -76,7 +75,7 @@ dateModified: "2026-07-11"
 
 # Applying a Helmert 7-Parameter Transform in Python
 
-The Helmert 7-parameter transform (also called the Bursa-Wolf similarity transform) maps geocentric coordinates from one datum to another using three translations, three rotations, and a single scale factor. The core equation is `X' = T + (1 + s)·R·X`, evaluated on Earth-Centred Earth-Fixed (ECEF) Cartesian coordinates — never on raw latitude and longitude. This page is an implementation reference within the [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) topic; read that first for environment setup and version pinning. Below, two independent implementations — a transparent `numpy` version and a `pyproj` helmert pipeline — are cross-validated on a control point so you can trust the parameters before pushing them into a production alignment job.
+The Helmert 7-parameter transform (also called the Bursa-Wolf similarity transform) maps geocentric coordinates from one datum to another using three translations, three rotations, and a single scale factor. The core equation is `X' = T + (1 + s)·R·X`, evaluated on Earth-Centred Earth-Fixed (ECEF) Cartesian coordinates — never on raw latitude and longitude. This page is an implementation reference within the [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) topic; read that first for environment setup and version pinning. Below, two independent implementations — a transparent `numpy` version and a `pyproj` helmert pipeline — are cross-validated on a control point so you can trust the parameters before pushing them into a production alignment job.
 
 ## How the 7-Parameter Transform Works
 
@@ -276,9 +275,9 @@ The inverse cartesian step must use the *target* ellipsoid. A common bug is reus
 
 **5. Prefer a datum grid shift for survey-grade accuracy**
 
-A single 7-parameter transform is a rigid model; it cannot absorb the local, non-linear distortion between datums that survey networks exhibit. Over a country it is typically accurate to a few decimetres. When you need centimetres, use a published NTv2 or geoid grid (for example OSTN15 for Great Britain, or the appropriate NADCON/NTv2 grid for North America). `pyproj` will select a grid-based operation automatically when the grids are installed — see the pyproj-based reprojection covered in [Reprojecting CAD Coordinates with pyproj Transformer](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/), and confirm grid availability with `pyproj.datadir`.
+A single 7-parameter transform is a rigid model; it cannot absorb the local, non-linear distortion between datums that survey networks exhibit. Over a country it is typically accurate to a few decimetres. When you need centimetres, use a published NTv2 or geoid grid (for example OSTN15 for Great Britain, or the appropriate NADCON/NTv2 grid for North America). `pyproj` will select a grid-based operation automatically when the grids are installed — see the pyproj-based reprojection covered in [Reprojecting CAD Coordinates with pyproj Transformer](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/), and confirm grid availability with `pyproj.datadir`.
 
-For the georeferencing metadata that supplies these parameters in a BIM context, see [Reading IFC Georeferencing with ifcopenshell](/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/), and for the simpler 2D case where survey control replaces published datum parameters, see [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
+For the georeferencing metadata that supplies these parameters in a BIM context, see [Reading IFC Georeferencing with ifcopenshell](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/), and for the simpler 2D case where survey control replaces published datum parameters, see [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
 
 ## FAQ
 
@@ -314,8 +313,8 @@ Use a grid when you need survey-grade accuracy. A rigid 7-parameter transform mo
 
 ## Related Pages
 
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — parent topic: full pipeline from CRS detection through datum transformation and validation
-- [Reprojecting CAD Coordinates with pyproj Transformer](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) — vectorized reprojection and automatic operation selection once the datum is resolved
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — the 2D survey-control counterpart when no published datum parameters exist
-- [Reading IFC Georeferencing with ifcopenshell](/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/) — extracting the datum and map-conversion metadata that feed these parameters
-- [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) — domain overview covering datum alignment, unit conversion, and layer mapping
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — parent topic: full pipeline from CRS detection through datum transformation and validation
+- [Reprojecting CAD Coordinates with pyproj Transformer](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) — vectorized reprojection and automatic operation selection once the datum is resolved
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — the 2D survey-control counterpart when no published datum parameters exist
+- [Reading IFC Georeferencing with ifcopenshell](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/) — extracting the datum and map-conversion metadata that feed these parameters
+- [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) — domain overview covering datum alignment, unit conversion, and layer mapping

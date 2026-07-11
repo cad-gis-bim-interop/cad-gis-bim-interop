@@ -16,14 +16,14 @@
     <nav class="pager" aria-label="Pager">
       {%- if prev and not prev.isCurrent -%}
         {%- set slug = prev.url.split('/').slice(-2, -1)[0] -%}
-        <a class="pager__link pager__link--prev" href="{{ prev.url }}" rel="prev">
+        <a class="pager__link pager__link--prev" href="{{ prev.url | absoluteUrl }}" rel="prev">
           <span class="pager__direction">← Previous</span>
           <span class="pager__title">{{ slug | titleize }}</span>
         </a>
       {%- else -%}<span></span>{%- endif -%}
       {%- if next and not next.isCurrent -%}
         {%- set slug = next.url.split('/').slice(-2, -1)[0] -%}
-        <a class="pager__link pager__link--next" href="{{ next.url }}" rel="next">
+        <a class="pager__link pager__link--next" href="{{ next.url | absoluteUrl }}" rel="next">
           <span class="pager__direction">Next →</span>
           <span class="pager__title">{{ slug | titleize }}</span>
         </a>

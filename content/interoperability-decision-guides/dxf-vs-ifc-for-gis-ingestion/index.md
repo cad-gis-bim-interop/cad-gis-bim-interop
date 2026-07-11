@@ -2,7 +2,6 @@
 title: "DXF vs IFC for GIS Ingestion: Choosing the Interchange Format"
 description: "A decision guide comparing DXF and IFC as the interchange format feeding a GIS pipeline — semantic richness, georeferencing, geometry fidelity, parse cost, and tooling."
 slug: "dxf-vs-ifc-for-gis-ingestion"
-type: "cluster"
 breadcrumb:
   - label: "Interoperability Decision Guides"
     url: "/interoperability-decision-guides/"
@@ -23,13 +22,13 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "publisher": {"@type": "Organization", "name": "CAD GIS BIM Interop", "url": "https://cad-gis-bim-interop.org"}
+      "publisher": {"@type": "Organization", "name": "CAD GIS BIM Interop", "url": "https://www.cad-gis-bim-interop.org"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/"},
-        {"@type": "ListItem", "position": 2, "name": "DXF vs IFC for GIS Ingestion", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/"}
+        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/"},
+        {"@type": "ListItem", "position": 2, "name": "DXF vs IFC for GIS Ingestion", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/"}
       ]
     },
     {
@@ -76,7 +75,7 @@ dateModified: "2026-07-11"
 
 Choosing between DXF and IFC as the interchange format that feeds a GIS pipeline is one of the first architectural decisions in any CAD/BIM-to-GIS integration, and it determines how much semantic and spatial fidelity survives ingestion.
 
-This guide sits within the [Interoperability Decision Guides](/interoperability-decision-guides/) section and frames the choice as an engineering trade-off, not a format preference. DXF is a geometry-centric interchange format: it carries entities, layers, and coordinates but no building semantics and no coordinate reference system. IFC is a semantic, parametric model: it carries typed building elements, property sets, and — when authored correctly — embedded georeferencing, at the cost of a heavier file and an expensive geometry-evaluation step. The right answer depends on what your source actually is and what your GIS store needs to hold. Survey deliverables and 2D linework almost always arrive as DXF and belong on the DXF route; attributed BIM assets that must land in GIS with their identity and properties intact belong on the IFC route.
+This guide sits within the [Interoperability Decision Guides](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/) section and frames the choice as an engineering trade-off, not a format preference. DXF is a geometry-centric interchange format: it carries entities, layers, and coordinates but no building semantics and no coordinate reference system. IFC is a semantic, parametric model: it carries typed building elements, property sets, and — when authored correctly — embedded georeferencing, at the cost of a heavier file and an expensive geometry-evaluation step. The right answer depends on what your source actually is and what your GIS store needs to hold. Survey deliverables and 2D linework almost always arrive as DXF and belong on the DXF route; attributed BIM assets that must land in GIS with their identity and properties intact belong on the IFC route.
 
 Both routes converge on the same destination — a spatially indexed GIS store — but they diverge sharply in how they extract geometry, how they recover attributes, and how much CPU they burn doing it.
 
@@ -129,7 +128,7 @@ Before building either ingestion route, confirm the following:
 - **ifcopenshell ≥ 0.8.0** — install with `pip install "ifcopenshell>=0.8.0"` for the IFC route; it bundles the geometry kernel used by `ifcopenshell.geom`.
 - **shapely ≥ 2.0** — install with `pip install "shapely>=2.0"` for geometry construction and validation.
 - **pyproj ≥ 3.4** — required for the shared CRS reprojection stage.
-- **Knowledge of the source data model** — you need to know whether your input is discrete 2D linework or a semantically typed building model. The [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) and the [IFC4X3 Schema Mapping](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) document the two data models this guide compares.
+- **Knowledge of the source data model** — you need to know whether your input is discrete 2D linework or a semantically typed building model. The [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) and the [IFC4X3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) document the two data models this guide compares.
 
 ## Architectural Overview
 
@@ -220,7 +219,7 @@ def dxf_to_features(dxf_path: str, unit_scale: float = 1.0) -> list[dict]:
     return features
 ```
 
-The `$INSUNITS` header is the only unit signal DXF gives you; there is no CRS. The full traversal and block-flattening machinery — critical for real survey files with nested `INSERT` references — is documented in the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/), and the conversion of raw polylines into RFC 7946 GeoJSON is covered in [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/).
+The `$INSUNITS` header is the only unit signal DXF gives you; there is no CRS. The full traversal and block-flattening machinery — critical for real survey files with nested `INSERT` references — is documented in the [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/), and the conversion of raw polylines into RFC 7946 GeoJSON is covered in [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/).
 
 ### 3. Ingest IFC geometry with ifcopenshell
 
@@ -259,7 +258,7 @@ def ifc_to_footprints(ifc_path: str, ifc_class: str = "IfcBuildingElement"):
             )
 ```
 
-The convex hull is a deliberate simplification for footprint extraction; for accurate wall outlines that respect concavity, evaluate the representation and slice at a Z plane, as shown in [Extracting IFC Wall Geometries to Shapely](/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/). The complete geometry-settings and property-set traversal lives in the [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/).
+The convex hull is a deliberate simplification for footprint extraction; for accurate wall outlines that respect concavity, evaluate the representation and slice at a Z plane, as shown in [Extracting IFC Wall Geometries to Shapely](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/). The complete geometry-settings and property-set traversal lives in the [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/).
 
 ### 4. Normalise units and CRS, then load
 
@@ -277,7 +276,7 @@ def reproject(geom, src_epsg: int, dst_epsg: int):
     return shp_transform(lambda xs, ys, zs=None: tf.transform(xs, ys), geom)
 ```
 
-Deriving the source CRS for DXF — including datum shifts and control-point alignment — is the subject of the [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) section. Whichever route produced the geometry, the loaded output is a spatially indexed GIS store.
+Deriving the source CRS for DXF — including datum shifts and control-point alignment — is the subject of the [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) section. Whichever route produced the geometry, the loaded output is a spatially indexed GIS store.
 
 ## Edge Cases & Gotchas
 
@@ -307,7 +306,7 @@ if not conversions:
 
 ### DXF layer names are the only semantics you get
 
-Because DXF has no object typing, a wall and a property boundary can share a layer if the drafter was careless. Do not infer feature class from geometry; map it from layer names using an explicit, reviewed lookup. This mapping problem is the subject of [Layer Mapping Logic](/coordinate-transformation-spatial-alignment/layer-mapping-logic/).
+Because DXF has no object typing, a wall and a property boundary can share a layer if the drafter was careless. Do not infer feature class from geometry; map it from layer names using an explicit, reviewed lookup. This mapping problem is the subject of [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/).
 
 ### Z coordinates behave differently across routes
 
@@ -360,7 +359,7 @@ if it.initialize():
             break
 ```
 
-For repeated ingestion of the same federated model, cache evaluated footprints keyed by `GlobalId` so unchanged elements skip re-evaluation. Batch converted features into the GIS store in transactions of a few thousand rows to amortise index maintenance. When the downstream toolchain cannot run an IFC parser at all, the fallback is to pre-convert — covered in [Converting IFC to DXF as a GIS Fallback](/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/converting-ifc-to-dxf-as-a-gis-fallback/).
+For repeated ingestion of the same federated model, cache evaluated footprints keyed by `GlobalId` so unchanged elements skip re-evaluation. Batch converted features into the GIS store in transactions of a few thousand rows to amortise index maintenance. When the downstream toolchain cannot run an IFC parser at all, the fallback is to pre-convert — covered in [Converting IFC to DXF as a GIS Fallback](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/converting-ifc-to-dxf-as-a-gis-fallback/).
 
 ## FAQ
 
@@ -396,10 +395,10 @@ Convert IFC to DXF only when the downstream GIS toolchain accepts DXF exclusivel
 
 ## Related Pages
 
-- [Interoperability Decision Guides](/interoperability-decision-guides/) — the section overview framing format and library trade-offs for CAD/BIM-to-GIS pipelines
-- [Converting IFC to DXF as a GIS Fallback](/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/converting-ifc-to-dxf-as-a-gis-fallback/) — when the toolchain only accepts DXF, evaluate IFC geometry and write entities with ezdxf
-- [Choosing ezdxf, pydwg, or ODA for Production](/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/) — selecting the DXF/DWG parsing stack that feeds the DXF route
-- [GeoPackage vs PostGIS for CAD Output](/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/) — choosing the storage target both routes converge on
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — the group-code data model behind the DXF route
-- [IFC4X3 Schema Mapping](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — the semantic schema behind the IFC route
-- [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) — geometry evaluation and property-set extraction for IFC ingestion
+- [Interoperability Decision Guides](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/) — the section overview framing format and library trade-offs for CAD/BIM-to-GIS pipelines
+- [Converting IFC to DXF as a GIS Fallback](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/converting-ifc-to-dxf-as-a-gis-fallback/) — when the toolchain only accepts DXF, evaluate IFC geometry and write entities with ezdxf
+- [Choosing ezdxf, pydwg, or ODA for Production](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/) — selecting the DXF/DWG parsing stack that feeds the DXF route
+- [GeoPackage vs PostGIS for CAD Output](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/) — choosing the storage target both routes converge on
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — the group-code data model behind the DXF route
+- [IFC4X3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — the semantic schema behind the IFC route
+- [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) — geometry evaluation and property-set extraction for IFC ingestion

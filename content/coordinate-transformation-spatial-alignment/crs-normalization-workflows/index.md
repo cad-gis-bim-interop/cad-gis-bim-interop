@@ -2,7 +2,6 @@
 title: "CRS Normalization Workflows: Python Pipelines for CAD, GIS & BIM Interoperability"
 description: "End-to-end Python workflows for detecting, validating, and transforming heterogeneous coordinate reference systems across DXF, IFC, and GIS formats using pyproj and geopandas."
 slug: "crs-normalization-workflows"
-type: "cluster"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
     url: "/coordinate-transformation-spatial-alignment/"
@@ -31,13 +30,13 @@ dateModified: "2026-06-24"
           "@type": "ListItem",
           "position": 1,
           "name": "Coordinate Transformation & Spatial Alignment",
-          "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"
+          "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "CRS Normalization Workflows",
-          "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/"
+          "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/"
         }
       ]
     },
@@ -125,7 +124,7 @@ dateModified: "2026-06-24"
 
 Spatial data across CAD deliverables, GIS datasets, and BIM models rarely arrives in a unified coordinate reference system. CAD files use arbitrary local grids or assumed origins; GIS datasets rely on regional projected systems; BIM models embed survey control points or default to building-centric coordinates. Without systematic alignment, downstream analytics, clash detection, and geospatial integration fail silently — or produce geometrically distorted results that propagate invisibly through the pipeline.
 
-CRS normalization is the mandatory preprocessing stage within the broader [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) pipeline. It resolves datum and projection ambiguities before any geometric analysis, asset registration, or federated model assembly can proceed. When executed correctly, normalization eliminates spatial drift, standardizes units, and establishes a reliable geospatial anchor for multi-disciplinary collaboration.
+CRS normalization is the mandatory preprocessing stage within the broader [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) pipeline. It resolves datum and projection ambiguities before any geometric analysis, asset registration, or federated model assembly can proceed. When executed correctly, normalization eliminates spatial drift, standardizes units, and establishes a reliable geospatial anchor for multi-disciplinary collaboration.
 
 ## Prerequisites
 
@@ -212,7 +211,7 @@ The normalization pipeline follows four deterministic stages: detection, validat
 Parse incoming datasets and extract embedded CRS metadata. The strategy differs significantly by format:
 
 - **GIS formats** (GeoJSON, Shapefile, GPKG) embed WKT strings or EPSG identifiers in headers or `.prj` sidecar files — `geopandas.read_file()` resolves these automatically.
-- **CAD files** (DWG/DXF) rarely contain explicit EPSG codes. They store survey parameters in the DXF header (`$INSUNITS`, `$MEASUREMENT`) or rely on external control files. For the full CAD-specific handling pattern, see [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
+- **CAD files** (DWG/DXF) rarely contain explicit EPSG codes. They store survey parameters in the DXF header (`$INSUNITS`, `$MEASUREMENT`) or rely on external control files. For the full CAD-specific handling pattern, see [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
 - **BIM models** (IFC) may reference `IfcProjectedCRS` entities or default to `IfcLocalPlacement` relative to a project base point.
 
 ```python
@@ -327,7 +326,7 @@ def normalize_geometries(
 
 Monitor vertical datum mismatches during this stage. If your pipeline ingests LiDAR point clouds or BIM elevation data alongside 2D GIS vectors, define a compound CRS that includes a vertical component (e.g., `EPSG:9518` = NAD83(2011) + NAVD88 height). Misaligned vertical datums generate false positives in clash detection workflows — a 0.3 m offset at slab level causes structural elements to appear to interpenetrate when they do not.
 
-The [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) section covers the related problem of normalizing linear unit scales before applying CRS transforms — necessary when DXF millimetre coordinates enter a metre-based projected CRS.
+The [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) section covers the related problem of normalizing linear unit scales before applying CRS transforms — necessary when DXF millimetre coordinates enter a metre-based projected CRS.
 
 ### 4. Post-Transformation Verification & Export
 
@@ -337,7 +336,7 @@ After transformation, validate output geometry and coordinate ranges before writ
 - **Topology integrity:** Ensure no self-intersections or collapsed polygons resulted from projection distortion near the CRS boundary.
 - **Unit consistency:** Confirm metres/feet alignment matches project specifications.
 
-Export to a standardized, lossless format. GeoPackage (`.gpkg`) is the preferred output: it preserves CRS metadata natively, supports spatial indexing, and integrates cleanly with subsequent [Layer Mapping Logic](/coordinate-transformation-spatial-alignment/layer-mapping-logic/) steps that align semantic attributes with transformed spatial features.
+Export to a standardized, lossless format. GeoPackage (`.gpkg`) is the preferred output: it preserves CRS metadata natively, supports spatial indexing, and integrates cleanly with subsequent [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) steps that align semantic attributes with transformed spatial features.
 
 ```python
 # geopandas>=1.0.0  pyogrio>=0.7.0  shapely>=2.0.0
@@ -384,7 +383,7 @@ Many high-accuracy datum shifts (NADCON5 for NAD27→NAD83, NTv2 for older Europ
 
 ### DXF `$INSUNITS=0` (undefined units)
 
-When `$INSUNITS` is 0, the drawing unit is unspecified. Common culprits are older AutoCAD templates or DXF files exported from non-Autodesk software. Query the client's survey control log for the intended unit. If unavailable, infer from coordinate magnitude: values in the range 1e5–1e7 typically indicate metres in a national grid; values in the range 1e6–1e8 with two decimal places suggest feet. Apply [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) before assigning CRS.
+When `$INSUNITS` is 0, the drawing unit is unspecified. Common culprits are older AutoCAD templates or DXF files exported from non-Autodesk software. Query the client's survey control log for the intended unit. If unavailable, infer from coordinate magnitude: values in the range 1e5–1e7 typically indicate metres in a national grid; values in the range 1e6–1e8 with two decimal places suggest feet. Apply [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) before assigning CRS.
 
 ### IFC `IfcProjectedCRS` with partial attributes
 
@@ -509,7 +508,7 @@ It forces (longitude, latitude) / (easting, northing) axis order regardless of t
 <details>
 <summary>How do I handle DXF files with no embedded EPSG code?</summary>
 
-Check `$INSUNITS` and `$MEASUREMENT` header variables for unit scale, then derive the CRS from project survey control files or client documentation. Assign explicitly with `CRS.from_user_input()` and log the assumption in your transformation manifest. The [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) guide covers the full pattern including control-point registration.
+Check `$INSUNITS` and `$MEASUREMENT` header variables for unit scale, then derive the CRS from project survey control files or client documentation. Assign explicitly with `CRS.from_user_input()` and log the assumption in your transformation manifest. The [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) guide covers the full pattern including control-point registration.
 
 </details>
 
@@ -524,9 +523,9 @@ Both preserve CRS metadata natively. GeoPackage (SQLite-backed) suits downstream
 
 ## Related Pages
 
-- [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) — parent pipeline overview
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — task-specific guide for CAD-origin CRS registration
-- [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — normalizing linear units before CRS transforms
-- [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — aligning geometry orientation after CRS normalization
-- [Layer Mapping Logic](/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — matching semantic attributes to normalized spatial features
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — understanding the source format structure before CRS extraction
+- [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) — parent pipeline overview
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — task-specific guide for CAD-origin CRS registration
+- [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — normalizing linear units before CRS transforms
+- [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — aligning geometry orientation after CRS normalization
+- [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — matching semantic attributes to normalized spatial features
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — understanding the source format structure before CRS extraction

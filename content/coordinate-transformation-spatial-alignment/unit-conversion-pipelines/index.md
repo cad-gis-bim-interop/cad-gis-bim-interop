@@ -2,7 +2,6 @@
 title: "Unit Conversion Pipelines for CAD, GIS & BIM Interoperability"
 description: "Build deterministic unit conversion pipelines in Python that normalize CAD drawing units, GIS projection units, and IFC metric standards into a canonical measurement space without silent data corruption."
 slug: "unit-conversion-pipelines"
-type: "cluster"
 breadcrumb:
   - label: "Home"
     url: "/"
@@ -30,9 +29,9 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://cad-gis-bim-interop.org/"},
-        {"@type": "ListItem", "position": 2, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
-        {"@type": "ListItem", "position": 3, "name": "Unit Conversion Pipelines", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/"}
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.cad-gis-bim-interop.org/"},
+        {"@type": "ListItem", "position": 2, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
+        {"@type": "ListItem", "position": 3, "name": "Unit Conversion Pipelines", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/"}
       ]
     },
     {
@@ -79,7 +78,7 @@ dateModified: "2026-06-24"
 
 Unit conversion pipelines deterministically normalize heterogeneous measurement systems — CAD drawing units, GIS projection units, and IFC metric standards — into a single canonical workspace, eliminating the silent scale corruption that invalidates downstream spatial queries and model federation.
 
-As a foundational stage of the [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) pipeline, unit normalization must run before any reprojection or geometric synchronization step. Applying a CRS transformation to millimeter-scaled coordinates that were never converted to meters produces results that appear valid but are off by a factor of 1,000 — a failure mode that propagates silently until it surfaces as misaligned assets in a federated model review.
+As a foundational stage of the [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) pipeline, unit normalization must run before any reprojection or geometric synchronization step. Applying a CRS transformation to millimeter-scaled coordinates that were never converted to meters produces results that appear valid but are off by a factor of 1,000 — a failure mode that propagates silently until it surfaces as misaligned assets in a federated model review.
 
 ---
 
@@ -169,9 +168,9 @@ The `$INSUNITS` integer in DXF maps as follows: `0`=Unitless, `1`=Inches, `2`=Fe
 
 ### Internal Canonical Unit
 
-The pipeline normalizes all input to **meters** as the internal canonical unit. Meters are the linear unit of the SI system, the implicit unit of most GIS projections, and the base unit of `IfcUnitAssignment` in IFC 4.x. Downstream consumers — reprojection via `pyproj`, topology validation via `shapely`, and [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — all expect metric input.
+The pipeline normalizes all input to **meters** as the internal canonical unit. Meters are the linear unit of the SI system, the implicit unit of most GIS projections, and the base unit of `IfcUnitAssignment` in IFC 4.x. Downstream consumers — reprojection via `pyproj`, topology validation via `shapely`, and [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — all expect metric input.
 
-Converting to a canonical unit once, at the ingestion boundary, is cheaper and safer than tracking per-dataset units through every downstream transformation stage. It also isolates the unit-awareness concern so that [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) can operate on geometry that is already metrically consistent.
+Converting to a canonical unit once, at the ingestion boundary, is cheaper and safer than tracking per-dataset units through every downstream transformation stage. It also isolates the unit-awareness concern so that [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) can operate on geometry that is already metrically consistent.
 
 ---
 
@@ -550,8 +549,8 @@ Normalize each component file independently before assembly — do not attempt a
 
 ## Related Pages
 
-- [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) — parent pipeline overview covering the full transformation stack
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — reprojection and datum shift patterns that run after unit normalization
-- [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — similarity transformation for correcting geometric drift between datasets
-- [Layer Mapping Logic](/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — semantic classification routing that operates on metrically normalized geometry
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — end-to-end worked example combining unit normalization with CRS reprojection
+- [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) — parent pipeline overview covering the full transformation stack
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — reprojection and datum shift patterns that run after unit normalization
+- [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — similarity transformation for correcting geometric drift between datasets
+- [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — semantic classification routing that operates on metrically normalized geometry
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — end-to-end worked example combining unit normalization with CRS reprojection

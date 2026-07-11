@@ -2,7 +2,6 @@
 title: "Python Parsing & Geometry Extraction for CAD, GIS, and BIM Pipelines"
 description: "A complete engineering reference for building production-grade Python pipelines that ingest DXF, DWG, IFC, and GIS formats, extract topology-correct geometry, and serialize to GeoJSON, glTF, or PostGIS."
 slug: "python-parsing-geometry-extraction"
-type: "pillar"
 breadcrumb: "Python Parsing & Geometry Extraction"
 datePublished: "2025-01-15"
 dateModified: "2026-06-24"
@@ -19,13 +18,13 @@ dateModified: "2026-06-24"
       "datePublished": "2025-01-15",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "publisher": {"@type": "Organization", "name": "CAD GIS BIM Interop", "url": "https://cad-gis-bim-interop.org"}
+      "publisher": {"@type": "Organization", "name": "CAD GIS BIM Interop", "url": "https://www.cad-gis-bim-interop.org"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://cad-gis-bim-interop.org/"},
-        {"@type": "ListItem", "position": 2, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"}
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.cad-gis-bim-interop.org/"},
+        {"@type": "ListItem", "position": 2, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"}
       ]
     }
   ]
@@ -86,11 +85,11 @@ When a digital-twin ingest job silently drops 40% of building elements because a
 
 Python parsing for CAD, GIS, and BIM interoperability spans three distinct format families, each with its own data model, versioning rules, and library ecosystem. Understanding these foundations is the precondition for choosing the right tool and avoiding silent data loss.
 
-**DXF and DWG** are Autodesk-originated formats. DXF (Drawing Interchange Format) is an open, group-code-structured text or binary file that stores geometry as discrete entities — `LINE`, `ARC`, `LWPOLYLINE`, `SPLINE`, `INSERT` — alongside layer, linetype, and block metadata. The [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) documents the group-code taxonomy that every DXF parser must traverse correctly. DWG is DXF's closed, version-dependent binary sibling; its internal format changes across AutoCAD releases (R14 through 2024) and requires either reverse-engineered libraries or licensed ODA/Teigha SDKs to read reliably.
+**DXF and DWG** are Autodesk-originated formats. DXF (Drawing Interchange Format) is an open, group-code-structured text or binary file that stores geometry as discrete entities — `LINE`, `ARC`, `LWPOLYLINE`, `SPLINE`, `INSERT` — alongside layer, linetype, and block metadata. The [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) documents the group-code taxonomy that every DXF parser must traverse correctly. DWG is DXF's closed, version-dependent binary sibling; its internal format changes across AutoCAD releases (R14 through 2024) and requires either reverse-engineered libraries or licensed ODA/Teigha SDKs to read reliably.
 
-**IFC** (Industry Foundation Classes) is an ISO 16739 open standard maintained by buildingSMART. It encodes building elements parametrically — walls, slabs, MEP components — through a schema of typed entities and relationships rather than raw coordinates. The current production schema, IFC4 ADD2, and its successor IFC4X3, are covered in the [IFC4X3 Schema Mapping](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) reference. Parsing IFC means evaluating parametric geometry definitions (swept solids, B-Rep boundaries, CSG trees) into explicit meshes, not just reading coordinate values.
+**IFC** (Industry Foundation Classes) is an ISO 16739 open standard maintained by buildingSMART. It encodes building elements parametrically — walls, slabs, MEP components — through a schema of typed entities and relationships rather than raw coordinates. The current production schema, IFC4 ADD2, and its successor IFC4X3, are covered in the [IFC4X3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) reference. Parsing IFC means evaluating parametric geometry definitions (swept solids, B-Rep boundaries, CSG trees) into explicit meshes, not just reading coordinate values.
 
-**GIS formats** — Shapefile, GeoPackage, File Geodatabase — prioritise spatial referencing over geometric richness. Every feature carries an explicit coordinate reference system (CRS) and an attribute table. Parsing them requires GDAL/OGR bindings and strict attention to projection metadata, multipart geometry handling, and Z/M dimension support. The [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) section provides the schema context that underpins all three families.
+**GIS formats** — Shapefile, GeoPackage, File Geodatabase — prioritise spatial referencing over geometric richness. Every feature carries an explicit coordinate reference system (CRS) and an attribute table. Parsing them requires GDAL/OGR bindings and strict attention to projection metadata, multipart geometry handling, and Z/M dimension support. The [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) section provides the schema context that underpins all three families.
 
 The key Python libraries that correspond to these families are:
 
@@ -129,13 +128,13 @@ def dispatch_parser(path: pathlib.Path):
     return factory(path)
 ```
 
-Stage ③ — geometry extraction — is where format-specific logic lives. Each format family has its own cluster of workflows, documented in the sections below.
+Stage ③ — geometry extraction — is where format-specific logic lives. Each format family has its own set of workflows, documented in the sections below.
 
 ## Core Workflows
 
 ### ezdxf Deep Dive — DXF Entity Traversal and Vertex Extraction
 
-The [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) covers the full entity model for DXF parsing: iterating the model-space layout, filtering entities by layer or type, resolving `INSERT` block references recursively, and extracting vertex arrays from `LWPOLYLINE`, `POLYLINE`, `SPLINE`, and `3DFACE` entities. Because DXF stores geometry as discrete segments rather than continuous paths, reconstruction of closed polygons and connected chains requires post-processing with winding-order validation.
+The [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) covers the full entity model for DXF parsing: iterating the model-space layout, filtering entities by layer or type, resolving `INSERT` block references recursively, and extracting vertex arrays from `LWPOLYLINE`, `POLYLINE`, `SPLINE`, and `3DFACE` entities. Because DXF stores geometry as discrete segments rather than continuous paths, reconstruction of closed polygons and connected chains requires post-processing with winding-order validation.
 
 The most common point of failure here is `INSERT` resolution. Every `INSERT` entity references a named block definition and carries a local transformation (insertion point, X/Y/Z scale, rotation). Ignoring this transformation and reading block vertices directly produces geometry that is incorrectly positioned or scaled relative to the model. The `ezdxf` library exposes a `virtual_entities()` method that flattens block references in one call, but it does not recurse into nested XREFs — that requires an explicit traversal loop.
 
@@ -155,11 +154,11 @@ def extract_dxf_polylines(path: str) -> list[list[tuple[float, float]]]:
     return results
 ```
 
-Dedicated pages under this section cover specific extraction tasks: [Reading 3D Solids with ezdxf Python](/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) demonstrates how `3DSOLID` ACIS payloads are accessed, and additional pages cover SPLINE tessellation and attribute extraction from `ATTRIB`/`ATTDEF` entities.
+Dedicated pages under this section cover specific extraction tasks: [Reading 3D Solids with ezdxf Python](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) demonstrates how `3DSOLID` ACIS payloads are accessed, and additional pages cover SPLINE tessellation and attribute extraction from `ATTRIB`/`ATTDEF` entities.
 
 ### ifcopenshell Workflow — Semantic and Geometric IFC Extraction
 
-The [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) documents how to traverse the `IfcProduct` hierarchy, evaluate `IfcRepresentation` trees, and produce explicit mesh geometry while preserving GUIDs, classification codes, and property sets. IFC geometry extraction differs fundamentally from DXF: there are no raw coordinate arrays to read. Instead, `ifcopenshell.geom` evaluates parametric definitions — swept solids, boolean operations, faceted B-Reps — into triangulated meshes on demand.
+The [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) documents how to traverse the `IfcProduct` hierarchy, evaluate `IfcRepresentation` trees, and produce explicit mesh geometry while preserving GUIDs, classification codes, and property sets. IFC geometry extraction differs fundamentally from DXF: there are no raw coordinate arrays to read. Instead, `ifcopenshell.geom` evaluates parametric definitions — swept solids, boolean operations, faceted B-Reps — into triangulated meshes on demand.
 
 The geometry settings object controls mesh quality and performance. Setting `settings.set(settings.USE_WORLD_COORDS, True)` applies all parent-object placement transforms in one pass, avoiding manual matrix multiplication. Setting `settings.set(settings.WELD_VERTICES, True)` merges duplicate vertices across mesh triangles, which is essential before writing to PostGIS or any topology-aware consumer.
 
@@ -186,19 +185,19 @@ def extract_ifc_meshes(ifc_path: str):
         yield product.GlobalId, verts, faces
 ```
 
-The [Extracting IFC Wall Geometries to Shapely](/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) page covers converting those triangulated meshes into Shapely polygons for 2D spatial analysis.
+The [Extracting IFC Wall Geometries to Shapely](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) page covers converting those triangulated meshes into Shapely polygons for 2D spatial analysis.
 
 ### pydwg Integration — Handling Autodesk's Proprietary Binary Format
 
-The [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) workflow addresses DWG binary ingestion, which cannot be handled by `ezdxf` alone. Because DWG is a closed format, production pipelines typically convert DWG to DXF via the ODA File Converter CLI, then parse the resulting DXF with `ezdxf`. This two-step approach handles version differences (R14 through AutoCAD 2024) and proxy objects more reliably than any pure-Python DWG reader currently available.
+The [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) workflow addresses DWG binary ingestion, which cannot be handled by `ezdxf` alone. Because DWG is a closed format, production pipelines typically convert DWG to DXF via the ODA File Converter CLI, then parse the resulting DXF with `ezdxf`. This two-step approach handles version differences (R14 through AutoCAD 2024) and proxy objects more reliably than any pure-Python DWG reader currently available.
 
-The main engineering risk in DWG ingestion is circular block references: a block definition that directly or indirectly references itself. Without a depth guard, the expansion loop is infinite. The [Parsing DWG Layers with Python Scripts](/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/) page shows a visited-node set pattern for safe recursion.
+The main engineering risk in DWG ingestion is circular block references: a block definition that directly or indirectly references itself. Without a depth guard, the expansion loop is infinite. The [Parsing DWG Layers with Python Scripts](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/) page shows a visited-node set pattern for safe recursion.
 
 ### Geometry Mesh Conversion — From Entities to Renderable Primitives
 
-The [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) cluster covers the normalisation step that follows format-specific extraction: converting heterogeneous entity types (arcs, splines, CSG trees, polygon rings) into consistent triangle meshes or GeoJSON feature collections. This stage is where discretisation resolution is set, normals are computed, and UV coordinates are assigned for textured rendering.
+The [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) guide covers the normalisation step that follows format-specific extraction: converting heterogeneous entity types (arcs, splines, CSG trees, polygon rings) into consistent triangle meshes or GeoJSON feature collections. This stage is where discretisation resolution is set, normals are computed, and UV coordinates are assigned for textured rendering.
 
-The [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) page provides a complete script that handles closed polylines with holes, applies coordinate scaling, and writes RFC 7946-compliant output.
+The [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) page provides a complete script that handles closed polylines with holes, applies coordinate scaling, and writes RFC 7946-compliant output.
 
 ## Implementation Patterns & Code Safety
 
@@ -266,7 +265,7 @@ This pattern is especially important for IFC, where `create_shape()` raises `Run
 
 | Symptom | Root Cause | Fix |
 |---------|-----------|-----|
-| Geometry appears at 0,0 or in the ocean | CAD local coordinates not converted; `$INSUNITS` ignored | Read `$INSUNITS` from DXF header; apply unit scale before pyproj reprojection — see [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) |
+| Geometry appears at 0,0 or in the ocean | CAD local coordinates not converted; `$INSUNITS` ignored | Read `$INSUNITS` from DXF header; apply unit scale before pyproj reprojection — see [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) |
 | IFC elements missing from output | `IfcRepresentation` type not handled by `create_shape()` | Catch `RuntimeError`, log `product.GlobalId` and `repr(product.Representation)`, implement a fallback bounding-box mesh |
 | Micro-gaps between adjacent wall faces | Floating-point precision mismatch at shared edges | Apply tolerance-based vertex snapping (see above) before topology assembly |
 | Block-reference expansion hangs | Circular block definitions in DWG-converted DXF | Track visited block names in a `set`; raise `RecursionError` at depth > 64 |
@@ -371,9 +370,9 @@ Python parsing and geometry extraction is the load-bearing foundation of every C
 
 ## Related Pages
 
-- [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — complete DXF entity model, block traversal, and vertex extraction reference
-- [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) — IFC geometry evaluation, property set extraction, and GUID-preserving mesh export
-- [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) — DWG binary ingestion, ODA CLI conversion, and proxy-object fallback strategies
-- [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) — normalising heterogeneous entity types into GeoJSON and triangle meshes
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group-code taxonomy and header variable reference for DXF format fundamentals
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — coordinate reference system alignment across CAD, BIM, and GIS sources
+- [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — complete DXF entity model, block traversal, and vertex extraction reference
+- [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) — IFC geometry evaluation, property set extraction, and GUID-preserving mesh export
+- [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) — DWG binary ingestion, ODA CLI conversion, and proxy-object fallback strategies
+- [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) — normalising heterogeneous entity types into GeoJSON and triangle meshes
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group-code taxonomy and header variable reference for DXF format fundamentals
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — coordinate reference system alignment across CAD, BIM, and GIS sources

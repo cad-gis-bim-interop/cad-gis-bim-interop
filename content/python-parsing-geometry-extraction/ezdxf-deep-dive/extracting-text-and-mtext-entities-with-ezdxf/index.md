@@ -2,7 +2,6 @@
 title: "Extracting TEXT and MTEXT Entities with ezdxf"
 description: "How to extract TEXT and MTEXT with ezdxf in Python: read position, height and rotation, strip MTEXT formatting codes, and emit GeoJSON label features."
 slug: "extracting-text-and-mtext-entities-with-ezdxf"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-text-and-mtext-entities-with-ezdxf/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-text-and-mtext-entities-with-ezdxf/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "ezdxf Deep Dive", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/"},
-        {"@type": "ListItem", "position": 3, "name": "Extracting TEXT and MTEXT Entities with ezdxf", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-text-and-mtext-entities-with-ezdxf/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "ezdxf Deep Dive", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/"},
+        {"@type": "ListItem", "position": 3, "name": "Extracting TEXT and MTEXT Entities with ezdxf", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-text-and-mtext-entities-with-ezdxf/"}
       ]
     },
     {
@@ -77,7 +76,7 @@ dateModified: "2026-07-11"
 
 # Extracting TEXT and MTEXT Entities with ezdxf
 
-To extract text with `ezdxf`, query both `TEXT` and `MTEXT` entities, read the string from `dxf.text` (single-line) or `plain_text()` (multiline, with formatting codes stripped), and pull position, height, and rotation from the `dxf` namespace. `TEXT` is a single-line entity with a straightforward set of attributes; `MTEXT` is a formatted multiline block whose content is peppered with inline control codes such as `\P` for paragraph breaks and `\f...;` for font switches, so its raw string is rarely what you want in an attribute table. Getting clean, positioned labels out of a drawing — the kind you attach to GIS features — means handling both entity types and their differing height attributes correctly. This page is part of the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) reference on production-grade DXF parsing.
+To extract text with `ezdxf`, query both `TEXT` and `MTEXT` entities, read the string from `dxf.text` (single-line) or `plain_text()` (multiline, with formatting codes stripped), and pull position, height, and rotation from the `dxf` namespace. `TEXT` is a single-line entity with a straightforward set of attributes; `MTEXT` is a formatted multiline block whose content is peppered with inline control codes such as `\P` for paragraph breaks and `\f...;` for font switches, so its raw string is rarely what you want in an attribute table. Getting clean, positioned labels out of a drawing — the kind you attach to GIS features — means handling both entity types and their differing height attributes correctly. This page is part of the [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) reference on production-grade DXF parsing.
 
 ## How ezdxf Handles TEXT and MTEXT
 
@@ -113,11 +112,11 @@ To extract text with `ezdxf`, query both `TEXT` and `MTEXT` entities, read the s
   <text x="624" y="146" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">height, angle</text>
 </svg>
 
-What `ezdxf` does *not* do is unify the two entities for you. There is no shared `.height` — reading `dxf.height` on an `MTEXT` raises `DXFAttributeError`, and reading `dxf.char_height` on a `TEXT` does the same in reverse. Nor does it decide that block attribute text (`ATTRIB`/`ATTDEF`) belongs in your label set; those carry a `tag` and `text` pair and represent structured metadata, better handled through the [block attribute extraction](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) workflow so their tag semantics survive.
+What `ezdxf` does *not* do is unify the two entities for you. There is no shared `.height` — reading `dxf.height` on an `MTEXT` raises `DXFAttributeError`, and reading `dxf.char_height` on a `TEXT` does the same in reverse. Nor does it decide that block attribute text (`ATTRIB`/`ATTDEF`) belongs in your label set; those carry a `tag` and `text` pair and represent structured metadata, better handled through the [block attribute extraction](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) workflow so their tag semantics survive.
 
 ## Production-Ready Script
 
-The script harvests every `TEXT` and `MTEXT` entity into a list of dicts and, optionally, GeoJSON point features keyed on the insertion point — ready to become labels on the [CAD polylines converted to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) in the same pipeline.
+The script harvests every `TEXT` and `MTEXT` entity into a list of dicts and, optionally, GeoJSON point features keyed on the insertion point — ready to become labels on the [CAD polylines converted to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) in the same pipeline.
 
 ```python
 # ezdxf>=1.1.0, Python 3.9+
@@ -210,7 +209,7 @@ if __name__ == "__main__":
 | Encoding | Code page + UTF-8 | `ezdxf` resolves the header code page on read; normalise with `unicodedata`. |
 | ATTRIB / ATTDEF | Separate workflow | Structured tag/value metadata, not free labels; extract via block attributes. |
 
-For the group-code anatomy of a `TEXT` entity (`1` for the string, `10`/`20` for the insertion point, `40` for height, `50` for rotation), see the [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/).
+For the group-code anatomy of a `TEXT` entity (`1` for the string, `10`/`20` for the insertion point, `40` for height, `50` for rotation), see the [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/).
 
 ## Fallback Strategies
 
@@ -232,7 +231,7 @@ Files from older non-Unicode AutoCAD builds store text in a code page named in t
 
 **3. ATTRIB and ATTDEF confused with free text**
 
-Block titles, room numbers, and asset tags usually live in `ATTRIB` entities attached to an `INSERT`, not in free `TEXT`. If your label harvest is missing obvious annotations, they are probably block attributes. Route those through the [block attribute extraction](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) workflow so the tag/value structure is preserved and used as feature attributes for the GIS labels produced here.
+Block titles, room numbers, and asset tags usually live in `ATTRIB` entities attached to an `INSERT`, not in free `TEXT`. If your label harvest is missing obvious annotations, they are probably block attributes. Route those through the [block attribute extraction](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) workflow so the tag/value structure is preserved and used as feature attributes for the GIS labels produced here.
 
 **4. Stacked fractions and inline height changes**
 
@@ -276,8 +275,8 @@ Older DXF files saved by non-Unicode AutoCAD versions store text in a code page 
 
 ## Related Pages
 
-- [ezdxf Deep Dive: Production-Grade DXF Parsing](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — parent reference covering entity traversal and geometry extraction
-- [Extracting LWPOLYLINE Vertices with ezdxf](/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-lwpolyline-vertices-with-ezdxf/) — sibling workflow for the polyline geometry these labels annotate
-- [Reading 3D Solids with ezdxf Python](/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — sibling workflow for `3DSOLID` ACIS payloads
-- [Extracting Block Attributes from CAD Files](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) — structured `ATTRIB` tag/value metadata that complements free text
-- [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — the GeoJSON pipeline these text labels attach to as feature properties
+- [ezdxf Deep Dive: Production-Grade DXF Parsing](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — parent reference covering entity traversal and geometry extraction
+- [Extracting LWPOLYLINE Vertices with ezdxf](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-lwpolyline-vertices-with-ezdxf/) — sibling workflow for the polyline geometry these labels annotate
+- [Reading 3D Solids with ezdxf Python](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — sibling workflow for `3DSOLID` ACIS payloads
+- [Extracting Block Attributes from CAD Files](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) — structured `ATTRIB` tag/value metadata that complements free text
+- [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — the GeoJSON pipeline these text labels attach to as feature properties

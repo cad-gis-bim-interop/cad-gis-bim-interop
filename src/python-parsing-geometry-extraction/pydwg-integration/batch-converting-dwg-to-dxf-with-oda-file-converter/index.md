@@ -2,7 +2,6 @@
 title: "Batch Converting DWG to DXF with the ODA File Converter"
 description: "Wrap the ODA File Converter CLI in Python subprocess with xvfb-run to batch-convert DWG folders to DXF headlessly, then load each result with ezdxf and return a success/failure manifest."
 slug: "batch-converting-dwg-to-dxf-with-oda-file-converter"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -29,9 +28,9 @@ dateModified: "2026-07-11"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "DWG-to-Python Integration", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/"},
-        {"@type": "ListItem", "position": 3, "name": "Batch Converting DWG to DXF with the ODA File Converter", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/batch-converting-dwg-to-dxf-with-oda-file-converter/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "DWG-to-Python Integration", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/"},
+        {"@type": "ListItem", "position": 3, "name": "Batch Converting DWG to DXF with the ODA File Converter", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/batch-converting-dwg-to-dxf-with-oda-file-converter/"}
       ]
     },
     {
@@ -77,7 +76,7 @@ dateModified: "2026-07-11"
 
 # Batch Converting DWG to DXF with the ODA File Converter
 
-DWG is Autodesk's closed, version-fragmented binary format, and no pure-Python reader parses it reliably across releases — so the production route into `ezdxf` is to convert DWG to DXF first with the free ODA File Converter, then parse the DXF. The converter is a Qt GUI application driven through a seven-argument command line, so on a headless server you run it under `xvfb-run -a`, wrap it in `subprocess` with a timeout, and verify every output before loading it. This page is part of the [DWG-to-Python Integration](/python-parsing-geometry-extraction/pydwg-integration/) workflow within the broader [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) pipeline, and it feeds directly into [Parsing DWG Layers with Python Scripts](/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/), which consumes the DXF this conversion produces.
+DWG is Autodesk's closed, version-fragmented binary format, and no pure-Python reader parses it reliably across releases — so the production route into `ezdxf` is to convert DWG to DXF first with the free ODA File Converter, then parse the DXF. The converter is a Qt GUI application driven through a seven-argument command line, so on a headless server you run it under `xvfb-run -a`, wrap it in `subprocess` with a timeout, and verify every output before loading it. This page is part of the [DWG-to-Python Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) workflow within the broader [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) pipeline, and it feeds directly into [Parsing DWG Layers with Python Scripts](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/), which consumes the DXF this conversion produces.
 
 ## How the ODA File Converter Handles DWG Batches
 
@@ -274,11 +273,11 @@ The converter is a free download from the [Open Design Alliance](https://www.ope
 
 DWG batch conversion fails in five recurring ways. Handle them in order.
 
-**1. Output version target.** Default to `ACAD2018` (AC1032) for the broadest `ezdxf` coverage. Choose `ACAD2013` (AC1027) when a downstream tool rejects AC1032, or when proxy entities from a vertical product round-trip more cleanly through the older schema. The version fragmentation behind these codes is documented in [Understanding DWG Version Compatibility](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/).
+**1. Output version target.** Default to `ACAD2018` (AC1032) for the broadest `ezdxf` coverage. Choose `ACAD2013` (AC1027) when a downstream tool rejects AC1032, or when proxy entities from a vertical product round-trip more cleanly through the older schema. The version fragmentation behind these codes is documented in [Understanding DWG Version Compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/).
 
 **2. Audit repair.** Set `audit=True` so the converter runs its recover pass on each drawing, fixing broken handles and dangling references that would otherwise crash `ezdxf`. Auditing is slower, so for known-clean exports you can disable it — but keep it on for any drawings of unknown provenance.
 
-**3. Proxy entities.** Custom objects from Civil 3D, Plant 3D, or third-party applications convert to `ACAD_PROXY_ENTITY` placeholders that carry a cached graphic but no editable geometry. `ezdxf` reads them without error, yet their true geometry is unavailable. Detect them with `msp.query("ACAD_PROXY_ENTITY")` and route them per [Handling DWG Proxy Entities During Conversion](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/handling-dwg-proxy-entities-during-conversion/) rather than assuming the DXF is complete.
+**3. Proxy entities.** Custom objects from Civil 3D, Plant 3D, or third-party applications convert to `ACAD_PROXY_ENTITY` placeholders that carry a cached graphic but no editable geometry. `ezdxf` reads them without error, yet their true geometry is unavailable. Detect them with `msp.query("ACAD_PROXY_ENTITY")` and route them per [Handling DWG Proxy Entities During Conversion](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/handling-dwg-proxy-entities-during-conversion/) rather than assuming the DXF is complete.
 
 **4. XREF resolution.** External references are not embedded by the converter; a drawing that relies on XREFs converts to a DXF whose referenced geometry is missing. Bind XREFs at the CAD authoring stage before conversion, or ensure the referenced DWGs sit in the same input folder so their content is available.
 
@@ -318,8 +317,8 @@ Wrap the subprocess call with a timeout and catch `subprocess.TimeoutExpired`. A
 
 ## Related Pages
 
-- [DWG-to-Python Integration](/python-parsing-geometry-extraction/pydwg-integration/) — parent workflow covering version detection, headless conversion, and the full DWG parsing landscape
-- [Parsing DWG Layers with Python Scripts](/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/) — sibling guide that reads the LAYER table from the DXF this conversion produces
-- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — top-level pipeline covering ingestion, extraction, and serialization across CAD, BIM, and GIS
-- [Understanding DWG Version Compatibility](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — cross-topic reference for the AC10xx version codes that decide your output target
-- [Handling DWG Proxy Entities During Conversion](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/handling-dwg-proxy-entities-during-conversion/) — cross-topic guide for the proxy placeholders that survive DWG to DXF conversion
+- [DWG-to-Python Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) — parent workflow covering version detection, headless conversion, and the full DWG parsing landscape
+- [Parsing DWG Layers with Python Scripts](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/) — sibling guide that reads the LAYER table from the DXF this conversion produces
+- [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — top-level pipeline covering ingestion, extraction, and serialization across CAD, BIM, and GIS
+- [Understanding DWG Version Compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — cross-topic reference for the AC10xx version codes that decide your output target
+- [Handling DWG Proxy Entities During Conversion](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/handling-dwg-proxy-entities-during-conversion/) — cross-topic guide for the proxy placeholders that survive DWG to DXF conversion

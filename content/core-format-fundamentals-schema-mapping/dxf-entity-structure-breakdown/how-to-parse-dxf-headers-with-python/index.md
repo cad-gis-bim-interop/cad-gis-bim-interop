@@ -2,7 +2,6 @@
 title: "How to Parse DXF Headers with Python"
 description: "Extract and normalize DXF HEADER section variables using ezdxf in Python. Covers $INSUNITS, $ACADVER, $EXTMIN/$EXTMAX, unit mapping, version routing, and defensive parsing for AEC/GIS ingestion pipelines."
 slug: "how-to-parse-dxf-headers-with-python"
-type: "long_tail"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
     url: "/core-format-fundamentals-schema-mapping/"
@@ -25,14 +24,14 @@ dateModified: "2026-06-24"
       "datePublished": "2024-11-01",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "publisher": {"@type": "Organization", "name": "CAD GIS BIM Interop", "url": "https://cad-gis-bim-interop.org"}
+      "publisher": {"@type": "Organization", "name": "CAD GIS BIM Interop", "url": "https://www.cad-gis-bim-interop.org"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
-        {"@type": "ListItem", "position": 2, "name": "DXF Entity Structure Breakdown", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/"},
-        {"@type": "ListItem", "position": 3, "name": "How to Parse DXF Headers with Python", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/"}
+        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
+        {"@type": "ListItem", "position": 2, "name": "DXF Entity Structure Breakdown", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/"},
+        {"@type": "ListItem", "position": 3, "name": "How to Parse DXF Headers with Python", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/"}
       ]
     },
     {
@@ -54,7 +53,7 @@ dateModified: "2026-06-24"
 
 # How to Parse DXF Headers with Python
 
-To parse DXF headers with Python, use `ezdxf` (>=1.1.0) and its `doc.header` dictionary interface. This interface resolves raw DXF group codes into named variables automatically, eliminating manual string parsing. The HEADER section functions as the drawing-wide configuration block, storing coordinate bounds, unit definitions, version identifiers, and layer defaults. For a complete map of how the HEADER fits inside the full format layout, see the [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/). For AEC and GIS pipelines, extracting these values before geometry ingestion prevents unit mismatches, coordinate drift, and schema validation failures that are otherwise extremely difficult to trace.
+To parse DXF headers with Python, use `ezdxf` (>=1.1.0) and its `doc.header` dictionary interface. This interface resolves raw DXF group codes into named variables automatically, eliminating manual string parsing. The HEADER section functions as the drawing-wide configuration block, storing coordinate bounds, unit definitions, version identifiers, and layer defaults. For a complete map of how the HEADER fits inside the full format layout, see the [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/). For AEC and GIS pipelines, extracting these values before geometry ingestion prevents unit mismatches, coordinate drift, and schema validation failures that are otherwise extremely difficult to trace.
 
 ## How ezdxf Handles the HEADER Section
 
@@ -106,7 +105,7 @@ Reading the header before any geometry gives your pipeline three things:
 - a version identifier to route legacy files to compatibility shims
 - a bounding box for spatial indexing and sanity-checking extent validity
 
-This connects directly to the [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) framework: consistent field naming, type coercion, and validation rules across CAD, GIS, and BIM endpoints all depend on an agreed unit and version baseline set at ingestion.
+This connects directly to the [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) framework: consistent field naming, type coercion, and validation rules across CAD, GIS, and BIM endpoints all depend on an agreed unit and version baseline set at ingestion.
 
 ## Production-Ready Script
 
@@ -252,7 +251,7 @@ The file was exported without a declared unit. Possible recoveries in priority o
 
 **2. `$EXTMIN` equals `$EXTMAX` or both are `None`**
 
-The drawing is either empty or the exporting application did not regenerate extents before saving (`REGEN` / `REGEN ALL` in AutoCAD). Compute extents dynamically by iterating `doc.modelspace()` entity coordinates. Flag the file for verification before triggering expensive spatial transforms. The [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) page covers programmatic extent computation in more detail.
+The drawing is either empty or the exporting application did not regenerate extents before saving (`REGEN` / `REGEN ALL` in AutoCAD). Compute extents dynamically by iterating `doc.modelspace()` entity coordinates. Flag the file for verification before triggering expensive spatial transforms. The [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) page covers programmatic extent computation in more detail.
 
 **3. Unknown `$ACADVER` string**
 
@@ -271,14 +270,14 @@ The file is malformed, truncated, or uses a version newer than ezdxf supports. L
 
 **5. `$ACADVER` predates `AC1015` (R2000)**
 
-Files older than R2000 lack modern XDATA, `ACAD_PROXY_ENTITY`, and extended block attribute support. Route them through a legacy compatibility shim that strips or transforms unsupported entity types before passing geometry to the main parser. Connecting this routing decision to version-aware branching in your [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) parser prevents runtime errors on downstream entity reads.
+Files older than R2000 lack modern XDATA, `ACAD_PROXY_ENTITY`, and extended block attribute support. Route them through a legacy compatibility shim that strips or transforms unsupported entity types before passing geometry to the main parser. Connecting this routing decision to version-aware branching in your [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) parser prevents runtime errors on downstream entity reads.
 
 ---
 
 ## Related Pages
 
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — parent page covering the full group-code taxonomy, section layout, and entity hierarchy
-- [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) — the broader framework for unit normalization, schema alignment, and format-version routing across CAD, GIS, and BIM pipelines
-- [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — covers block attribute extraction, XDATA parsing, and dynamic extent computation
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — applies the unit and extent values extracted here to full coordinate reprojection with pyproj
-- [Understanding DWG Version Compatibility](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — sibling reference for version-routing decisions when your pipeline handles both DXF and DWG inputs
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — parent page covering the full group-code taxonomy, section layout, and entity hierarchy
+- [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) — the broader framework for unit normalization, schema alignment, and format-version routing across CAD, GIS, and BIM pipelines
+- [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — covers block attribute extraction, XDATA parsing, and dynamic extent computation
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — applies the unit and extent values extracted here to full coordinate reprojection with pyproj
+- [Understanding DWG Version Compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — sibling reference for version-routing decisions when your pipeline handles both DXF and DWG inputs

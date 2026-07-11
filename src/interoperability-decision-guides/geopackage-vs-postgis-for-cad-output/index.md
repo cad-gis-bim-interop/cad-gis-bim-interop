@@ -2,7 +2,6 @@
 title: "GeoPackage vs PostGIS for CAD Output: Choosing a Storage Target"
 description: "A decision guide comparing GeoPackage and PostGIS as the storage target for converted CAD/BIM geometry — concurrency, scale, portability, indexing, tooling, and ops cost."
 slug: "geopackage-vs-postgis-for-cad-output"
-type: "cluster"
 breadcrumb:
   - label: "Interoperability Decision Guides"
     url: "/interoperability-decision-guides/"
@@ -23,13 +22,13 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "publisher": {"@type": "Organization", "name": "CAD GIS BIM Interop", "url": "https://cad-gis-bim-interop.org"}
+      "publisher": {"@type": "Organization", "name": "CAD GIS BIM Interop", "url": "https://www.cad-gis-bim-interop.org"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/"},
-        {"@type": "ListItem", "position": 2, "name": "GeoPackage vs PostGIS for CAD Output", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/"}
+        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/"},
+        {"@type": "ListItem", "position": 2, "name": "GeoPackage vs PostGIS for CAD Output", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/"}
       ]
     },
     {
@@ -76,7 +75,7 @@ dateModified: "2026-07-11"
 
 Choosing between GeoPackage and PostGIS as the storage target for converted CAD/BIM geometry decides whether your output is a portable single file or a concurrent, server-hosted spatial database — and that choice shapes everything from handoff logistics to CI cost.
 
-This guide sits within the [Interoperability Decision Guides](/interoperability-decision-guides/) section and treats the two as complementary endpoints of the same conversion pipeline rather than competitors. GeoPackage is a single SQLite file implementing the OGC standard: portable, zero-server, and ideal for handing a dataset to a desktop GIS user or shipping it alongside a report. PostGIS is a spatial extension to PostgreSQL: a server that offers concurrent multi-user access, rich spatial SQL, mature indexing, and the scale to hold billions of features — at the operational cost of running a database. When the output is a deliverable for one analyst, GeoPackage almost always wins. When the output is a shared platform that many jobs write to and many users query, PostGIS wins.
+This guide sits within the [Interoperability Decision Guides](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/) section and treats the two as complementary endpoints of the same conversion pipeline rather than competitors. GeoPackage is a single SQLite file implementing the OGC standard: portable, zero-server, and ideal for handing a dataset to a desktop GIS user or shipping it alongside a report. PostGIS is a spatial extension to PostgreSQL: a server that offers concurrent multi-user access, rich spatial SQL, mature indexing, and the scale to hold billions of features — at the operational cost of running a database. When the output is a deliverable for one analyst, GeoPackage almost always wins. When the output is a shared platform that many jobs write to and many users query, PostGIS wins.
 
 Both are the destination the earlier stages of a CAD-to-GIS pipeline converge on, after geometry has been extracted and reprojected. The decision is about the operational shape of the destination, not the correctness of the geometry.
 
@@ -123,7 +122,7 @@ Before writing converted geometry to either target, confirm the following:
 - **GDAL/OGR ≥ 3.6** — the driver layer behind GeoPackage writes.
 - **SQLAlchemy ≥ 2.0 and psycopg (2 or 3)** — required for the PostGIS engine; `pip install "SQLAlchemy>=2.0" psycopg2-binary`.
 - **A PostGIS 3.x server** — only for the PostGIS route; the `postgis` extension must be enabled in the target database.
-- **Converted, reprojected geometry** — this guide assumes geometry has already been extracted and normalised. Extraction is covered in [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) and CRS handling in [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/).
+- **Converted, reprojected geometry** — this guide assumes geometry has already been extracted and normalised. Extraction is covered in [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) and CRS handling in [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/).
 
 ## Architectural Overview
 
@@ -204,7 +203,7 @@ with engine.begin() as conn:
     ))
 ```
 
-`to_postgis` is the convenience path; when you need explicit control over column types, batch sizes, and 3D geometry, define the table with SQLAlchemy and GeoAlchemy2 and bulk-insert — the full pattern is in [Writing CAD Geometry to PostGIS with GeoAlchemy2](/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/writing-cad-geometry-to-postgis-with-geoalchemy2/).
+`to_postgis` is the convenience path; when you need explicit control over column types, batch sizes, and 3D geometry, define the table with SQLAlchemy and GeoAlchemy2 and bulk-insert — the full pattern is in [Writing CAD Geometry to PostGIS with GeoAlchemy2](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/writing-cad-geometry-to-postgis-with-geoalchemy2/).
 
 ### 4. Verify the written store
 
@@ -279,7 +278,7 @@ def test_postgis_has_spatial_index(engine):
 
 **PostGIS** scales through indexing and batching. After bulk loading, `VACUUM ANALYZE` the table so the planner has fresh statistics, and create the GiST index *after* the bulk insert rather than before — maintaining an index during a large load is far slower than building it once at the end. For very large loads, insert in batches of a few thousand rows per transaction to bound WAL growth, and consider `COPY`-based ingestion for the largest jobs. Partition by region or by capture date when a single table grows past hundreds of millions of rows.
 
-For CI pipelines, GeoPackage is the cheaper target: the output is a file artifact with no service dependency. Testing the PostGIS path requires a PostGIS service container in the pipeline, which is worth it only when the production target is PostGIS. The detailed bulk-insert, engine, and index mechanics for the server path are covered in [Writing CAD Geometry to PostGIS with GeoAlchemy2](/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/writing-cad-geometry-to-postgis-with-geoalchemy2/).
+For CI pipelines, GeoPackage is the cheaper target: the output is a file artifact with no service dependency. Testing the PostGIS path requires a PostGIS service container in the pipeline, which is worth it only when the production target is PostGIS. The detailed bulk-insert, engine, and index mechanics for the server path are covered in [Writing CAD Geometry to PostGIS with GeoAlchemy2](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/writing-cad-geometry-to-postgis-with-geoalchemy2/).
 
 ## FAQ
 
@@ -315,9 +314,9 @@ Yes. Both are OGC-standard vector stores readable by GDAL/OGR and geopandas, so 
 
 ## Related Pages
 
-- [Interoperability Decision Guides](/interoperability-decision-guides/) — the section overview framing storage and format trade-offs for CAD/BIM-to-GIS pipelines
-- [Writing CAD Geometry to PostGIS with GeoAlchemy2](/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/writing-cad-geometry-to-postgis-with-geoalchemy2/) — the detailed engine, model, bulk-insert, and GiST-index pattern for the PostGIS route
-- [DXF vs IFC for GIS Ingestion](/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/) — choosing the interchange format that feeds this storage stage
-- [Choosing ezdxf, pydwg, or ODA for Production](/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/) — selecting the parsing stack upstream of storage
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — aligning coordinate reference systems before writing to a GIS store
-- [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) — producing the converted geometry that lands in GeoPackage or PostGIS
+- [Interoperability Decision Guides](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/) — the section overview framing storage and format trade-offs for CAD/BIM-to-GIS pipelines
+- [Writing CAD Geometry to PostGIS with GeoAlchemy2](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/writing-cad-geometry-to-postgis-with-geoalchemy2/) — the detailed engine, model, bulk-insert, and GiST-index pattern for the PostGIS route
+- [DXF vs IFC for GIS Ingestion](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/) — choosing the interchange format that feeds this storage stage
+- [Choosing ezdxf, pydwg, or ODA for Production](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/) — selecting the parsing stack upstream of storage
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — aligning coordinate reference systems before writing to a GIS store
+- [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) — producing the converted geometry that lands in GeoPackage or PostGIS

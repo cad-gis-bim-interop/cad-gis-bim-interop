@@ -2,7 +2,6 @@
 title: "ifcopenshell Workflow: IFC Parsing & BIM Geometry Extraction in Python"
 description: "Production guide to the ifcopenshell workflow: environment setup, geometry extraction with OpenCASCADE, coordinate transformation, serialization, edge cases, and memory management for BIM-to-GIS pipelines."
 slug: "ifcopenshell-workflow"
-type: "cluster"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -27,8 +26,8 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "ifcopenshell Workflow", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "ifcopenshell Workflow", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/"}
       ]
     },
     {
@@ -80,7 +79,7 @@ dateModified: "2026-06-24"
 
 # ifcopenshell Workflow: IFC Parsing & BIM Geometry Extraction in Python
 
-`ifcopenshell` is the primary open-source Python library for reading, writing, and tessellating Industry Foundation Classes (IFC) files — the open BIM exchange format maintained by buildingSMART International. As part of the [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) pipeline, the ifcopenshell workflow occupies the ingestion and geometry compilation stages: it opens IFC deliverables, resolves parametric representations to triangulated meshes via OpenCASCADE, and hands off georeferenced geometry to downstream GIS or visualization systems.
+`ifcopenshell` is the primary open-source Python library for reading, writing, and tessellating Industry Foundation Classes (IFC) files — the open BIM exchange format maintained by buildingSMART International. As part of the [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) pipeline, the ifcopenshell workflow occupies the ingestion and geometry compilation stages: it opens IFC deliverables, resolves parametric representations to triangulated meshes via OpenCASCADE, and hands off georeferenced geometry to downstream GIS or visualization systems.
 
 This page covers the full production workflow: environment setup, architectural internals, step-by-step extraction, named edge cases, validation strategies, memory management, and a FAQ drawn from real integration failures.
 
@@ -92,7 +91,7 @@ This page covers the full production workflow: environment setup, architectural 
 - **ifcopenshell 0.7.x** (`pip install ifcopenshell`) — ships with a bundled OpenCASCADE binary; no separate C++ compilation is required on standard platforms.
 - **numpy ≥ 1.24** (`pip install numpy`) — vertex and face arrays are returned as raw Python lists that must be reshaped into numpy arrays for vectorized processing.
 - **pyproj ≥ 3.5** (`pip install pyproj`) — PROJ 9 backend required for accurate datum-aware CRS transformations.
-- **shapely ≥ 2.0** (`pip install shapely`) — for footprint extraction and spatial predicates. See [Extracting IFC Wall Geometries to Shapely](/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) for optimized polygonization routines.
+- **shapely ≥ 2.0** (`pip install shapely`) — for footprint extraction and spatial predicates. See [Extracting IFC Wall Geometries to Shapely](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) for optimized polygonization routines.
 - **Assumed knowledge:** familiarity with the IFC spatial hierarchy (`IfcProject` → `IfcSite` → `IfcBuilding` → `IfcBuildingStorey`), basic understanding of homogeneous 4×4 transformation matrices, and awareness that IFC geometry is parametric (it must be compiled, not read directly).
 
 Install all dependencies together:
@@ -307,7 +306,7 @@ def project_vertices(
     return np.column_stack([x, y, z])
 ```
 
-`always_xy=True` prevents axis-order surprises when the source CRS uses a latitude-first convention (common with legacy EPSG codes). See [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) for a worked example with real survey data.
+`always_xy=True` prevents axis-order surprises when the source CRS uses a latitude-first convention (common with legacy EPSG codes). See [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) for a worked example with real survey data.
 
 ### Step 6 — Extract Property Sets and Serialize to GeoJSON
 
@@ -568,8 +567,8 @@ Federated IFC is not a single file format — federation is a host-application c
 
 ## Related Pages
 
-- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — parent overview of the full parsing pipeline for IFC, DXF, and DWG formats.
-- [Extracting IFC Wall Geometries to Shapely](/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) — optimized projection and polygonization routines for building footprints.
-- [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — production DXF parsing patterns using a sibling Python library; shared architectural patterns apply.
-- [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) — legacy DWG format access from Python; relevant when IFC deliverables are unavailable.
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — worked CRS transformation example that pairs directly with the vertex projection step above.
+- [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — parent overview of the full parsing pipeline for IFC, DXF, and DWG formats.
+- [Extracting IFC Wall Geometries to Shapely](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) — optimized projection and polygonization routines for building footprints.
+- [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — production DXF parsing patterns using a sibling Python library; shared architectural patterns apply.
+- [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) — legacy DWG format access from Python; relevant when IFC deliverables are unavailable.
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — worked CRS transformation example that pairs directly with the vertex projection step above.

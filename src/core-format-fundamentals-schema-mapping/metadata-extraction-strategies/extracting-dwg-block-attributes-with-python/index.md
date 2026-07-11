@@ -2,7 +2,6 @@
 title: "Extracting DWG Block Attributes with Python"
 description: "Harvest title-block and equipment-tag attributes from DWG files: convert DWG to DXF with ODA, then read INSERT attribs with ezdxf into tag-to-value tables keyed by block and handle."
 slug: "extracting-dwg-block-attributes-with-python"
-type: "long_tail"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
     url: "/core-format-fundamentals-schema-mapping/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-dwg-block-attributes-with-python/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-dwg-block-attributes-with-python/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
-        {"@type": "ListItem", "position": 2, "name": "Metadata Extraction Strategies", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/"},
-        {"@type": "ListItem", "position": 3, "name": "Extracting DWG Block Attributes with Python", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-dwg-block-attributes-with-python/"}
+        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
+        {"@type": "ListItem", "position": 2, "name": "Metadata Extraction Strategies", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/"},
+        {"@type": "ListItem", "position": 3, "name": "Extracting DWG Block Attributes with Python", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-dwg-block-attributes-with-python/"}
       ]
     },
     {
@@ -78,13 +77,13 @@ dateModified: "2026-07-11"
 
 # Extracting DWG Block Attributes with Python
 
-To extract block attributes from a DWG file with Python, first convert the DWG to DXF with the ODA File Converter, then open the DXF with `ezdxf`, query `INSERT` entities, and read each attached `ATTRIB` sub-entity through `insert.attribs` — pulling `att.dxf.tag` and `att.dxf.text` into a tag-to-value dictionary per block reference. Title blocks, equipment tags, and drawing-register fields all live as attributes on block references, which makes them one of the richest metadata sources in a CAD drawing. This page is part of the [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) reference and assumes you can run a conversion step and open a DXF document.
+To extract block attributes from a DWG file with Python, first convert the DWG to DXF with the ODA File Converter, then open the DXF with `ezdxf`, query `INSERT` entities, and read each attached `ATTRIB` sub-entity through `insert.attribs` — pulling `att.dxf.tag` and `att.dxf.text` into a tag-to-value dictionary per block reference. Title blocks, equipment tags, and drawing-register fields all live as attributes on block references, which makes them one of the richest metadata sources in a CAD drawing. This page is part of the [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) reference and assumes you can run a conversion step and open a DXF document.
 
 ## How ezdxf Handles Block Attributes
 
 A block reference in DXF is an `INSERT` entity: a placement (insertion point, scale, rotation) of a named block definition. When that block was authored with attribute definitions (`ATTDEF`), each placed reference carries matching attribute instances (`ATTRIB`) that hold the actual values a drafter typed. `ezdxf` exposes those instances through the iterable `insert.attribs`; each `ATTRIB` has a `dxf.tag` (the fixed field name, e.g. `DWG_NUMBER`) and a `dxf.text` (the typed value, e.g. `A-101`).
 
-The critical prerequisite is format: DWG is Autodesk's closed binary format with no public specification, and `ezdxf` cannot read it. You must convert DWG to DXF first — the [ODA File Converter batch workflow](/python-parsing-geometry-extraction/pydwg-integration/batch-converting-dwg-to-dxf-with-oda-file-converter/) is the standard route — and then parse the DXF. Once you have DXF, attribute traversal is straightforward, with two subtleties: the block *definition* holds `ATTDEF` templates (including constant attributes that never appear on the reference), and attribute visibility flags distinguish shown fields from hidden ones.
+The critical prerequisite is format: DWG is Autodesk's closed binary format with no public specification, and `ezdxf` cannot read it. You must convert DWG to DXF first — the [ODA File Converter batch workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/batch-converting-dwg-to-dxf-with-oda-file-converter/) is the standard route — and then parse the DXF. Once you have DXF, attribute traversal is straightforward, with two subtleties: the block *definition* holds `ATTDEF` templates (including constant attributes that never appear on the reference), and attribute visibility flags distinguish shown fields from hidden ones.
 
 <svg viewBox="0 0 720 300" role="img" aria-label="DWG to DXF conversion then attribute harvest: an INSERT reference carries visible ATTRIB values while the block definition holds ATTDEF templates including constant attributes" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>Harvesting Block Attributes from a Converted DWG</title>
@@ -119,7 +118,7 @@ The critical prerequisite is format: DWG is Autodesk's closed binary format with
   <text x="648" y="164" text-anchor="middle" font-size="11" fill="currentColor">-&gt; value map</text>
 </svg>
 
-The output of this harvest — a `DWG_NUMBER`, `REVISION`, or `EQUIP_TAG` mapped to a value and an insertion point — is exactly the structured attribute data that feeds [block-attribute extraction across CAD files](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/), where the same tag-to-value model is applied format-agnostically.
+The output of this harvest — a `DWG_NUMBER`, `REVISION`, or `EQUIP_TAG` mapped to a value and an insertion point — is exactly the structured attribute data that feeds [block-attribute extraction across CAD files](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/), where the same tag-to-value model is applied format-agnostically.
 
 ## Production-Ready Script
 
@@ -292,7 +291,7 @@ Exploding an `INSERT` converts constant attributes to plain `TEXT` and drops the
 
 ## Related Pages
 
-- [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — parent reference on turning embedded CAD, GIS, and BIM metadata into structured attributes
-- [Extracting Block Attributes from CAD Files](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) — sibling workflow applying the same tag-to-value model across formats
-- [Batch Converting DWG to DXF with ODA File Converter](/python-parsing-geometry-extraction/pydwg-integration/batch-converting-dwg-to-dxf-with-oda-file-converter/) — cross-pillar prerequisite that produces the DXF this harvest reads
-- [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) — cross-pillar reference on handling proprietary `.dwg` files in Python pipelines
+- [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — parent reference on turning embedded CAD, GIS, and BIM metadata into structured attributes
+- [Extracting Block Attributes from CAD Files](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) — sibling workflow applying the same tag-to-value model across formats
+- [Batch Converting DWG to DXF with ODA File Converter](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/batch-converting-dwg-to-dxf-with-oda-file-converter/) — related prerequisite that produces the DXF this harvest reads
+- [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) — related reference on handling proprietary `.dwg` files in Python pipelines

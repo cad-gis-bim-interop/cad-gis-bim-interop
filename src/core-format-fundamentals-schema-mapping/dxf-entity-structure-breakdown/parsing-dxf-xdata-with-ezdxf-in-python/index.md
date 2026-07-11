@@ -2,7 +2,6 @@
 title: "Parsing DXF XDATA with ezdxf in Python"
 description: "How to read application-defined XDATA from DXF entities with ezdxf: APPID namespaces, group-code typing, nested 1002 control lists, and JSON export for AEC pipelines."
 slug: "parsing-dxf-xdata-with-ezdxf-in-python"
-type: "long_tail"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
     url: "/core-format-fundamentals-schema-mapping/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/parsing-dxf-xdata-with-ezdxf-in-python/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/parsing-dxf-xdata-with-ezdxf-in-python/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
-        {"@type": "ListItem", "position": 2, "name": "DXF Entity Structure Breakdown", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/"},
-        {"@type": "ListItem", "position": 3, "name": "Parsing DXF XDATA with ezdxf in Python", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/parsing-dxf-xdata-with-ezdxf-in-python/"}
+        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
+        {"@type": "ListItem", "position": 2, "name": "DXF Entity Structure Breakdown", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/"},
+        {"@type": "ListItem", "position": 3, "name": "Parsing DXF XDATA with ezdxf in Python", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/parsing-dxf-xdata-with-ezdxf-in-python/"}
       ]
     },
     {
@@ -78,7 +77,7 @@ dateModified: "2026-07-11"
 
 # Parsing DXF XDATA with ezdxf in Python
 
-To parse DXF XDATA with `ezdxf`, test an entity with `entity.has_xdata(appid)` and read it with `entity.get_xdata(appid)`, which returns an ordered list of `(group_code, value)` tuples scoped to one registered application id. XDATA is application-defined extended data that any entity can carry — asset tags, GIS keys, revision markers written by AutoCAD verticals or custom plugins — and every block of it is namespaced by an APPID registered in `doc.appids`. `ezdxf` decodes the primitive group-code types for you but leaves the `1002` brace-control nesting for you to fold into a tree. This page is part of the [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) reference; it assumes you can already open a document and reach its entities.
+To parse DXF XDATA with `ezdxf`, test an entity with `entity.has_xdata(appid)` and read it with `entity.get_xdata(appid)`, which returns an ordered list of `(group_code, value)` tuples scoped to one registered application id. XDATA is application-defined extended data that any entity can carry — asset tags, GIS keys, revision markers written by AutoCAD verticals or custom plugins — and every block of it is namespaced by an APPID registered in `doc.appids`. `ezdxf` decodes the primitive group-code types for you but leaves the `1002` brace-control nesting for you to fold into a tree. This page is part of the [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) reference; it assumes you can already open a document and reach its entities.
 
 ## How ezdxf Handles XDATA
 
@@ -128,7 +127,7 @@ Every DXF entity — `LINE`, `LWPOLYLINE`, `INSERT`, `CIRCLE`, anything derived 
   <line x1="290" y1="190" x2="290" y2="226" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" opacity="0.6" marker-end="url(#ax)"/>
 </svg>
 
-Because XDATA is where third-party tools stash their asset identifiers and classification codes, it is a primary source for [metadata extraction strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — the values you recover here frequently become the join keys that bind CAD geometry to a GIS or asset-management database.
+Because XDATA is where third-party tools stash their asset identifiers and classification codes, it is a primary source for [metadata extraction strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — the values you recover here frequently become the join keys that bind CAD geometry to a GIS or asset-management database.
 
 ## Production-Ready Script
 
@@ -314,7 +313,7 @@ Yes. Group code `1004` carries binary data, which `ezdxf` returns as a Python `b
 
 ## Related Pages
 
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — parent reference covering group-code taxonomy and section structure that governs how XDATA is stored
-- [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — sibling workflow for reading document-level `HEADER` variables before entity traversal
-- [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — where recovered XDATA becomes the join key that binds CAD geometry to GIS and asset databases
-- [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — cross-pillar reference on document ingestion, entity traversal, and memory-efficient DXF processing
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — parent reference covering group-code taxonomy and section structure that governs how XDATA is stored
+- [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — sibling workflow for reading document-level `HEADER` variables before entity traversal
+- [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — where recovered XDATA becomes the join key that binds CAD geometry to GIS and asset databases
+- [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — related reference on document ingestion, entity traversal, and memory-efficient DXF processing

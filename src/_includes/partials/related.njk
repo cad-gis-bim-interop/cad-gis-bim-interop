@@ -5,7 +5,7 @@
   <div class="related-grid">
     {%- for s in sibs -%}
       {%- set slug = s.url.split('/').slice(-2, -1)[0] -%}
-      <a href="{{ s.url }}">{{ slug | titleize }}</a>
+      <a href="{{ s.url | absoluteUrl }}">{{ slug | titleize }}</a>
     {%- endfor -%}
   </div>
 </aside>

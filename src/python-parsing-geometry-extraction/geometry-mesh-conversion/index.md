@@ -2,7 +2,6 @@
 title: "Geometry Mesh Conversion for Python CAD/GIS/BIM Pipelines"
 description: "Convert parametric CAD and BIM geometry to watertight polygon meshes using Python. Covers trimesh, shapely, ezdxf, ifcopenshell, coordinate normalization, triangulation, and validation for AEC interoperability pipelines."
 slug: "geometry-mesh-conversion"
-type: "cluster"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -31,13 +30,13 @@ dateModified: "2026-06-24"
           "@type": "ListItem",
           "position": 1,
           "name": "Python Parsing & Geometry Extraction",
-          "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"
+          "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Geometry Mesh Conversion",
-          "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/"
+          "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/"
         }
       ]
     },
@@ -105,7 +104,7 @@ dateModified: "2026-06-24"
 
 # Geometry Mesh Conversion for Python CAD/GIS/BIM Pipelines
 
-Geometry mesh conversion transforms parametric, boundary-representation (B-rep) models and raw CAD geometry into polygonal mesh formats required for real-time visualization, web delivery, and computational simulation. As part of the [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) pipeline, this stage sits between raw entity extraction and downstream export: it accepts heterogeneous geometric primitives from DXF drawings, IFC building models, and georeferenced GIS datasets, and produces clean, watertight triangle meshes that downstream renderers and simulation engines can consume without further preprocessing.
+Geometry mesh conversion transforms parametric, boundary-representation (B-rep) models and raw CAD geometry into polygonal mesh formats required for real-time visualization, web delivery, and computational simulation. As part of the [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) pipeline, this stage sits between raw entity extraction and downstream export: it accepts heterogeneous geometric primitives from DXF drawings, IFC building models, and georeferenced GIS datasets, and produces clean, watertight triangle meshes that downstream renderers and simulation engines can consume without further preprocessing.
 
 The conversion is rarely a one-to-one mapping. CAD drawings contain layered polylines, blocks, and hatches with no explicit face topology. BIM models embed semantic solids with material assignments and boolean CSG operations. GIS datasets rely on coordinate reference systems (CRS) and topological networks defined in two dimensions. Converting these sources into meshes demands structured extraction, rigorous coordinate normalization, and robust triangulation strategies—each failure mode traceable to a specific mismatch in these three stages.
 
@@ -197,7 +196,7 @@ The mesh conversion process follows a deterministic five-stage sequence. Deviati
 
 Isolate geometric primitives from raw files before any transformation. CAD formats store visual and non-visual data in the same entity table; filter out text, dimensions, and annotation blocks unless they are mapped to mesh metadata.
 
-For DXF sources, use the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) patterns to traverse block references, resolve nested inserts, and extract `LINE`, `LWPOLYLINE`, and `3DFACE` entities. The following example collects only geometry-bearing entity types from modelspace:
+For DXF sources, use the [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) patterns to traverse block references, resolve nested inserts, and extract `LINE`, `LWPOLYLINE`, and `3DFACE` entities. The following example collects only geometry-bearing entity types from modelspace:
 
 ```python
 # ezdxf>=1.1.0
@@ -216,7 +215,7 @@ def extract_geometric_entities(dxf_path: str) -> list:
     return entities
 ```
 
-For IFC sources, use the [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) to extract `IfcShapeRepresentation` objects. Discard `IfcAnnotation` and `IfcGrid` early to reduce memory overhead:
+For IFC sources, use the [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) to extract `IfcShapeRepresentation` objects. Discard `IfcAnnotation` and `IfcGrid` early to reduce memory overhead:
 
 ```python
 # ifcopenshell>=0.8.0
@@ -242,7 +241,7 @@ def extract_ifc_products(ifc_path: str) -> list:
 
 Raw coordinates often span kilometres (GIS) or millimetres (CAD), causing catastrophic precision loss when converted to 32-bit floats for GPU buffers. The [Khronos glTF specification](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html) recommends keeping vertex coordinates within ±10,000 units.
 
-Always isolate coordinate transformation from mesh generation. Apply CRS shifts or local-to-global scaling before triangulation to prevent vertex drift and floating-point artefacts. When bridging CAD to geospatial outputs, see [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) for coordinate projection strategies that preserve topological relationships.
+Always isolate coordinate transformation from mesh generation. Apply CRS shifts or local-to-global scaling before triangulation to prevent vertex drift and floating-point artefacts. When bridging CAD to geospatial outputs, see [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) for coordinate projection strategies that preserve topological relationships.
 
 ```python
 # numpy>=1.24.0
@@ -603,8 +602,8 @@ Keep meshes under 500,000 vertices to prevent WebGL memory exhaustion in typical
 
 ## Related Pages
 
-- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — parent pipeline overview covering all extraction and conversion workflows
-- [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — DXF entity traversal, block resolution, and coordinate extraction patterns used at the ingestion stage
-- [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) — IFC B-rep extraction and semantic mapping feeding into the triangulation stage
-- [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — coordinate projection strategies for 2D CAD-to-GIS conversion within this same conversion context
-- [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) — CRS normalization, unit conversion, and datum alignment patterns applied before mesh triangulation
+- [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — parent pipeline overview covering all extraction and conversion workflows
+- [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — DXF entity traversal, block resolution, and coordinate extraction patterns used at the ingestion stage
+- [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) — IFC B-rep extraction and semantic mapping feeding into the triangulation stage
+- [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — coordinate projection strategies for 2D CAD-to-GIS conversion within this same conversion context
+- [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) — CRS normalization, unit conversion, and datum alignment patterns applied before mesh triangulation

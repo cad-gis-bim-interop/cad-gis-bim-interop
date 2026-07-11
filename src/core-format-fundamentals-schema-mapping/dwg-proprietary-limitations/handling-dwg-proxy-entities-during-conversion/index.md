@@ -2,7 +2,6 @@
 title: "Handling DWG Proxy Entities During Conversion"
 description: "Detect and mitigate ACAD_PROXY_ENTITY objects from Civil 3D and Plant 3D during DWG to DXF conversion: log by handle, use PROXYGRAPHICS, and treat cached graphics as approximate."
 slug: "handling-dwg-proxy-entities-during-conversion"
-type: "long_tail"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
     url: "/core-format-fundamentals-schema-mapping/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/handling-dwg-proxy-entities-during-conversion/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/handling-dwg-proxy-entities-during-conversion/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
-        {"@type": "ListItem", "position": 2, "name": "DWG Proprietary Limitations", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/"},
-        {"@type": "ListItem", "position": 3, "name": "Handling DWG Proxy Entities During Conversion", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/handling-dwg-proxy-entities-during-conversion/"}
+        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
+        {"@type": "ListItem", "position": 2, "name": "DWG Proprietary Limitations", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/"},
+        {"@type": "ListItem", "position": 3, "name": "Handling DWG Proxy Entities During Conversion", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/handling-dwg-proxy-entities-during-conversion/"}
       ]
     },
     {
@@ -73,13 +72,13 @@ dateModified: "2026-07-11"
 
 # Handling DWG Proxy Entities During Conversion
 
-Proxy entities — `ACAD_PROXY_ENTITY` objects — are placeholders that AutoCAD writes for custom objects created by vertical products such as Civil 3D and Plant 3D, standing in for classes the reading application does not understand. During DWG-to-DXF conversion they either keep only a cached graphical snapshot or are dropped entirely, so `ezdxf` reports `entity.dxftype() == "ACAD_PROXY_ENTITY"` and cannot decode any parametric geometry beyond those cached graphics. The correct handling is detection, logging by handle, and mitigation at the source rather than pretending the proxy is real geometry. This page is part of the [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) reference and assumes you already have a converted DXF to inspect.
+Proxy entities — `ACAD_PROXY_ENTITY` objects — are placeholders that AutoCAD writes for custom objects created by vertical products such as Civil 3D and Plant 3D, standing in for classes the reading application does not understand. During DWG-to-DXF conversion they either keep only a cached graphical snapshot or are dropped entirely, so `ezdxf` reports `entity.dxftype() == "ACAD_PROXY_ENTITY"` and cannot decode any parametric geometry beyond those cached graphics. The correct handling is detection, logging by handle, and mitigation at the source rather than pretending the proxy is real geometry. This page is part of the [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) reference and assumes you already have a converted DXF to inspect.
 
 ## How ezdxf Handles Proxy Entities
 
 Autodesk vertical products define their own object classes — a Civil 3D corridor, a Plant 3D pipe, an alignment — through *object enablers*, runtime modules that teach AutoCAD how to draw and edit those objects. When a drawing containing such objects is opened by software that lacks the matching enabler, AutoCAD substitutes a proxy: an `ACAD_PROXY_ENTITY` that preserves the object's handle and, optionally, a cached graphical representation captured at save time, but not the parametric definition. The custom object's real geometry lives in code the reader does not have.
 
-`ezdxf` is exactly such a reader. It never had the object enabler, so a proxy stays a proxy: `entity.dxftype()` returns `"ACAD_PROXY_ENTITY"`, and there is no property that reconstructs the original corridor or pipe. At best, if the file was saved with cached proxy graphics, a downstream tool can recover a frozen visual snapshot of lines and arcs — an approximation with no editable topology and no attributes. Treating that snapshot as authoritative geometry is the central mistake this page exists to prevent. Because DWG is a closed format, this limitation compounds the general reasons `ezdxf` cannot read DWG directly, detailed in the [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) reference.
+`ezdxf` is exactly such a reader. It never had the object enabler, so a proxy stays a proxy: `entity.dxftype()` returns `"ACAD_PROXY_ENTITY"`, and there is no property that reconstructs the original corridor or pipe. At best, if the file was saved with cached proxy graphics, a downstream tool can recover a frozen visual snapshot of lines and arcs — an approximation with no editable topology and no attributes. Treating that snapshot as authoritative geometry is the central mistake this page exists to prevent. Because DWG is a closed format, this limitation compounds the general reasons `ezdxf` cannot read DWG directly, detailed in the [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) reference.
 
 <svg viewBox="0 0 720 300" role="img" aria-label="Decision flow for a converted DXF entity: native types decode to real geometry while ACAD_PROXY_ENTITY objects split into cached-graphics approximation or total loss and are logged" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>Classifying Native Geometry versus Proxy Entities After Conversion</title>
@@ -116,7 +115,7 @@ Autodesk vertical products define their own object classes — a Civil 3D corrid
   <text x="674" y="204" text-anchor="middle" font-size="10" fill="currentColor">handle</text>
 </svg>
 
-Proxy handling belongs to the same family of closed-format problems as version incompatibility; when a converted drawing is missing objects you expected, checking [DWG version compatibility](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) and scanning for proxies are the two first diagnostics to run.
+Proxy handling belongs to the same family of closed-format problems as version incompatibility; when a converted drawing is missing objects you expected, checking [DWG version compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) and scanning for proxies are the two first diagnostics to run.
 
 ## Production-Ready Script
 
@@ -281,7 +280,7 @@ There is no universal threshold, but a pipeline should gate on the proxy ratio. 
 
 ## Related Pages
 
-- [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — parent reference on the closed-format constraints that make DWG hard to process in Python
-- [Understanding DWG Version Compatibility](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — sibling workflow on the release-dependent binary changes that also cause conversion loss
-- [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) — cross-pillar reference on reading proprietary `.dwg` files and the conversion tooling around them
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — how native entity types differ from opaque proxy objects at the group-code level
+- [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — parent reference on the closed-format constraints that make DWG hard to process in Python
+- [Understanding DWG Version Compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — sibling workflow on the release-dependent binary changes that also cause conversion loss
+- [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) — related reference on reading proprietary `.dwg` files and the conversion tooling around them
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — how native entity types differ from opaque proxy objects at the group-code level

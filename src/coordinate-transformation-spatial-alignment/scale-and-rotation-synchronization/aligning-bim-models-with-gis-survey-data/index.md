@@ -2,7 +2,6 @@
 title: "Aligning BIM Models with GIS Survey Data Using Python"
 description: "Step-by-step guide to aligning BIM models with GIS survey data via SVD-based similarity transforms in Python — covers control point extraction, CRS harmonization, RMSE validation, and IFC georeferencing."
 slug: "aligning-bim-models-with-gis-survey-data"
-type: "long_tail"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
     url: "/coordinate-transformation-spatial-alignment/"
@@ -29,9 +28,9 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
-        {"@type": "ListItem", "position": 2, "name": "Scale and Rotation Synchronization", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/"},
-        {"@type": "ListItem", "position": 3, "name": "Aligning BIM Models with GIS Survey Data", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/"}
+        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
+        {"@type": "ListItem", "position": 2, "name": "Scale and Rotation Synchronization", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/"},
+        {"@type": "ListItem", "position": 3, "name": "Aligning BIM Models with GIS Survey Data", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/"}
       ]
     },
     {
@@ -52,7 +51,7 @@ dateModified: "2026-06-24"
 
 # Aligning BIM Models with GIS Survey Data Using Python
 
-Aligning a BIM model with GIS survey data requires a deterministic coordinate transformation pipeline that resolves three compounding mismatches: local project origins versus geodetic datums, unit scale discrepancies (millimetres or feet versus metres), and arbitrary model rotations relative to true north. The most reliable Python approach uses a least-squares 3D similarity transformation — translation, rotation, and uniform scale — solved via Singular Value Decomposition, applied after projecting both datasets into a shared Cartesian space. This page is a task-specific companion to the [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) cluster, which covers the broader theory of rotation matrix extraction and scale-factor diagnosis across BIM and CAD formats.
+Aligning a BIM model with GIS survey data requires a deterministic coordinate transformation pipeline that resolves three compounding mismatches: local project origins versus geodetic datums, unit scale discrepancies (millimetres or feet versus metres), and arbitrary model rotations relative to true north. The most reliable Python approach uses a least-squares 3D similarity transformation — translation, rotation, and uniform scale — solved via Singular Value Decomposition, applied after projecting both datasets into a shared Cartesian space. This page is a task-specific companion to the [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) guide, which covers the broader theory of rotation matrix extraction and scale-factor diagnosis across BIM and CAD formats.
 
 ## How the SVD Similarity Transform Works Internally
 
@@ -70,7 +69,7 @@ NumPy's `linalg.svd` provides a closed-form solution. The algorithm:
 4. Computes uniform scale as the ratio of trace(S) to the source variance.
 5. Back-calculates translation from the centroid difference after applying *s* and **R**.
 
-The algorithm does **not** recover non-uniform scaling (different *x*/*y*/*z* stretch factors). If your BIM model exhibits axis-specific scale distortion — common when a project base point is defined in a model-local unit that differs from the export unit — you must resolve the unit mismatch in the [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) step before running this transform.
+The algorithm does **not** recover non-uniform scaling (different *x*/*y*/*z* stretch factors). If your BIM model exhibits axis-specific scale distortion — common when a project base point is defined in a model-local unit that differs from the export unit — you must resolve the unit mismatch in the [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) step before running this transform.
 
 The SVG below shows the data-flow from raw BIM export through to a georeferenced output file.
 
@@ -375,7 +374,7 @@ Remove the outlier and re-run the transform. If no single point dominates, the d
 
 **2. Scale factor deviates significantly from 1.0**
 
-A scale factor below 0.999 or above 1.001 usually means unit normalisation failed. Verify that `bim_control_mm` is genuinely in millimetres. Revit's internal unit is decimal feet when the project is configured as imperial; in that case use `bim_pts / 304.8` instead of `/ 1000.0`. The [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) cluster documents `$INSUNITS` and Revit unit type mappings in detail.
+A scale factor below 0.999 or above 1.001 usually means unit normalisation failed. Verify that `bim_control_mm` is genuinely in millimetres. Revit's internal unit is decimal feet when the project is configured as imperial; in that case use `bim_pts / 304.8` instead of `/ 1000.0`. The [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) guide documents `$INSUNITS` and Revit unit type mappings in detail.
 
 **3. `det(R) < 0` reflection despite the guard**
 
@@ -396,14 +395,14 @@ x_abscissa = float(R[0, 0])
 x_ordinate = float(R[1, 0])
 ```
 
-Pass these alongside `Scale`, `Eastings`, and `Northings` to your IFC writer. Consult the [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) cluster for how `pyproj` CRS objects map to `IfcProjectedCRS` attributes.
+Pass these alongside `Scale`, `Eastings`, and `Northings` to your IFC writer. Consult the [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) guide for how `pyproj` CRS objects map to `IfcProjectedCRS` attributes.
 
 ---
 
 ## Related Pages
 
-- [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — parent cluster covering rotation matrix theory, scale-factor diagnosis, and north-correction workflows
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — projecting raw geographic coordinates into metric CRSs before spatial math
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — sibling task page for the reverse reprojection step
-- [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — resolving millimetre/foot/metre mismatches before transform computation
-- [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) — pillar overview of the full Python transformation stack
+- [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — parent guide covering rotation matrix theory, scale-factor diagnosis, and north-correction workflows
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — projecting raw geographic coordinates into metric CRSs before spatial math
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — sibling task page for the reverse reprojection step
+- [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — resolving millimetre/foot/metre mismatches before transform computation
+- [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) — section overview of the full Python transformation stack

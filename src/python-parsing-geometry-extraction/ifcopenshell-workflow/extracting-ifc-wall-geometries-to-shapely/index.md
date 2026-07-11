@@ -2,7 +2,6 @@
 title: "Extracting IFC Wall Geometries to Shapely"
 description: "Step-by-step guide to projecting IFC wall B-Rep and SweptSolid geometries onto a 2D plane with ifcopenshell, converting them to valid Shapely Polygon objects, and integrating the results into GIS and CAD pipelines."
 slug: "extracting-ifc-wall-geometries-to-shapely"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -29,9 +28,9 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "IfcOpenShell Workflow", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/"},
-        {"@type": "ListItem", "position": 3, "name": "Extracting IFC Wall Geometries to Shapely", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "IfcOpenShell Workflow", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/"},
+        {"@type": "ListItem", "position": 3, "name": "Extracting IFC Wall Geometries to Shapely", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/"}
       ]
     },
     {
@@ -52,7 +51,7 @@ dateModified: "2026-06-24"
 
 # Extracting IFC Wall Geometries to Shapely
 
-The direct answer: open the IFC file with `ifcopenshell`, configure the geometry kernel to return world-coordinate meshes, project each triangulated face to the XY plane, build `Polygon` objects from the resulting coordinate pairs, merge adjacent triangles with `shapely.ops.unary_union`, and repair topology with `shapely.make_valid()`. The full pipeline runs in pure Python with no external CAD software. For the broader context of working with IFC geometry at scale, see the [IfcOpenShell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) guide.
+The direct answer: open the IFC file with `ifcopenshell`, configure the geometry kernel to return world-coordinate meshes, project each triangulated face to the XY plane, build `Polygon` objects from the resulting coordinate pairs, merge adjacent triangles with `shapely.ops.unary_union`, and repair topology with `shapely.make_valid()`. The full pipeline runs in pure Python with no external CAD software. For the broader context of working with IFC geometry at scale, see the [IfcOpenShell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) guide.
 
 ---
 
@@ -267,7 +266,7 @@ Key implementation notes:
 - `shapely.make_valid()` was added in Shapely 1.8 and stabilised in 2.0. It repairs the most common projection artefacts: self-touching rings, inward spikes, and zero-width slivers that `unary_union` does not fully eliminate.
 - Store `GlobalId` as the foreign key in any downstream spatial database. It is the only stable cross-tool identifier that survives round-trips through Revit, ArchiCAD, and IFC exporters.
 
-For handling the mesh arrays themselves in more complex scenarios — including normal-direction filtering to isolate horizontal versus vertical faces — see [Geometry & Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/).
+For handling the mesh arrays themselves in more complex scenarios — including normal-direction filtering to isolate horizontal versus vertical faces — see [Geometry & Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/).
 
 ## Compatibility Matrix
 
@@ -365,13 +364,13 @@ for i in range(0, len(walls), BATCH_SIZE):
     # write batch_results to database here, then let the batch go out of scope
 ```
 
-For coordinate-system alignment after extraction — projecting the resulting Shapely geometries into a real-world CRS — refer to [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
+For coordinate-system alignment after extraction — projecting the resulting Shapely geometries into a real-world CRS — refer to [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
 
 ---
 
 ## Related Pages
 
-- [IfcOpenShell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) — parent guide covering the full ifcopenshell API surface for IFC parsing and geometry access
-- [Geometry & Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) — techniques for working with tessellated mesh arrays, face normals, and polygon topology
-- [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — sibling workflow for vector geometry export from DXF/DWG sources
-- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — overview of the full geometry-extraction pipeline across IFC, DXF, and DWG formats
+- [IfcOpenShell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) — parent guide covering the full ifcopenshell API surface for IFC parsing and geometry access
+- [Geometry & Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) — techniques for working with tessellated mesh arrays, face normals, and polygon topology
+- [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — sibling workflow for vector geometry export from DXF/DWG sources
+- [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — overview of the full geometry-extraction pipeline across IFC, DXF, and DWG formats

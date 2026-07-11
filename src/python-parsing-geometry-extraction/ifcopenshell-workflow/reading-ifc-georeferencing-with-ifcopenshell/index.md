@@ -2,7 +2,6 @@
 title: "Reading IFC Georeferencing with ifcopenshell"
 description: "Read IfcMapConversion and IfcProjectedCRS with ifcopenshell, build the map transform from eastings, northings, rotation and scale, and fall back to IfcSite latitude and longitude."
 slug: "reading-ifc-georeferencing-with-ifcopenshell"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "ifcopenshell Workflow", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/"},
-        {"@type": "ListItem", "position": 3, "name": "Reading IFC Georeferencing with ifcopenshell", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "ifcopenshell Workflow", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/"},
+        {"@type": "ListItem", "position": 3, "name": "Reading IFC Georeferencing with ifcopenshell", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/"}
       ]
     },
     {
@@ -78,7 +77,7 @@ dateModified: "2026-07-11"
 
 # Reading IFC Georeferencing with ifcopenshell
 
-The direct answer: an IFC4 file records its georeferencing in an `IfcMapConversion` object, which carries the `Eastings`, `Northings`, `OrthogonalHeight`, `XAxisAbscissa`, `XAxisOrdinate`, and `Scale` needed to map local model coordinates onto a projected grid, and links to an `IfcProjectedCRS` naming the grid (for example `EPSG:25832`). Read those attributes with `ifcopenshell`, derive the rotation as `atan2(XAxisOrdinate, XAxisAbscissa)`, and apply rotation, scale, and offset to move local `(x, y, z)` to projected `(E, N, H)`. IFC2x3 has no map conversion, so fall back to the `IfcSite` latitude/longitude anchor. This closes the coordinate gap left open by the geometry routines in the [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) guide.
+The direct answer: an IFC4 file records its georeferencing in an `IfcMapConversion` object, which carries the `Eastings`, `Northings`, `OrthogonalHeight`, `XAxisAbscissa`, `XAxisOrdinate`, and `Scale` needed to map local model coordinates onto a projected grid, and links to an `IfcProjectedCRS` naming the grid (for example `EPSG:25832`). Read those attributes with `ifcopenshell`, derive the rotation as `atan2(XAxisOrdinate, XAxisAbscissa)`, and apply rotation, scale, and offset to move local `(x, y, z)` to projected `(E, N, H)`. IFC2x3 has no map conversion, so fall back to the `IfcSite` latitude/longitude anchor. This closes the coordinate gap left open by the geometry routines in the [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) guide.
 
 ---
 
@@ -259,9 +258,9 @@ Key implementation notes:
 - The direction vector is normalized (`abscissa / mag`, `ordinate / mag`) before use. Some exporters store a slightly non-unit vector; normalizing prevents a stray scale creeping into the rotation.
 - Every attribute read is null-guarded. `XAxisAbscissa`, `XAxisOrdinate`, and `Scale` are optional in the schema, and a missing rotation must default to the identity, not to zero.
 - `_dms_to_dd` carries a single sign across all components. IFC stores negative latitudes and longitudes with every non-zero element negated, so taking the sign from the minimum component is robust when the degrees field itself is zero.
-- The transform is a rigid 2D map conversion plus a height offset. It does not reproject between two EPSG grids — for that, feed the projected `crs_name` and the eastings/northings into a `pyproj` transformer, as shown in [Reprojecting CAD Coordinates with pyproj Transformer](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/).
+- The transform is a rigid 2D map conversion plus a height offset. It does not reproject between two EPSG grids — for that, feed the projected `crs_name` and the eastings/northings into a `pyproj` transformer, as shown in [Reprojecting CAD Coordinates with pyproj Transformer](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/).
 
-The projected coordinates from `transform.apply` are exactly what the footprints in [Batch Converting IFC to GeoJSON with ifcopenshell](/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/) need before serialization.
+The projected coordinates from `transform.apply` are exactly what the footprints in [Batch Converting IFC to GeoJSON with ifcopenshell](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/) need before serialization.
 
 ## Compatibility Matrix
 
@@ -347,8 +346,8 @@ The rotation is stored as a unit direction vector in `XAxisAbscissa` (its cosine
 
 ## Related Pages
 
-- [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) — parent guide covering geometry compilation and the coordinate stages this georeferencing feeds
-- [Batch Converting IFC to GeoJSON with ifcopenshell](/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/) — apply this map transform to footprints before writing GeoJSON
-- [Extracting IFC Wall Geometries to Shapely](/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) — sibling routine that produces the local geometry this transform georeferences
-- [Reprojecting CAD Coordinates with pyproj Transformer](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) — reproject the projected eastings and northings between EPSG grids
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — the wider local-to-global coordinate normalization workflow
+- [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) — parent guide covering geometry compilation and the coordinate stages this georeferencing feeds
+- [Batch Converting IFC to GeoJSON with ifcopenshell](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/) — apply this map transform to footprints before writing GeoJSON
+- [Extracting IFC Wall Geometries to Shapely](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) — sibling routine that produces the local geometry this transform georeferences
+- [Reprojecting CAD Coordinates with pyproj Transformer](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) — reproject the projected eastings and northings between EPSG grids
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — the wider local-to-global coordinate normalization workflow

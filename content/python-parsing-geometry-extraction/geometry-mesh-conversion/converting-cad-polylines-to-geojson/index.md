@@ -2,7 +2,6 @@
 title: "Converting CAD Polylines to GeoJSON with Python"
 description: "Step-by-step guide to extracting LWPOLYLINE and POLYLINE entities from DXF files, validating topology with Shapely, reprojecting with GeoPandas, and serializing RFC 7946-compliant GeoJSON."
 slug: "converting-cad-polylines-to-geojson"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -29,9 +28,9 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "Geometry Mesh Conversion", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/"},
-        {"@type": "ListItem", "position": 3, "name": "Converting CAD Polylines to GeoJSON", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "Geometry Mesh Conversion", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/"},
+        {"@type": "ListItem", "position": 3, "name": "Converting CAD Polylines to GeoJSON", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/"}
       ]
     },
     {
@@ -51,7 +50,7 @@ dateModified: "2026-06-24"
 
 # Converting CAD Polylines to GeoJSON with Python
 
-Converting CAD polylines to GeoJSON requires extracting vertex arrays from DXF entities, normalizing coordinate precision, validating topology, and serializing into RFC 7946-compliant `FeatureCollection` objects. The most reliable Python stack combines `ezdxf` for low-level DXF parsing, `shapely` for topology repair, and `geopandas` for CRS transformation and export. For proprietary DWG inputs, pre-convert to DXF using the ODA File Converter or GDAL's DXF driver before execution. This page is part of the [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) workflow within the broader [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) pipeline.
+Converting CAD polylines to GeoJSON requires extracting vertex arrays from DXF entities, normalizing coordinate precision, validating topology, and serializing into RFC 7946-compliant `FeatureCollection` objects. The most reliable Python stack combines `ezdxf` for low-level DXF parsing, `shapely` for topology repair, and `geopandas` for CRS transformation and export. For proprietary DWG inputs, pre-convert to DXF using the ODA File Converter or GDAL's DXF driver before execution. This page is part of the [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) workflow within the broader [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) pipeline.
 
 ## How DXF Handles Polyline Entities
 
@@ -252,16 +251,16 @@ Key implementation notes:
 ## Fallback Strategies and Troubleshooting
 
 **1. DXF file fails to open with `DXFStructureError`.**
-The file may be a binary DWG masquerading with a `.dxf` extension, or have a truncated entity table from an aborted export. Verify the file header: the first few bytes of a valid ASCII DXF read `0\nSECTION`. For genuine DWG files, convert first using `ezdxf.recover.readfile()` for recoverable ASCII DXFs, or ODA File Converter for binary DWG. See [Understanding DWG Version Compatibility](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) for binary format pitfalls.
+The file may be a binary DWG masquerading with a `.dxf` extension, or have a truncated entity table from an aborted export. Verify the file header: the first few bytes of a valid ASCII DXF read `0\nSECTION`. For genuine DWG files, convert first using `ezdxf.recover.readfile()` for recoverable ASCII DXFs, or ODA File Converter for binary DWG. See [Understanding DWG Version Compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) for binary format pitfalls.
 
 **2. Coordinates land thousands of kilometres from the expected location.**
-The most common cause is an undeclared or wrong source CRS. A local state-plane drawing in `EPSG:27700` (British National Grid) interpreted as `EPSG:4326` will project to coordinates in the Pacific Ocean. Inspect `$INSUNITS` and `$MEASUREMENT` in the DXF header — see [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) for extraction code. Cross-check against a known control point before bulk export.
+The most common cause is an undeclared or wrong source CRS. A local state-plane drawing in `EPSG:27700` (British National Grid) interpreted as `EPSG:4326` will project to coordinates in the Pacific Ocean. Inspect `$INSUNITS` and `$MEASUREMENT` in the DXF header — see [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) for extraction code. Cross-check against a known control point before bulk export.
 
 **3. Output GeoJSON contains `GeometryCollection` instead of `Polygon` or `LineString`.**
 `make_valid()` on a severely self-intersecting polygon can return a `GeometryCollection` mixing points, lines, and polygons. Filter with `geom.geoms` after repair and retain only `Polygon` and `MultiPolygon` types if the downstream GIS tool does not accept mixed-geometry collections. The `shapely.ops.unary_union()` call on filtered parts often reconstitutes a clean geometry.
 
 **4. Arc-based boundaries appear as straight chord segments.**
-`get_points("xy")` discards bulge values. For roads, property boundaries, and site plans with curved edges this is a silent lossy conversion. Use `ezdxf.math.bulge_to_arc()` per vertex segment and tessellate each arc to a configurable chord-length tolerance (typically 0.1 m for survey data). This is a known limitation documented in the [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) cluster.
+`get_points("xy")` discards bulge values. For roads, property boundaries, and site plans with curved edges this is a silent lossy conversion. Use `ezdxf.math.bulge_to_arc()` per vertex segment and tessellate each arc to a configurable chord-length tolerance (typically 0.1 m for survey data). This is a known limitation documented in the [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) guide.
 
 **5. Memory exhaustion on large DXF exports (> 500 MB).**
 Avoid `list(msp)` — it materializes the entire modelspace into memory. Iterate `msp` as a generator and apply a layer filter early:
@@ -281,8 +280,8 @@ for entity in msp.query("LWPOLYLINE POLYLINE"):
 
 ## Related Pages
 
-- [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) — parent cluster covering triangulation, coordinate normalization, and mesh export strategies
-- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — top-level pipeline covering ezdxf, ifcopenshell, and pydwg integration patterns
-- [Reading 3D Solids with ezdxf Python](/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — sibling guide covering ACIS/SAT body extraction from DXF
-- [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — cross-pillar reference for reading `$INSUNITS` and CRS metadata from DXF headers
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — CRS reprojection patterns for survey and site-plan datasets
+- [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) — parent guide covering triangulation, coordinate normalization, and mesh export strategies
+- [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — top-level pipeline covering ezdxf, ifcopenshell, and pydwg integration patterns
+- [Reading 3D Solids with ezdxf Python](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — sibling guide covering ACIS/SAT body extraction from DXF
+- [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — related reference for reading `$INSUNITS` and CRS metadata from DXF headers
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — CRS reprojection patterns for survey and site-plan datasets

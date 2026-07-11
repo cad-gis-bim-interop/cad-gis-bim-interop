@@ -18,7 +18,7 @@ eleventyNavigation:
 
   <div class="cta-row" role="list">
     {% for s in sections %}
-    <a class="cta" href="{{ s.url }}" role="listitem">
+    <a class="cta" href="{{ s.url | absoluteUrl }}" role="listitem">
       <span class="cta__icon cta__icon--{{ s.accent }}" aria-hidden="true">
         {% if s.icon == "schema" %}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -62,7 +62,7 @@ eleventyNavigation:
           <path d="M4 8h13M13 4l4 4-4 4"/><path d="M20 16H7M11 12l-4 4 4 4"/>
         </svg>
       </span>
-      <h3 class="card__title"><a href="/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/">Choosing ezdxf, pyDWG, or ODA</a></h3>
+      <h3 class="card__title"><a href="https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/">Choosing ezdxf, pyDWG, or ODA</a></h3>
       <p>A production decision guide for CAD ingestion: format coverage, DWG version support, proxy fidelity, licensing, and headless-CI suitability compared side by side.</p>
     </article>
 
@@ -72,7 +72,7 @@ eleventyNavigation:
           <path d="M4 8h13M13 4l4 4-4 4"/><path d="M20 16H7M11 12l-4 4 4 4"/>
         </svg>
       </span>
-      <h3 class="card__title"><a href="/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/">DXF vs IFC for GIS Ingestion</a></h3>
+      <h3 class="card__title"><a href="https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/">DXF vs IFC for GIS Ingestion</a></h3>
       <p>Pick the right interchange format for your GIS pipeline — geometry-centric DXF versus semantic, georeferenced IFC — with worked ingestion routes for both.</p>
     </article>
 
@@ -82,7 +82,7 @@ eleventyNavigation:
           <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
         </svg>
       </span>
-      <h3 class="card__title"><a href="/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-property-sets-with-ifcopenshell/">Extracting IFC Property Sets with ifcopenshell</a></h3>
+      <h3 class="card__title"><a href="https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-property-sets-with-ifcopenshell/">Extracting IFC Property Sets with ifcopenshell</a></h3>
       <p>Flatten Psets and quantity sets into clean key–value records with <code>ifcopenshell.util.element</code> — including inherited type properties and table values.</p>
     </article>
 
@@ -92,7 +92,7 @@ eleventyNavigation:
           <circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
         </svg>
       </span>
-      <h3 class="card__title"><a href="/coordinate-transformation-spatial-alignment/crs-normalization-workflows/applying-helmert-7-parameter-transform-in-python/">Applying a Helmert 7-Parameter Transform</a></h3>
+      <h3 class="card__title"><a href="https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/applying-helmert-7-parameter-transform-in-python/">Applying a Helmert 7-Parameter Transform</a></h3>
       <p>Convert between geodetic datums in Python with the Bursa–Wolf transform — numpy on ECEF and a pyproj <code>+proj=helmert</code> pipeline, validated on a control point.</p>
     </article>
 
@@ -102,7 +102,7 @@ eleventyNavigation:
           <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
         </svg>
       </span>
-      <h3 class="card__title"><a href="/python-parsing-geometry-extraction/ezdxf-deep-dive/">ezdxf Deep Dive</a></h3>
+      <h3 class="card__title"><a href="https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/">ezdxf Deep Dive</a></h3>
       <p>Production-grade DXF parsing: traverse block definitions, resolve nested references, and extract vertex arrays without loading entire drawings into memory.</p>
     </article>
 
@@ -113,7 +113,7 @@ eleventyNavigation:
           <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
       </span>
-      <h3 class="card__title"><a href="/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/">How to Parse DXF Headers with Python</a></h3>
+      <h3 class="card__title"><a href="https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/">How to Parse DXF Headers with Python</a></h3>
       <p>Use ezdxf's <code>doc.header</code> interface to read $INSUNITS, $MEASUREMENT, and custom variables from any DXF version — with worked examples.</p>
     </article>
 
@@ -134,7 +134,7 @@ eleventyNavigation:
       Every page is written for engineers and integrators who need to ship.
       Focus areas include <strong>DXF/DWG parsing</strong>, <strong>IFC integration</strong>, <strong>coordinate transformation</strong>,
       <strong>attribute mapping</strong>, <strong>batch conversion</strong>, <strong>quality control</strong>, and <strong>automation scripts</strong>.
-      When you are choosing between libraries or interchange formats, the <a href="/interoperability-decision-guides/">Interoperability Decision Guides</a>
+      When you are choosing between libraries or interchange formats, the <a href="https://www.cad-gis-bim-interop.org/interoperability-decision-guides/">Interoperability Decision Guides</a>
       compare ezdxf, pyDWG, and ODA, weigh DXF against IFC for GIS ingestion, and contrast GeoPackage with PostGIS as a storage target.
     </p>
   </div>
@@ -167,12 +167,12 @@ eleventyNavigation:
           </svg>
         {% endif %}
       </span>
-      <h3 class="card__title"><a href="{{ s.url }}">{{ s.title }}</a></h3>
+      <h3 class="card__title"><a href="{{ s.url | absoluteUrl }}">{{ s.title }}</a></h3>
       <p>{{ s.blurb }}</p>
       {% if kids.length > 0 %}
       <ul>
         {% for k in kids %}
-          <li><a href="{{ k.url }}">{{ k.data.title or (k.url.split('/').slice(-2, -1)[0] | titleize) }}</a></li>
+          <li><a href="{{ k.url | absoluteUrl }}">{{ k.data.title or (k.url.split('/').slice(-2, -1)[0] | titleize) }}</a></li>
         {% endfor %}
       </ul>
       {% endif %}

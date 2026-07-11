@@ -2,7 +2,6 @@
 title: "Reading 3D Solids with ezdxf Python: Extract ACIS Payloads from DXF Files"
 description: "How to read 3DSOLID entities with ezdxf in Python: access ACIS/SAT payloads, validate headers, handle encrypted blobs, and route geometry to OpenCASCADE or STEP for production AEC pipelines."
 slug: "reading-3d-solids-with-ezdxf-python"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -25,14 +24,14 @@ dateModified: "2026-06-24"
       "datePublished": "2025-01-15",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "ezdxf Deep Dive", "item": "/python-parsing-geometry-extraction/ezdxf-deep-dive/"},
-        {"@type": "ListItem", "position": 3, "name": "Reading 3D Solids with ezdxf Python", "item": "/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "ezdxf Deep Dive", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/"},
+        {"@type": "ListItem", "position": 3, "name": "Reading 3D Solids with ezdxf Python", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/"}
       ]
     },
     {
@@ -77,7 +76,7 @@ dateModified: "2026-06-24"
 
 # Reading 3D Solids with ezdxf Python: Extract ACIS Payloads from DXF Files
 
-To read 3D solids with `ezdxf` in Python, query `3DSOLID` entities from the DXF modelspace and access their embedded ACIS/SAT payload via the `.acis` property. `ezdxf` does not reconstruct B-Rep topology, generate meshes, or convert parametric geometry to standard triangle formats — it exposes the raw ACIS string exactly as stored in the DXF file. For production AEC/GIS pipelines, pair this extraction with a dedicated ACIS parser or geometry kernel (`python-occ`, OpenCASCADE, or `cadquery`) to convert the payload into usable vertices, faces, or STEP/IGES outputs. For broader entity traversal and memory-efficient DXF processing, see the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/).
+To read 3D solids with `ezdxf` in Python, query `3DSOLID` entities from the DXF modelspace and access their embedded ACIS/SAT payload via the `.acis` property. `ezdxf` does not reconstruct B-Rep topology, generate meshes, or convert parametric geometry to standard triangle formats — it exposes the raw ACIS string exactly as stored in the DXF file. For production AEC/GIS pipelines, pair this extraction with a dedicated ACIS parser or geometry kernel (`python-occ`, OpenCASCADE, or `cadquery`) to convert the payload into usable vertices, faces, or STEP/IGES outputs. For broader entity traversal and memory-efficient DXF processing, see the [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/).
 
 ## How `ezdxf` Handles 3D Solids in DXF Files
 
@@ -139,7 +138,7 @@ The diagram below shows where `3DSOLID` fits in a DXF entity pipeline and why AC
 
 In automated interoperability workflows, treating `3DSOLID` as a raw payload — rather than a ready-to-render mesh — prevents topology corruption. DXF files frequently mix faceted approximations (`MESH`, `3DFACE`) with true parametric solids. Routing ACIS payloads to a downstream conversion service preserves precision and avoids silent data loss that occurs when forcing solids into polygonal formats prematurely.
 
-This distinction also matters for [Geometry & Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) workflows: attempting to pass an unprocessed `3DSOLID` entity directly into `trimesh` or a GeoJSON serializer will silently drop the geometry.
+This distinction also matters for [Geometry & Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) workflows: attempting to pass an unprocessed `3DSOLID` entity directly into `trimesh` or a GeoJSON serializer will silently drop the geometry.
 
 ## Production-Ready Script
 
@@ -206,7 +205,7 @@ if __name__ == "__main__":
 - `solid.acis` returns `list[str]`, one entry per SAT line. Do not attempt `solid.dxf.acis_data` — that attribute does not exist on the `dxf` namespace object and will raise `DXFAttributeError`.
 - Some AutoCAD 2021+ versions store ACIS data as an encrypted binary blob. These payloads will appear as an empty list and must be handled separately (see fallback strategies below).
 - Separating metadata (`entity_handle`, `layer`, `acis_version`) from the raw payload in the output JSON lets downstream batch routers filter and dispatch without loading full ACIS strings unnecessarily.
-- The `DXFError` guard around `ezdxf.readfile()` catches malformed headers and version mismatches before any entity iteration begins — especially important when processing bulk DXF exports from [DXF entity structure breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) pipelines.
+- The `DXFError` guard around `ezdxf.readfile()` catches malformed headers and version mismatches before any entity iteration begins — especially important when processing bulk DXF exports from [DXF entity structure breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) pipelines.
 
 ## Compatibility Matrix
 
@@ -232,7 +231,7 @@ Run a batch AutoLISP or .NET script inside AutoCAD or Civil 3D to convert `3DSOL
 
 **2. Export as STEP or IGES from the source application**
 
-Convert solids to `*.step` or `*.iges` using AutoCAD's export dialog or a command-line batch script. STEP preserves full B-Rep topology and is natively importable by `python-occ` (`pythonOCC`) and `cadquery`. This is the recommended path when parametric accuracy must be preserved for spatial analysis or BIM-to-GIS coordinate transformation — for example, before running [CAD local coordinate to EPSG:4326 conversion](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
+Convert solids to `*.step` or `*.iges` using AutoCAD's export dialog or a command-line batch script. STEP preserves full B-Rep topology and is natively importable by `python-occ` (`pythonOCC`) and `cadquery`. This is the recommended path when parametric accuracy must be preserved for spatial analysis or BIM-to-GIS coordinate transformation — for example, before running [CAD local coordinate to EPSG:4326 conversion](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
 
 ```python
 # python-occ STEP import example (pythonOCC>=7.7.0)
@@ -290,8 +289,8 @@ Yes. `python-occ` (pythonOCC) wraps OpenCASCADE and can import ACIS strings via 
 
 ## Related Pages
 
-- [ezdxf Deep Dive: Production-Grade DXF Parsing](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — parent reference covering entity traversal, block references, and memory-efficient DXF processing
-- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — overview of the full extraction pipeline from DXF and IFC ingestion through to GIS-ready outputs
-- [Geometry & Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) — converting extracted geometry (including solid approximations) to GeoJSON, trimesh, and other polygonal formats
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — georeferencing the vertex data produced after ACIS-to-mesh conversion
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group code taxonomy and section structure that governs how `3DSOLID` payloads are stored and read
+- [ezdxf Deep Dive: Production-Grade DXF Parsing](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — parent reference covering entity traversal, block references, and memory-efficient DXF processing
+- [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — overview of the full extraction pipeline from DXF and IFC ingestion through to GIS-ready outputs
+- [Geometry & Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) — converting extracted geometry (including solid approximations) to GeoJSON, trimesh, and other polygonal formats
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — georeferencing the vertex data produced after ACIS-to-mesh conversion
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group code taxonomy and section structure that governs how `3DSOLID` payloads are stored and read

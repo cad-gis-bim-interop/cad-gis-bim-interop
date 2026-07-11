@@ -2,7 +2,6 @@
 title: "Extracting IFC Property Sets with ifcopenshell"
 description: "Read IFC property sets and quantity sets with ifcopenshell.util.element.get_psets, flatten them per element by GlobalId, and serialize to JSON or Parquet for GIS and database ingestion."
 slug: "extracting-ifc-property-sets-with-ifcopenshell"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-property-sets-with-ifcopenshell/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-property-sets-with-ifcopenshell/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "ifcopenshell Workflow", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/"},
-        {"@type": "ListItem", "position": 3, "name": "Extracting IFC Property Sets with ifcopenshell", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-property-sets-with-ifcopenshell/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "ifcopenshell Workflow", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/"},
+        {"@type": "ListItem", "position": 3, "name": "Extracting IFC Property Sets with ifcopenshell", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-property-sets-with-ifcopenshell/"}
       ]
     },
     {
@@ -78,7 +77,7 @@ dateModified: "2026-07-11"
 
 # Extracting IFC Property Sets with ifcopenshell
 
-The direct answer: call `ifcopenshell.util.element.get_psets(element)` on any element and you receive a nested dictionary of the shape `{pset_name: {property_name: value}}`, with descriptive property sets and `Qto_` quantity sets both resolved into plain Python types. This helper walks the `IsDefinedBy` relationship chain for you, unwraps typed IFC values, and — with its default settings — merges property sets inherited from the element's type definition. It replaces dozens of lines of brittle manual traversal. For the wider set of parsing and geometry tasks this fits into, see the [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) guide.
+The direct answer: call `ifcopenshell.util.element.get_psets(element)` on any element and you receive a nested dictionary of the shape `{pset_name: {property_name: value}}`, with descriptive property sets and `Qto_` quantity sets both resolved into plain Python types. This helper walks the `IsDefinedBy` relationship chain for you, unwraps typed IFC values, and — with its default settings — merges property sets inherited from the element's type definition. It replaces dozens of lines of brittle manual traversal. For the wider set of parsing and geometry tasks this fits into, see the [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) guide.
 
 ---
 
@@ -250,9 +249,9 @@ Key implementation notes:
 - The `_clean_set` helper strips the `id` key. Skip it and every element emits a meaningless integer column such as `Pset_WallCommon.id`, which pollutes both the JSON and the Parquet schema.
 - Descriptive and quantity data are read in two calls (`psets_only` and `qtos_only`) rather than one. That keeps a `Qto_` length from silently sharing a column name with a same-named descriptive property, and it lets you apply unit scaling to quantities alone later.
 - `default=str` on `json.dumps` is a safety net for the rare property value that resolves to a non-JSON-native type (for example a nested tuple from an `IfcPropertyTableValue`). It serializes deterministically instead of raising.
-- The wide, sparse schema is deliberate. Different element classes carry different property sets, so most cells are empty. Parquet stores that sparsity efficiently; a normalized long table (`GlobalId, key, value`) is the alternative when you feed a relational store — see [Mapping IFC Property Sets to PostGIS Columns](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/) for that shape.
+- The wide, sparse schema is deliberate. Different element classes carry different property sets, so most cells are empty. Parquet stores that sparsity efficiently; a normalized long table (`GlobalId, key, value`) is the alternative when you feed a relational store — see [Mapping IFC Property Sets to PostGIS Columns](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/) for that shape.
 
-To carry these attributes onto geometry rather than a flat table, pair this extraction with [Batch Converting IFC to GeoJSON with ifcopenshell](/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/), which attaches the same flattened records as feature properties.
+To carry these attributes onto geometry rather than a flat table, pair this extraction with [Batch Converting IFC to GeoJSON with ifcopenshell](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/), which attaches the same flattened records as feature properties.
 
 ## Compatibility Matrix
 
@@ -364,7 +363,7 @@ Call `get_psets(element, psets_only=True)` for `IfcPropertySet` data and `get_ps
 
 ## Related Pages
 
-- [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) — parent guide covering the full ifcopenshell API surface for IFC parsing, geometry, and attributes
-- [Batch Converting IFC to GeoJSON with ifcopenshell](/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/) — attach these flattened property records to element footprints as GeoJSON feature properties
-- [Extracting IFC Wall Geometries to Shapely](/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) — sibling workflow that produces the geometry these attributes describe
-- [Mapping IFC Property Sets to PostGIS Columns](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/) — turning the wide extract into a normalized relational schema for spatial queries
+- [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) — parent guide covering the full ifcopenshell API surface for IFC parsing, geometry, and attributes
+- [Batch Converting IFC to GeoJSON with ifcopenshell](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/) — attach these flattened property records to element footprints as GeoJSON feature properties
+- [Extracting IFC Wall Geometries to Shapely](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) — sibling workflow that produces the geometry these attributes describe
+- [Mapping IFC Property Sets to PostGIS Columns](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/) — turning the wide extract into a normalized relational schema for spatial queries

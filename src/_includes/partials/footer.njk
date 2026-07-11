@@ -2,7 +2,7 @@
   <div class="container">
     <div class="site-footer__grid">
       <div>
-        <a href="/" class="brand" aria-label="{{ site.shortName }} — home" style="margin-bottom: var(--s-3);">
+        <a href="{{ '/' | absoluteUrl }}" class="brand" aria-label="{{ site.shortName }} — home" style="margin-bottom: var(--s-3);">
           <img class="brand__logo" src="/assets/icons/logo.svg" alt="" width="36" height="36" loading="lazy" decoding="async">
           <span class="brand__name">{{ site.shortName }}</span>
         </a>
@@ -13,10 +13,10 @@
       <div>
         <h3>{{ s.short }}</h3>
         <ul>
-          <li><a href="{{ s.url }}">Overview</a></li>
+          <li><a href="{{ s.url | absoluteUrl }}">Overview</a></li>
           {% set kids = collections.allPages | childrenOf(s.url) %}
           {% for k in kids %}
-            <li><a href="{{ k.url }}">{{ k.data.shortTitle or (k.url.split('/').slice(-2, -1)[0] | titleize) }}</a></li>
+            <li><a href="{{ k.url | absoluteUrl }}">{{ k.data.shortTitle or (k.url.split('/').slice(-2, -1)[0] | titleize) }}</a></li>
           {% endfor %}
         </ul>
       </div>
@@ -26,8 +26,8 @@
     <div class="site-footer__bottom">
       <span>© {{ "" | year }} {{ site.shortName }}. Built with 11ty.</span>
       <span>
-        <a href="/">Home</a>
-        {% for s in sections %} · <a href="{{ s.url }}">{{ s.short }}</a>{% endfor %}
+        <a href="{{ '/' | absoluteUrl }}">Home</a>
+        {% for s in sections %} · <a href="{{ s.url | absoluteUrl }}">{{ s.short }}</a>{% endfor %}
       </span>
     </div>
   </div>

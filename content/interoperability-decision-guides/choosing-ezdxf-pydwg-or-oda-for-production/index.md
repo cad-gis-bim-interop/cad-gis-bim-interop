@@ -2,7 +2,6 @@
 title: "Choosing ezdxf, pydwg, or ODA for Production CAD Pipelines"
 description: "How to choose between pure-Python ezdxf, community DWG readers, and the licensed ODA converter for reading CAD files, scored on coverage, fidelity, licensing, and CI suitability."
 slug: "choosing-ezdxf-pydwg-or-oda-for-production"
-type: "cluster"
 breadcrumb:
   - label: "Interoperability Decision Guides"
     url: "/interoperability-decision-guides/"
@@ -27,8 +26,8 @@ dateModified: "2026-07-11"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/"},
-        {"@type": "ListItem", "position": 2, "name": "Choosing ezdxf, pydwg, or ODA for Production", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/"}
+        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/"},
+        {"@type": "ListItem", "position": 2, "name": "Choosing ezdxf, pydwg, or ODA for Production", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/"}
       ]
     },
     {
@@ -73,9 +72,9 @@ dateModified: "2026-07-11"
 
 # Choosing ezdxf, pydwg, or ODA for Production CAD Pipelines
 
-Choosing how to read CAD files reliably is the first decision in any pipeline that ingests Autodesk formats, and the answer depends far more on whether your inputs are DXF or DWG than on any single tool's feature list. This guide compares three approaches within the [Interoperability Decision Guides](/interoperability-decision-guides/) framework: pure-Python `ezdxf`, community DWG readers such as LibreDWG and the `pydwg` bindings, and the licensed ODA File Converter and Teigha/ODA SDK.
+Choosing how to read CAD files reliably is the first decision in any pipeline that ingests Autodesk formats, and the answer depends far more on whether your inputs are DXF or DWG than on any single tool's feature list. This guide compares three approaches within the [Interoperability Decision Guides](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/) framework: pure-Python `ezdxf`, community DWG readers such as LibreDWG and the `pydwg` bindings, and the licensed ODA File Converter and Teigha/ODA SDK.
 
-The decision matters because the three tools are not substitutes. `ezdxf` reads DXF perfectly and cannot open DWG at all; community readers open some DWG but carry coverage and stability risk; the ODA converter opens DWG reliably across the full version range but adds a licence and a binary dependency. Picking the wrong one does not fail at import — it fails weeks later when a production DWG lands on a headless runner that has no way to read it. As with every decision in the [Interoperability Decision Guides](/interoperability-decision-guides/) section, the goal is to score the real options against coverage, fidelity, licensing, and operational fit before the choice is baked in.
+The decision matters because the three tools are not substitutes. `ezdxf` reads DXF perfectly and cannot open DWG at all; community readers open some DWG but carry coverage and stability risk; the ODA converter opens DWG reliably across the full version range but adds a licence and a binary dependency. Picking the wrong one does not fail at import — it fails weeks later when a production DWG lands on a headless runner that has no way to read it. As with every decision in the [Interoperability Decision Guides](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/) section, the goal is to score the real options against coverage, fidelity, licensing, and operational fit before the choice is baked in.
 
 <svg viewBox="0 0 720 372" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Decision tree for choosing a CAD reader: DXF inputs go to ezdxf; DWG inputs go to the ODA converter when headless CI reliability and full version support are required, or to a community reader for constrained experimental use" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>CAD Reader Decision Tree</title>
@@ -128,8 +127,8 @@ Before working through the decision, confirm your environment and assumptions:
 - **ezdxf ≥ 1.1.0** — install with `pip install "ezdxf>=1.1.0"`. This is the reader for all DXF, whether the DXF was authored directly or produced by conversion from DWG.
 - **ODA File Converter** — a free-to-register desktop binary from the Open Design Alliance, needed only for the DWG route. On a server it requires a virtual display (`xvfb`). Confirm it is on `PATH` as `ODAFileConverter`.
 - **xvfb** (headless only) — `apt-get install -y xvfb` provides `xvfb-run` for driving the GUI converter without a display.
-- **Knowledge of the DXF entity model** — you should already be comfortable traversing model space and querying entities, as covered in the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/). This guide is about *reaching* readable geometry, not about extracting it once you have it.
-- **Awareness of DWG's constraints** — the reasons DWG cannot be read in pure Python are documented in [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) and the [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) reference.
+- **Knowledge of the DXF entity model** — you should already be comfortable traversing model space and querying entities, as covered in the [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/). This guide is about *reaching* readable geometry, not about extracting it once you have it.
+- **Awareness of DWG's constraints** — the reasons DWG cannot be read in pure Python are documented in [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) and the [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) reference.
 
 ## Architectural Overview
 
@@ -301,7 +300,7 @@ The converter can exit `0` yet write nothing when the target version is incompat
 
 ### Proxy objects survive conversion but stay opaque
 
-The ODA converter preserves proxy entities as proxies — it does not decode the custom objects that Civil 3D or Plant 3D wrote. If the consumer needs that geometry, no reader here will supply it; the fix is upstream, by exploding proxies in the authoring application. This is the same constraint documented under [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/).
+The ODA converter preserves proxy entities as proxies — it does not decode the custom objects that Civil 3D or Plant 3D wrote. If the consumer needs that geometry, no reader here will supply it; the fix is upstream, by exploding proxies in the authoring application. This is the same constraint documented under [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/).
 
 ### Community readers report partial success
 
@@ -350,14 +349,14 @@ The DXF route is a pure parse and scales the way `ezdxf` does — bounded by ent
 - **Batch conversions per converter invocation.** The ODA converter accepts a directory and a recurse flag; converting a directory in one call amortises process startup across many files far better than one subprocess per file. Trade this against the coarser error granularity of a batch.
 - **Separate the CPU-bound parse from the subprocess-bound conversion.** Run conversions in a bounded pool sized to your CPU count and keep parsing in a separate stage, so a slow conversion does not starve parsing workers.
 
-To choose a batch size, thread count, and regression threshold on evidence rather than guesswork, measure the parse stage directly. The [benchmarking DXF parsing throughput in Python](/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/benchmarking-dxf-parsing-throughput-in-python/) walkthrough gives a reusable harness for entities-per-second, megabytes-per-second, and peak memory, and shows how to turn those numbers into a CI regression gate.
+To choose a batch size, thread count, and regression threshold on evidence rather than guesswork, measure the parse stage directly. The [benchmarking DXF parsing throughput in Python](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/benchmarking-dxf-parsing-throughput-in-python/) walkthrough gives a reusable harness for entities-per-second, megabytes-per-second, and peak memory, and shows how to turn those numbers into a CI regression gate.
 
 ## FAQ
 
 <details>
 <summary><strong>Can ezdxf read DWG files directly?</strong></summary>
 
-No. `ezdxf` reads and writes DXF only; it has no DWG parser. DWG is Autodesk's closed binary format, and reading it requires either a community reverse-engineered library such as LibreDWG or a licensed converter such as the ODA File Converter, which produces DXF that `ezdxf` can then read. The [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) workflow covers the community-reader path in detail.
+No. `ezdxf` reads and writes DXF only; it has no DWG parser. DWG is Autodesk's closed binary format, and reading it requires either a community reverse-engineered library such as LibreDWG or a licensed converter such as the ODA File Converter, which produces DXF that `ezdxf` can then read. The [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) workflow covers the community-reader path in detail.
 
 </details>
 
@@ -386,9 +385,9 @@ The ODA File Converter is a Qt GUI application, so it needs a display. On a head
 
 ## Related Pages
 
-- [Interoperability Decision Guides](/interoperability-decision-guides/) — the decision framework this guide belongs to, covering library, format, and storage choices end to end
-- [Benchmarking DXF Parsing Throughput in Python](/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/benchmarking-dxf-parsing-throughput-in-python/) — measure entities-per-second, megabytes-per-second, and peak memory to size the parse stage and set CI gates
-- [DXF vs IFC for GIS Ingestion](/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/) — the next decision once the source is readable: which interchange format carries the data GIS needs
-- [GeoPackage vs PostGIS for CAD Output](/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/) — where the parsed geometry lands, scored on concurrency and query needs
-- [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — the entity model and traversal patterns for the DXF you reach through either route
-- [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) — the community DWG reader path and its proxy-object and version constraints
+- [Interoperability Decision Guides](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/) — the decision framework this guide belongs to, covering library, format, and storage choices end to end
+- [Benchmarking DXF Parsing Throughput in Python](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/benchmarking-dxf-parsing-throughput-in-python/) — measure entities-per-second, megabytes-per-second, and peak memory to size the parse stage and set CI gates
+- [DXF vs IFC for GIS Ingestion](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/) — the next decision once the source is readable: which interchange format carries the data GIS needs
+- [GeoPackage vs PostGIS for CAD Output](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/) — where the parsed geometry lands, scored on concurrency and query needs
+- [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — the entity model and traversal patterns for the DXF you reach through either route
+- [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) — the community DWG reader path and its proxy-object and version constraints

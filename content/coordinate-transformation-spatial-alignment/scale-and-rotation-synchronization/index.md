@@ -2,7 +2,6 @@
 title: "Scale and Rotation Synchronization in CAD/GIS/BIM Python Pipelines"
 description: "How to compute and apply SVD-based similarity transformations that resolve unit-scale mismatches and angular misalignments when merging CAD, GIS, and BIM datasets in Python."
 slug: "scale-and-rotation-synchronization"
-type: "cluster"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
     url: "/coordinate-transformation-spatial-alignment/"
@@ -31,13 +30,13 @@ dateModified: "2026-06-24"
           "@type": "ListItem",
           "position": 1,
           "name": "Coordinate Transformation & Spatial Alignment",
-          "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"
+          "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Scale and Rotation Synchronization",
-          "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/"
+          "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/"
         }
       ]
     },
@@ -105,7 +104,7 @@ dateModified: "2026-06-24"
 
 # Scale and Rotation Synchronization in CAD/GIS/BIM Python Pipelines
 
-Scale and rotation synchronization is the process of computing a uniform similarity transformation — combining a scale factor, a rotation matrix, and a translation vector — that brings heterogeneous spatial datasets onto a common geometric baseline without distorting intrinsic shape. It is a mandatory stage in the [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) pipeline whenever CAD drawings, GIS exports, or BIM models are merged in a single automated workflow.
+Scale and rotation synchronization is the process of computing a uniform similarity transformation — combining a scale factor, a rotation matrix, and a translation vector — that brings heterogeneous spatial datasets onto a common geometric baseline without distorting intrinsic shape. It is a mandatory stage in the [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) pipeline whenever CAD drawings, GIS exports, or BIM models are merged in a single automated workflow.
 
 Each authoring environment makes independent choices about linear units (millimetres, feet, survey feet, metres), angular orientation (project north vs. grid north vs. true north), and local coordinate origins. Without a principled synchronization step, these mismatches accumulate into misaligned building footprints, skewed structural grids, broken topology, and silent spatial-query failures. The SVD-based similarity transform described here eliminates all three classes of error in one mathematically sound operation.
 
@@ -149,9 +148,9 @@ Before implementing synchronization logic, confirm the following are in place:
 
 - **Python 3.9+** with `numpy>=1.24` and `scipy>=1.10`
 - **`pyproj>=3.4`** installed for CRS normalization upstream of this step (`pip install pyproj`)
-- **Projected coordinate system** — all input geometries must be in a common local Cartesian CRS (e.g., a UTM zone) to avoid angular distortion; execute [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) first if your sources carry mixed projections
+- **Projected coordinate system** — all input geometries must be in a common local Cartesian CRS (e.g., a UTM zone) to avoid angular distortion; execute [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) first if your sources carry mixed projections
 - **Minimum three non-collinear control points** shared between source and target coordinate spaces; six or more are strongly recommended for production use
-- **Consistent linear units** across both datasets — resolve unit mismatches via your [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) before this step; embedding a raw unit mismatch into the scale factor hides the root cause and makes debugging harder
+- **Consistent linear units** across both datasets — resolve unit mismatches via your [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) before this step; embedding a raw unit mismatch into the scale factor hides the root cause and makes debugging harder
 - **Extracted geometric primitives** from source formats (DXF, IFC, GeoJSON, Shapefile) stored as NumPy arrays
 
 Control points must represent stable, high-precision features: survey monuments, structural grid intersections, or permanent utility nodes. Avoid transient design elements, temporary construction markers, or features subject to iterative modeling tolerance stacking.
@@ -326,11 +325,11 @@ When the source and target coordinate systems have opposite handedness (e.g., on
 
 ### Unit mismatch absorbed into scale factor
 
-A DXF file drawn in millimetres whose `$INSUNITS` header flag is absent or incorrect will present coordinates 1000× larger than expected in metres. The similarity transform will absorb this 1000× ratio into $s$, making the transform appear valid while masking the actual data defect. Always normalize units explicitly via [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) before extracting control points.
+A DXF file drawn in millimetres whose `$INSUNITS` header flag is absent or incorrect will present coordinates 1000× larger than expected in metres. The similarity transform will absorb this 1000× ratio into $s$, making the transform appear valid while masking the actual data defect. Always normalize units explicitly via [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) before extracting control points.
 
 ### Mixed projection inputs
 
-Attempting synchronization across datasets in different map projections (e.g., one in EPSG:32632 UTM and another in a local arbitrary grid) will fold projection distortion into both the scale factor and the rotation matrix. Execute [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) first to project everything into a shared local Cartesian system.
+Attempting synchronization across datasets in different map projections (e.g., one in EPSG:32632 UTM and another in a local arbitrary grid) will fold projection distortion into both the scale factor and the rotation matrix. Execute [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) first to project everything into a shared local Cartesian system.
 
 ### BIM millimetre precision vs. GIS centimetre rounding
 
@@ -450,7 +449,7 @@ Three non-collinear points are the mathematical minimum for a 2D similarity prob
 <details>
 <summary><strong>Does this transform handle DXF INSUNITS mismatches automatically?</strong></summary>
 
-No. The similarity transform computes scale empirically from control-point distances. A DXF drawn in millimetres whose `$INSUNITS` header is absent or wrong will absorb the 1000× mismatch into $s$, masking the root cause. Normalise units through your [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) before computing the transform.
+No. The similarity transform computes scale empirically from control-point distances. A DXF drawn in millimetres whose `$INSUNITS` header is absent or wrong will absorb the 1000× mismatch into $s$, masking the root cause. Normalise units through your [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) before computing the transform.
 </details>
 
 <details>
@@ -463,8 +462,8 @@ Yes — and you should. Provided the dataset has a single consistent spatial ref
 
 ## Related Pages
 
-- [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) — parent pipeline overview
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — required upstream step: project all inputs into a common Cartesian space before synchronization
-- [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — resolve DXF, IFC, and survey unit mismatches before control-point extraction
-- [Layer Mapping Logic](/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — downstream step: attribute aligned geometry to discipline-specific layers
-- [Aligning BIM Models with GIS Survey Data](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/) — applied walkthrough using this transform for Revit-to-GIS alignment
+- [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) — parent pipeline overview
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — required upstream step: project all inputs into a common Cartesian space before synchronization
+- [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — resolve DXF, IFC, and survey unit mismatches before control-point extraction
+- [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — downstream step: attribute aligned geometry to discipline-specific layers
+- [Aligning BIM Models with GIS Survey Data](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/) — applied walkthrough using this transform for Revit-to-GIS alignment

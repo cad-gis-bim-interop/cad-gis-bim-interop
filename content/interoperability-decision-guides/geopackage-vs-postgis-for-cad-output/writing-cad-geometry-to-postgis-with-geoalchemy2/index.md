@@ -2,7 +2,6 @@
 title: "Writing CAD Geometry to PostGIS with GeoAlchemy2"
 description: "Write converted CAD geometry to PostGIS with SQLAlchemy and GeoAlchemy2: define a Geometry column, convert shapely geoms, bulk insert, and build a GiST index."
 slug: "writing-cad-geometry-to-postgis-with-geoalchemy2"
-type: "long_tail"
 breadcrumb:
   - label: "Interoperability Decision Guides"
     url: "/interoperability-decision-guides/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/writing-cad-geometry-to-postgis-with-geoalchemy2/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/writing-cad-geometry-to-postgis-with-geoalchemy2/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/"},
-        {"@type": "ListItem", "position": 2, "name": "GeoPackage vs PostGIS for CAD Output", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/"},
-        {"@type": "ListItem", "position": 3, "name": "Writing CAD Geometry to PostGIS with GeoAlchemy2", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/writing-cad-geometry-to-postgis-with-geoalchemy2/"}
+        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/"},
+        {"@type": "ListItem", "position": 2, "name": "GeoPackage vs PostGIS for CAD Output", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/"},
+        {"@type": "ListItem", "position": 3, "name": "Writing CAD Geometry to PostGIS with GeoAlchemy2", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/writing-cad-geometry-to-postgis-with-geoalchemy2/"}
       ]
     },
     {
@@ -72,7 +71,7 @@ dateModified: "2026-07-11"
 
 # Writing CAD Geometry to PostGIS with GeoAlchemy2
 
-To write converted CAD geometry to PostGIS with GeoAlchemy2, define a SQLAlchemy model whose geometry column is `Geometry('GEOMETRYZ', srid=...)`, convert each shapely geometry to a database value with `geoalchemy2.shape.from_shape(geom, srid=...)`, bulk-insert the rows inside a transaction, and create a GiST spatial index after the load. This gives you explicit control over geometry type, SRID, and batching that the one-line `GeoDataFrame.to_postgis` shortcut does not. This page is the detailed server-write path for the [GeoPackage vs PostGIS for CAD Output](/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/) decision guide, which covers when PostGIS is the right target in the first place.
+To write converted CAD geometry to PostGIS with GeoAlchemy2, define a SQLAlchemy model whose geometry column is `Geometry('GEOMETRYZ', srid=...)`, convert each shapely geometry to a database value with `geoalchemy2.shape.from_shape(geom, srid=...)`, bulk-insert the rows inside a transaction, and create a GiST spatial index after the load. This gives you explicit control over geometry type, SRID, and batching that the one-line `GeoDataFrame.to_postgis` shortcut does not. This page is the detailed server-write path for the [GeoPackage vs PostGIS for CAD Output](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/) decision guide, which covers when PostGIS is the right target in the first place.
 
 ## How GeoAlchemy2 Handles PostGIS Geometry
 
@@ -80,7 +79,7 @@ GeoAlchemy2 extends SQLAlchemy with a `Geometry` column type that maps to a Post
 
 The bridge from shapely to the database is `geoalchemy2.shape.from_shape(geom, srid=...)`. Shapely geometries are pure coordinate objects with no SRID; `from_shape` serialises the geometry to Extended Well-Known Binary and stamps the SRID onto it, producing a `WKBElement` that SQLAlchemy binds as the column value. The reverse — `to_shape` — turns a queried `WKBElement` back into a shapely geometry. GeoAlchemy2 does not reproject, validate, or repair geometry; it is a faithful type bridge, so the geometry and SRID you hand it must already be correct.
 
-Crucially, GeoAlchemy2 creates a GiST spatial index automatically when it emits `CREATE TABLE` for a model — but only when the table is created through `metadata.create_all()`. If the table already exists, or you load with `to_postgis`, you must create the index yourself. Building it after the bulk load rather than before is materially faster, because maintaining a spatial index during a large insert is far more expensive than building it once at the end. The upstream conversion that produces these shapely geometries is covered in [Geometry Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) — this page assumes you already hold valid, reprojected shapely geometries.
+Crucially, GeoAlchemy2 creates a GiST spatial index automatically when it emits `CREATE TABLE` for a model — but only when the table is created through `metadata.create_all()`. If the table already exists, or you load with `to_postgis`, you must create the index yourself. Building it after the bulk load rather than before is materially faster, because maintaining a spatial index during a large insert is far more expensive than building it once at the end. The upstream conversion that produces these shapely geometries is covered in [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) — this page assumes you already hold valid, reprojected shapely geometries.
 
 ## Production-Ready Script
 
@@ -176,7 +175,7 @@ Bulk loads into PostGIS fail in a handful of recurring ways. Handle them in this
 
 **1. Declare the SRID explicitly and consistently**
 
-The SRID on the column, the SRID passed to `from_shape`, and the CRS of the source geometry must all agree. A mismatch either raises a constraint error or, worse, stores geometry that never matches spatial joins. Reproject to the target CRS before writing — the pyproj-based reprojection is covered in [Reprojecting CAD Coordinates with pyproj Transformer](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/).
+The SRID on the column, the SRID passed to `from_shape`, and the CRS of the source geometry must all agree. A mismatch either raises a constraint error or, worse, stores geometry that never matches spatial joins. Reproject to the target CRS before writing — the pyproj-based reprojection is covered in [Reprojecting CAD Coordinates with pyproj Transformer](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/).
 
 **2. Handle mixed geometry types**
 
@@ -207,7 +206,7 @@ with engine.begin() as conn:
     conn.execute(stmt)
 ```
 
-If the attributes you are loading originate from IFC property sets, the column-mapping strategy is covered in [Mapping IFC Property Sets to PostGIS Columns](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/).
+If the attributes you are loading originate from IFC property sets, the column-mapping strategy is covered in [Mapping IFC Property Sets to PostGIS Columns](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/).
 
 ## FAQ
 
@@ -236,6 +235,6 @@ Declare the column as `Geometry('GEOMETRYZ', srid=..., dimension=3)` and pass sh
 
 ## Related Pages
 
-- [GeoPackage vs PostGIS for CAD Output](/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/) — the decision guide covering when PostGIS is the right storage target
-- [Mapping IFC Property Sets to PostGIS Columns](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/) — turning IFC property sets into the attribute columns loaded alongside geometry
-- [Reprojecting CAD Coordinates with pyproj Transformer](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) — aligning geometry to the target SRID before the PostGIS write
+- [GeoPackage vs PostGIS for CAD Output](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/geopackage-vs-postgis-for-cad-output/) — the decision guide covering when PostGIS is the right storage target
+- [Mapping IFC Property Sets to PostGIS Columns](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/) — turning IFC property sets into the attribute columns loaded alongside geometry
+- [Reprojecting CAD Coordinates with pyproj Transformer](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) — aligning geometry to the target SRID before the PostGIS write

@@ -2,7 +2,6 @@
 title: "Converting CAD Local Coordinates to EPSG:4326"
 description: "Step-by-step Python pipeline using pyproj and numpy to convert arbitrary CAD site-grid coordinates to WGS84 (EPSG:4326) via a two-stage similarity transform and reprojection."
 slug: "converting-cad-local-coordinates-to-epsg4326"
-type: "long_tail"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
     url: "/coordinate-transformation-spatial-alignment/"
@@ -29,9 +28,9 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
-        {"@type": "ListItem", "position": 2, "name": "CRS Normalization Workflows", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/"},
-        {"@type": "ListItem", "position": 3, "name": "Converting CAD Local Coordinates to EPSG:4326", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/"}
+        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
+        {"@type": "ListItem", "position": 2, "name": "CRS Normalization Workflows", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/"},
+        {"@type": "ListItem", "position": 3, "name": "Converting CAD Local Coordinates to EPSG:4326", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/"}
       ]
     },
     {
@@ -52,7 +51,7 @@ dateModified: "2026-06-24"
 
 # Converting CAD Local Coordinates to EPSG:4326
 
-Converting CAD local coordinates to EPSG:4326 requires a deterministic two-stage pipeline: first, map the arbitrary CAD site grid to a known projected coordinate system (PCS) using a 2D similarity (Helmert) transform, then reproject those planar coordinates to geographic WGS84 via `pyproj`. This page is a hands-on implementation reference within the [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) topic — read that page first for environment setup, library version pinning, and broader pipeline context. The critical prerequisite is at least two non-collinear control points that tie CAD `(X, Y)` values to real-world projected coordinates. Without survey control or embedded georeferencing metadata, the transformation is mathematically indeterminate.
+Converting CAD local coordinates to EPSG:4326 requires a deterministic two-stage pipeline: first, map the arbitrary CAD site grid to a known projected coordinate system (PCS) using a 2D similarity (Helmert) transform, then reproject those planar coordinates to geographic WGS84 via `pyproj`. This page is a hands-on implementation reference within the [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) topic — read that page first for environment setup, library version pinning, and broader pipeline context. The critical prerequisite is at least two non-collinear control points that tie CAD `(X, Y)` values to real-world projected coordinates. Without survey control or embedded georeferencing metadata, the transformation is mathematically indeterminate.
 
 ## How pyproj and numpy Handle CAD-to-WGS84 Conversion
 
@@ -112,7 +111,7 @@ The diagram below illustrates the complete data flow:
 
 **Key constraints to verify before writing any code:**
 
-- **CAD unit ambiguity.** DWG/DXF files store raw numerics with no embedded unit metadata. A coordinate of `1000.0` could represent millimetres, inches, or metres. Mismatched units produce 25.4× or 1000× spatial offsets that look plausible until overlay with real geodata exposes them. Confirm the drawing's intended unit scale from `$INSUNITS` in the DXF header or from project documentation before sourcing control points. The [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) covers header variable parsing in detail.
+- **CAD unit ambiguity.** DWG/DXF files store raw numerics with no embedded unit metadata. A coordinate of `1000.0` could represent millimetres, inches, or metres. Mismatched units produce 25.4× or 1000× spatial offsets that look plausible until overlay with real geodata exposes them. Confirm the drawing's intended unit scale from `$INSUNITS` in the DXF header or from project documentation before sourcing control points. The [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) covers header variable parsing in detail.
 - **Axis order enforcement.** `pyproj` 2.0+ follows CRS axis definitions strictly. EPSG:4326 defines its axes as `(latitude, longitude)`. Initialising `Transformer` without `always_xy=True` silently inverts your output pairs.
 - **Vertical datum.** EPSG:4326 is strictly 2D horizontal. If elevation accuracy matters, target `EPSG:4979` (3D WGS84) and chain a geoid correction via a `pyproj` vertical pipeline.
 - **PROJ engine version.** `pyproj>=3.0` is required for modern grid-shift access and to avoid the deprecated `+init=epsg:` syntax. Verify with `pyproj.proj_version_str`.
@@ -347,14 +346,14 @@ import pyproj
 pyproj.sync.get_transform_grid_list(area_of_use="USA")
 ```
 
-For broader guidance on datum handling and validation across mixed-format ingestion pipelines, see [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) and the unit-conversion considerations in [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/).
+For broader guidance on datum handling and validation across mixed-format ingestion pipelines, see [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) and the unit-conversion considerations in [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/).
 
 ---
 
 ## Related Pages
 
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — parent topic: full pipeline from CRS detection through validation and export
-- [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) — domain overview covering datum alignment, unit conversion, and layer mapping
-- [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — aligning BIM models and CAD drawings that share the same site but differ in orientation or scale
-- [Aligning BIM Models with GIS Survey Data](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/) — end-to-end workflow combining IFC georeferencing with the Helmert approach used here
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — parsing DXF headers and `$INSUNITS` to confirm drawing units before transformation
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — parent topic: full pipeline from CRS detection through validation and export
+- [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) — domain overview covering datum alignment, unit conversion, and layer mapping
+- [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — aligning BIM models and CAD drawings that share the same site but differ in orientation or scale
+- [Aligning BIM Models with GIS Survey Data](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/) — end-to-end workflow combining IFC georeferencing with the Helmert approach used here
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — parsing DXF headers and `$INSUNITS` to confirm drawing units before transformation

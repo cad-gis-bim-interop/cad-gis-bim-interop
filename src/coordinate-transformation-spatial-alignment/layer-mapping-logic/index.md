@@ -2,7 +2,6 @@
 title: "Layer Mapping Logic for CAD/GIS & BIM Interoperability Pipelines"
 description: "Build deterministic Python layer mapping pipelines that translate CAD layer names, BIM categories, and GIS feature classes across heterogeneous format boundaries without silent data loss."
 slug: "layer-mapping-logic"
-type: "cluster"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
     url: "/coordinate-transformation-spatial-alignment/"
@@ -28,8 +27,8 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
-        {"@type": "ListItem", "position": 2, "name": "Layer Mapping Logic", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/"}
+        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
+        {"@type": "ListItem", "position": 2, "name": "Layer Mapping Logic", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/"}
       ]
     },
     {
@@ -51,7 +50,7 @@ dateModified: "2026-06-24"
 
 Raw geometry is only half the data. The semantic classification, visibility state, and attribute routing that travel alongside coordinates are governed by layer mapping logic — the set of translation rules that determine how `A-WALL-FULL` becomes `Building_Walls_Exterior` in GIS, or how an `IfcWall` category routes to a discipline-specific CAD layer. Without deterministic translation rules, data exported from AutoCAD DWG, ArcGIS Shapefiles, or Revit BIM models will misalign, lose metadata, or break downstream automation silently.
 
-This topic sits at the semantic end of the [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) pipeline. Geometric transformations resolve where features are; layer mapping resolves what they mean and which schema bucket they belong to. The two concerns must stay decoupled — running semantic routing before geometric alignment prevents coordinate drift during layer reassignment, and vice versa.
+This topic sits at the semantic end of the [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) pipeline. Geometric transformations resolve where features are; layer mapping resolves what they mean and which schema bucket they belong to. The two concerns must stay decoupled — running semantic routing before geometric alignment prevents coordinate drift during layer reassignment, and vice versa.
 
 ## Prerequisites
 
@@ -64,7 +63,7 @@ Before implementing layer mapping logic, confirm your environment meets these ba
 - **`pydantic>=2.0`** or `jsonschema>=4.0` — schema validation on pipeline initialization
 - **Format adapters** (optional): `ezdxf>=1.1` for DXF/DWG, `geopandas>=0.13` / `fiona>=1.9` for vector GIS, `ifcopenshell>=0.7` for IFC/BIM
 - **Version-controlled rule registry** — mapping schemas must live in Git, peer-reviewed, and never hardcoded into pipeline scripts
-- **CRS alignment upstream** — layer mapping must receive geometrically aligned data; consult [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) and [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) before this stage
+- **CRS alignment upstream** — layer mapping must receive geometrically aligned data; consult [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) and [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) before this stage
 
 ## Architectural Overview
 
@@ -285,7 +284,7 @@ When multiple source layers map to the same target name, apply one of three conf
 
 ### 4. Validate and Route to the Target Format
 
-Before writing, validate output names against destination constraints. Then apply geometric alignment. [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) must run after semantic routing to prevent coordinate drift during layer reassignment.
+Before writing, validate output names against destination constraints. Then apply geometric alignment. [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) must run after semantic routing to prevent coordinate drift during layer reassignment.
 
 ```python
 # geopandas>=0.13.0
@@ -406,7 +405,7 @@ For datasets with tens of thousands of layers, Python-level iteration in `map_on
 - **Cache compiled regex objects** at the `MappingRule` level (already done via `__post_init__`); never recompile inside a loop.
 - **Limit `re.search` scope** with anchored patterns (`^`, `$`) wherever possible; unanchored patterns scan the full normalized string on every call.
 
-For spatial datasets where attribute routing intersects with geometric joins, ensure that coordinate alignment (see [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/)) precedes semantic mapping. Mixed geometric-semantic operations in a single pass produce hard-to-debug state dependencies.
+For spatial datasets where attribute routing intersects with geometric joins, ensure that coordinate alignment (see [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/)) precedes semantic mapping. Mixed geometric-semantic operations in a single pass produce hard-to-debug state dependencies.
 
 ## FAQ
 
@@ -442,7 +441,7 @@ No. Run normalization exactly once, during ingestion. The `target_layer` value w
 
 ## Related Pages
 
-- [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) — parent pipeline covering datum shifts, projection, and geometric alignment
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — upstream stage that resolves coordinate reference system ambiguity before semantic routing
-- [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — harmonizes measurement units across CAD, GIS, and BIM before geometric processing
-- [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — downstream geometric alignment step that must follow semantic routing to prevent coordinate drift
+- [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) — parent pipeline covering datum shifts, projection, and geometric alignment
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — upstream stage that resolves coordinate reference system ambiguity before semantic routing
+- [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — harmonizes measurement units across CAD, GIS, and BIM before geometric processing
+- [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — downstream geometric alignment step that must follow semantic routing to prevent coordinate drift

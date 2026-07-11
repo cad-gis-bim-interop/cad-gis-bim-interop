@@ -2,7 +2,6 @@
 title: "Autoscaling DXF Geometry from $INSUNITS in Python"
 description: "Build a reusable $INSUNITS-to-metres lookup and an autoscale function in Python that reads the DXF header, handles undefined units, and returns a scaled document."
 slug: "autoscaling-dxf-geometry-from-insunits-in-python"
-type: "long_tail"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
     url: "/coordinate-transformation-spatial-alignment/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/autoscaling-dxf-geometry-from-insunits-in-python/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/autoscaling-dxf-geometry-from-insunits-in-python/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "/coordinate-transformation-spatial-alignment/"},
-        {"@type": "ListItem", "position": 2, "name": "Unit Conversion Pipelines", "item": "/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/"},
-        {"@type": "ListItem", "position": 3, "name": "Autoscaling DXF Geometry from $INSUNITS", "item": "/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/autoscaling-dxf-geometry-from-insunits-in-python/"}
+        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
+        {"@type": "ListItem", "position": 2, "name": "Unit Conversion Pipelines", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/"},
+        {"@type": "ListItem", "position": 3, "name": "Autoscaling DXF Geometry from $INSUNITS", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/autoscaling-dxf-geometry-from-insunits-in-python/"}
       ]
     },
     {
@@ -77,7 +76,7 @@ dateModified: "2026-07-11"
 
 # Autoscaling DXF Geometry from $INSUNITS in Python
 
-Autoscaling a DXF means reading the drawing's `$INSUNITS` header code, resolving it to a metre scale factor through a single authoritative lookup, and returning both the factor and a metre-normalised copy of the geometry — with an explicit, logged policy for the undefined case. A reusable `autoscale_document()` function removes the guesswork and the copy-paste scale tables that scatter unit bugs across a codebase. This page is part of the [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) workflow, and it centralises the scaling step that the [conversion of DXF millimetres to metres before pyproj reprojection](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/) depends on. Get the lookup and the `$INSUNITS=0` policy right once, and every downstream reprojection, area calculation, and GIS export inherits correct magnitudes.
+Autoscaling a DXF means reading the drawing's `$INSUNITS` header code, resolving it to a metre scale factor through a single authoritative lookup, and returning both the factor and a metre-normalised copy of the geometry — with an explicit, logged policy for the undefined case. A reusable `autoscale_document()` function removes the guesswork and the copy-paste scale tables that scatter unit bugs across a codebase. This page is part of the [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) workflow, and it centralises the scaling step that the [conversion of DXF millimetres to metres before pyproj reprojection](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/) depends on. Get the lookup and the `$INSUNITS=0` policy right once, and every downstream reprojection, area calculation, and GIS export inherits correct magnitudes.
 
 ## How `ezdxf` Exposes `$INSUNITS`
 
@@ -265,7 +264,7 @@ def test_undefined_uses_measurement():
 - `resolve_scale()` is pure and side-effect-free except for logging, so it is trivially unit-testable. `autoscale_document()` is the effectful wrapper that mutates geometry.
 - `Matrix44.scale(scale, scale, scale)` applies a uniform scale about the WCS origin. Scaling about the origin (rather than a base point) is correct here because a pure unit change must not translate geometry.
 - After scaling, the routine writes `$INSUNITS=6` back so the document self-describes as metres and cannot be scaled a second time by a later stage — a structural guard against double-scaling.
-- Reading `$INSUNITS` safely is covered in depth by [how to parse DXF headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/), including the fallback chains this function relies on.
+- Reading `$INSUNITS` safely is covered in depth by [how to parse DXF headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/), including the fallback chains this function relies on.
 
 ## Compatibility Matrix
 
@@ -282,7 +281,7 @@ def test_undefined_uses_measurement():
 
 **1. Undefined units (`$INSUNITS=0`).** Apply a configured default, use `$MEASUREMENT` as a weak metric/imperial tiebreaker, and log the applied factor with the file name. Surface `undefined=True` in the result so callers can route the file to manual verification rather than trusting it silently.
 
-**2. Per-`INSERT` unit overrides.** A block definition can carry its own units, and AutoCAD scales inserted blocks whose units differ from the drawing. `autoscale_document()` scales the drawing uniformly and does not resolve block-level unit mismatches. If your blocks were authored in different units, flatten and apply the block-to-drawing ratio before the drawing-to-metre scale, exactly as when [converting DXF millimetres to metres before pyproj reprojection](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/).
+**2. Per-`INSERT` unit overrides.** A block definition can carry its own units, and AutoCAD scales inserted blocks whose units differ from the drawing. `autoscale_document()` scales the drawing uniformly and does not resolve block-level unit mismatches. If your blocks were authored in different units, flatten and apply the block-to-drawing ratio before the drawing-to-metre scale, exactly as when [converting DXF millimetres to metres before pyproj reprojection](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/).
 
 **3. Survey vs. architectural defaults.** When the unit is undefined, the safe default depends on discipline: architectural and mechanical drawings default to millimetres, civil and survey drawings to metres. Make the default configurable per ingestion source rather than hard-coding one global assumption.
 
@@ -324,7 +323,7 @@ No. `ezdxf` does not auto-scale inserted blocks that carry a different unit from
 
 ## Related Pages
 
-- [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — parent reference on normalising CAD drawing units for GIS ingestion
-- [Converting DXF Millimetres to Metres Before pyproj Reprojection](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/) — applies this scaling step immediately before reprojection
-- [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — reading `$INSUNITS`, `$MEASUREMENT`, and header fallback chains
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — where header variables sit in the DXF section structure
+- [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — parent reference on normalising CAD drawing units for GIS ingestion
+- [Converting DXF Millimetres to Metres Before pyproj Reprojection](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/) — applies this scaling step immediately before reprojection
+- [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — reading `$INSUNITS`, `$MEASUREMENT`, and header fallback chains
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — where header variables sit in the DXF section structure

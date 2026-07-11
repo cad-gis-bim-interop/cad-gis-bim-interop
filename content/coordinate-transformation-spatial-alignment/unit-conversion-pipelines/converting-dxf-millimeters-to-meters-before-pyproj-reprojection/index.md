@@ -2,7 +2,6 @@
 title: "Convert DXF Millimetres to Metres Before pyproj Reprojection"
 description: "Scale DXF millimetre coordinates to metres before reprojecting with pyproj, so points land on the map instead of the ocean. Read $INSUNITS, scale, then project."
 slug: "converting-dxf-millimeters-to-meters-before-pyproj-reprojection"
-type: "long_tail"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
     url: "/coordinate-transformation-spatial-alignment/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "/coordinate-transformation-spatial-alignment/"},
-        {"@type": "ListItem", "position": 2, "name": "Unit Conversion Pipelines", "item": "/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/"},
-        {"@type": "ListItem", "position": 3, "name": "DXF Millimetres to Metres Before pyproj", "item": "/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/"}
+        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
+        {"@type": "ListItem", "position": 2, "name": "Unit Conversion Pipelines", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/"},
+        {"@type": "ListItem", "position": 3, "name": "DXF Millimetres to Metres Before pyproj", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/"}
       ]
     },
     {
@@ -77,7 +76,7 @@ dateModified: "2026-07-11"
 
 # Convert DXF Millimetres to Metres Before pyproj Reprojection
 
-To reproject a DXF drawing correctly, scale its coordinates to **metres first**, then hand them to `pyproj` — never the reverse. CAD drawings are frequently authored in millimetres (`$INSUNITS=4`), but a projected coordinate reference system such as UTM interprets every input value as metres. If you reproject raw millimetre coordinates, `pyproj` treats a `12000 mm` easting as `12000 m`, and the transformed longitude/latitude lands thousands of kilometres from the site — often in open water. Read the drawing unit from the DXF header with `ezdxf`, multiply all coordinates by the correct metre scale factor, and only then run the `Transformer`. This page is part of the [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) workflow for making CAD geometry numerically compatible with GIS coordinate systems.
+To reproject a DXF drawing correctly, scale its coordinates to **metres first**, then hand them to `pyproj` — never the reverse. CAD drawings are frequently authored in millimetres (`$INSUNITS=4`), but a projected coordinate reference system such as UTM interprets every input value as metres. If you reproject raw millimetre coordinates, `pyproj` treats a `12000 mm` easting as `12000 m`, and the transformed longitude/latitude lands thousands of kilometres from the site — often in open water. Read the drawing unit from the DXF header with `ezdxf`, multiply all coordinates by the correct metre scale factor, and only then run the `Transformer`. This page is part of the [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) workflow for making CAD geometry numerically compatible with GIS coordinate systems.
 
 ## How `ezdxf` and `pyproj` Handle Units
 
@@ -279,7 +278,7 @@ if __name__ == "__main__":
 - Scaling happens in one place, immediately after reading, and reprojection happens strictly afterwards. Keeping them in separate, ordered steps is what prevents the project-then-scale mistake.
 - `always_xy=True` forces `(lon, lat)` output ordering. Without it, `pyproj>=2` returns `(lat, lon)` for EPSG:4326, which silently swaps axes downstream.
 - The out-of-range check on `(lon, lat)` turns the classic "in the ocean" failure into a raised exception instead of a corrupt record — the earliest possible place to catch an unscaled or double-scaled input.
-- The same metre coordinates are the correct input to a datum-aware transform such as [reprojecting CAD coordinates with a pyproj Transformer](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) when a grid shift or a non-metre projected CRS is involved.
+- The same metre coordinates are the correct input to a datum-aware transform such as [reprojecting CAD coordinates with a pyproj Transformer](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) when a grid shift or a non-metre projected CRS is involved.
 
 ## Compatibility Matrix
 
@@ -294,7 +293,7 @@ if __name__ == "__main__":
 
 ## Fallback Strategies
 
-**1. `$INSUNITS=0` (undefined units).** Never assume millimetres. Pass an explicit `default_when_undefined` only after confirming the unit with the drawing's originator, inspect `$MEASUREMENT` (0 = imperial, 1 = metric) as a weak corroborating signal, and log the decision. Building a robust default policy is the job of [autoscaling DXF geometry from $INSUNITS in Python](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/autoscaling-dxf-geometry-from-insunits-in-python/), which centralises the lookup and the undefined-unit policy in one reusable function.
+**1. `$INSUNITS=0` (undefined units).** Never assume millimetres. Pass an explicit `default_when_undefined` only after confirming the unit with the drawing's originator, inspect `$MEASUREMENT` (0 = imperial, 1 = metric) as a weak corroborating signal, and log the decision. Building a robust default policy is the job of [autoscaling DXF geometry from $INSUNITS in Python](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/autoscaling-dxf-geometry-from-insunits-in-python/), which centralises the lookup and the undefined-unit policy in one reusable function.
 
 **2. Mismatched block-unit scaling.** `INSERT` entities can carry their own `$INSUNITS` via the referenced block definition, and AutoCAD auto-scales inserted blocks whose units differ from the drawing. If you flatten block references yourself, apply the block-to-drawing unit ratio during flattening, then apply the drawing-to-metre factor once. Do not apply the drawing factor a second time to already-normalised block geometry.
 
@@ -338,7 +337,7 @@ Yes — applying the metre scale twice (once at ingestion, again before reprojec
 
 ## Related Pages
 
-- [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — parent reference on normalising CAD drawing units before spatial analysis
-- [Autoscaling DXF Geometry from $INSUNITS in Python](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/autoscaling-dxf-geometry-from-insunits-in-python/) — a reusable lookup and undefined-unit policy for the scaling step above
-- [Reprojecting CAD Coordinates with pyproj Transformer](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) — datum-aware reprojection once coordinates are in metres
-- [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — reading `$INSUNITS`, `$MEASUREMENT`, and other header variables safely
+- [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — parent reference on normalising CAD drawing units before spatial analysis
+- [Autoscaling DXF Geometry from $INSUNITS in Python](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/autoscaling-dxf-geometry-from-insunits-in-python/) — a reusable lookup and undefined-unit policy for the scaling step above
+- [Reprojecting CAD Coordinates with pyproj Transformer](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) — datum-aware reprojection once coordinates are in metres
+- [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — reading `$INSUNITS`, `$MEASUREMENT`, and other header variables safely

@@ -2,7 +2,6 @@
 title: "Rotating CAD Geometry to True North in Python"
 description: "Rotate DXF geometry from CAD project north to true or grid north using $NORTHDIRECTION or a survey bearing, with a numpy 2D rotation about the base point."
 slug: "rotating-cad-geometry-to-true-north-in-python"
-type: "long_tail"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
     url: "/coordinate-transformation-spatial-alignment/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/rotating-cad-geometry-to-true-north-in-python/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/rotating-cad-geometry-to-true-north-in-python/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "/coordinate-transformation-spatial-alignment/"},
-        {"@type": "ListItem", "position": 2, "name": "Scale and Rotation Synchronization", "item": "/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/"},
-        {"@type": "ListItem", "position": 3, "name": "Rotating CAD Geometry to True North", "item": "/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/rotating-cad-geometry-to-true-north-in-python/"}
+        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
+        {"@type": "ListItem", "position": 2, "name": "Scale and Rotation Synchronization", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/"},
+        {"@type": "ListItem", "position": 3, "name": "Rotating CAD Geometry to True North", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/rotating-cad-geometry-to-true-north-in-python/"}
       ]
     },
     {
@@ -77,7 +76,7 @@ dateModified: "2026-07-11"
 
 # Rotating CAD Geometry to True North in Python
 
-CAD drawings are usually drafted around a convenient **project north** that does not match **true** or **grid north**; the difference is a survey rotation angle that must be applied before the geometry can be aligned with GIS data. To correct it in Python, derive the angle from the DXF header variable `$NORTHDIRECTION` (stored in radians, measured in the UCS) or from a documented survey bearing, build a 2D rotation matrix with `numpy`, and rotate every vertex about the survey **base point** rather than the drawing origin. This page is part of the [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) workflow, and it handles the rotational component that must be resolved before or alongside translation when [aligning BIM models with GIS survey data](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/).
+CAD drawings are usually drafted around a convenient **project north** that does not match **true** or **grid north**; the difference is a survey rotation angle that must be applied before the geometry can be aligned with GIS data. To correct it in Python, derive the angle from the DXF header variable `$NORTHDIRECTION` (stored in radians, measured in the UCS) or from a documented survey bearing, build a 2D rotation matrix with `numpy`, and rotate every vertex about the survey **base point** rather than the drawing origin. This page is part of the [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) workflow, and it handles the rotational component that must be resolved before or alongside translation when [aligning BIM models with GIS survey data](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/).
 
 ## How CAD North Differs From True North
 
@@ -241,7 +240,7 @@ if __name__ == "__main__":
 - Rotation is about `base_point`, applied by subtracting it, multiplying by the matrix, then adding it back — exactly the matrix expression above. This keeps the shared control point fixed.
 - The `numpy` matrix multiply `r @ (points - base).T` rotates all vertices in one vectorised operation, which matters for drawings with hundreds of thousands of vertices.
 - `translate_to` composes the rotation with a translation onto the GIS control coordinate, so rotation and registration happen in one pass — the combined operation used when aligning to a survey network.
-- Reading `$NORTHDIRECTION` safely alongside other header variables is covered by [how to parse DXF headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/).
+- Reading `$NORTHDIRECTION` safely alongside other header variables is covered by [how to parse DXF headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/).
 
 ## Compatibility Matrix
 
@@ -300,7 +299,7 @@ The sign of the angle is inverted. The standard 2D rotation matrix rotates count
 
 ## Related Pages
 
-- [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — parent reference on aligning CAD scale and orientation to GIS coordinate systems
-- [Aligning BIM Models with GIS Survey Data](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/) — full rotate-and-translate registration against a survey control network
-- [Reprojecting CAD Coordinates with pyproj Transformer](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) — reprojecting the true-north-aligned geometry into a target CRS
-- [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — reading `$NORTHDIRECTION` and related header variables
+- [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — parent reference on aligning CAD scale and orientation to GIS coordinate systems
+- [Aligning BIM Models with GIS Survey Data](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/) — full rotate-and-translate registration against a survey control network
+- [Reprojecting CAD Coordinates with pyproj Transformer](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/) — reprojecting the true-north-aligned geometry into a target CRS
+- [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — reading `$NORTHDIRECTION` and related header variables

@@ -2,7 +2,6 @@
 title: "IFC4x3 Schema Mapping for Civil Infrastructure Python Pipelines"
 description: "Complete guide to IFC4x3 schema mapping with Python: entity hierarchy traversal, property set extraction, CRS alignment, and GIS export for civil engineering interoperability."
 slug: "ifc4x3-schema-mapping"
-type: "cluster"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
     url: "/core-format-fundamentals-schema-mapping/"
@@ -22,7 +21,7 @@ dateModified: "2026-06-24"
       "description": "Complete guide to IFC4x3 schema mapping with Python: entity hierarchy traversal, property set extraction, CRS alignment, and GIS export for civil engineering interoperability.",
       "datePublished": "2024-03-01",
       "dateModified": "2026-06-24",
-      "url": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/"
+      "url": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/"
     },
     {
       "@type": "BreadcrumbList",
@@ -31,13 +30,13 @@ dateModified: "2026-06-24"
           "@type": "ListItem",
           "position": 1,
           "name": "Core Format Fundamentals & Schema Mapping",
-          "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"
+          "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "IFC4x3 Schema Mapping",
-          "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/"
+          "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/"
         }
       ]
     },
@@ -129,7 +128,7 @@ dateModified: "2026-06-24"
 
 # IFC4x3 Schema Mapping for Civil Infrastructure Python Pipelines
 
-IFC4x3 is the buildingSMART schema release that promotes infrastructure — rail, road, port, and bridge — to first-class citizens alongside buildings. As part of the [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) discipline, IFC4x3 schema mapping is the systematic translation of STEP-encoded civil entities into the property-flat, CRS-aligned structures that GIS platforms, asset registries, and digital twin pipelines actually consume.
+IFC4x3 is the buildingSMART schema release that promotes infrastructure — rail, road, port, and bridge — to first-class citizens alongside buildings. As part of the [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) discipline, IFC4x3 schema mapping is the systematic translation of STEP-encoded civil entities into the property-flat, CRS-aligned structures that GIS platforms, asset registries, and digital twin pipelines actually consume.
 
 Without a deterministic mapping layer, the gap between an IFC4x3 export from a civil authoring tool and a spatially queryable PostGIS table is filled with silent precision loss, dropped property sets, and undefined coordinate reference systems. The entities introduced in IFC4x3 — `IfcAlignment`, `IfcBridge`, `IfcRailway`, `IfcLinearPosition`, `IfcReferent` — require traversal patterns that differ substantially from the building-model conventions documented by earlier IFC releases.
 
@@ -263,7 +262,7 @@ IfcProject
             └─ IfcFacilityPart
 ```
 
-All containment links are resolved through the `IsDecomposedBy` inverse attribute. Unlike [DXF entity structure](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/), where spatial grouping is implicit in layer names, IFC makes containment relationships explicit and traversable through the object graph.
+All containment links are resolved through the `IsDecomposedBy` inverse attribute. Unlike [DXF entity structure](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/), where spatial grouping is implicit in layer names, IFC makes containment relationships explicit and traversable through the object graph.
 
 ## Step-by-Step Implementation
 
@@ -446,7 +445,7 @@ def apply_map_conversion(
     return rx * scale + params["eastings"], ry * scale + params["northings"]
 ```
 
-For projects that rely on `IfcLocalPlacement` matrices without a declared `IfcProjectedCRS`, see the [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) section for matrix decomposition and fallback reprojection patterns.
+For projects that rely on `IfcLocalPlacement` matrices without a declared `IfcProjectedCRS`, see the [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) section for matrix decomposition and fallback reprojection patterns.
 
 ### Step 5 — GIS serialization
 
@@ -490,7 +489,7 @@ def run_ifc4x3_pipeline(filepath: str, output_parquet: str) -> pd.DataFrame:
     return df
 ```
 
-For detailed attribute-to-feature mapping logic — including how `IfcPropertyTableValue` maps to GeoJSON `properties` — consult [Mapping IFC Properties to GeoJSON Attributes](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-properties-to-geojson-attributes/).
+For detailed attribute-to-feature mapping logic — including how `IfcPropertyTableValue` maps to GeoJSON `properties` — consult [Mapping IFC Properties to GeoJSON Attributes](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-properties-to-geojson-attributes/).
 
 ## Edge Cases & Gotchas
 
@@ -664,8 +663,8 @@ No. `IfcProjectedCRS` is optional and is attached via `HasCoordinateOperation` o
 
 ## Related Pages
 
-- [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) — parent section covering DXF, DWG, and IFC format foundations
-- [Mapping IFC Properties to GeoJSON Attributes](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-properties-to-geojson-attributes/) — detailed walkthrough of `IfcPropertySet` flattening and GeoJSON serialization
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — how group code taxonomy differs from EXPRESS schema inheritance
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — pyproj-based reprojection patterns for local-to-EPSG coordinate transforms
-- [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) — geometry extraction and mesh conversion using the ifcopenshell Python API
+- [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) — parent section covering DXF, DWG, and IFC format foundations
+- [Mapping IFC Properties to GeoJSON Attributes](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-properties-to-geojson-attributes/) — detailed walkthrough of `IfcPropertySet` flattening and GeoJSON serialization
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — how group code taxonomy differs from EXPRESS schema inheritance
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — pyproj-based reprojection patterns for local-to-EPSG coordinate transforms
+- [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) — geometry extraction and mesh conversion using the ifcopenshell Python API

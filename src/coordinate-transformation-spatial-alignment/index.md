@@ -2,7 +2,6 @@
 title: "Coordinate Transformation & Spatial Alignment in Python Interoperability Pipelines"
 description: "Master coordinate transformation and spatial alignment across CAD, GIS, and BIM formats using Python. Covers CRS normalization, unit harmonization, affine registration, and production pipeline validation."
 slug: coordinate-transformation-spatial-alignment
-type: pillar
 breadcrumb:
   - label: Home
     url: /
@@ -18,7 +17,7 @@ dateModified: "2026-06-24"
   "@graph": [
     {
       "@type": "Article",
-      "@id": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/#article",
+      "@id": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/#article",
       "headline": "Coordinate Transformation & Spatial Alignment in Python Interoperability Pipelines",
       "description": "Master coordinate transformation and spatial alignment across CAD, GIS, and BIM formats using Python. Covers CRS normalization, unit harmonization, affine registration, and production pipeline validation.",
       "datePublished": "2024-01-15",
@@ -30,9 +29,9 @@ dateModified: "2026-06-24"
       "publisher": {
         "@type": "Organization",
         "name": "CAD GIS BIM Interop",
-        "url": "https://cad-gis-bim-interop.org"
+        "url": "https://www.cad-gis-bim-interop.org"
       },
-      "mainEntityOfPage": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"
+      "mainEntityOfPage": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"
     },
     {
       "@type": "BreadcrumbList",
@@ -41,13 +40,13 @@ dateModified: "2026-06-24"
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://cad-gis-bim-interop.org/"
+          "item": "https://www.cad-gis-bim-interop.org/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Coordinate Transformation & Spatial Alignment",
-          "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"
+          "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"
         }
       ]
     }
@@ -72,7 +71,7 @@ Before automating transformations, engineers must understand the mathematical an
 - **Coordinate Order & Axis Orientation**: ISO 19111 and EPSG standards dictate whether coordinates are expressed as `(x, y)` or `(lat, lon)`, and whether axes point east/north or north/east. Misinterpreting axis order is a leading cause of silent pipeline failures — `pyproj` defaults to authority-mandated order, which for many geographic CRS means `(lat, lon)`, directly opposite what most vector libraries expect.
 - **Local vs. Global Systems**: CAD and BIM environments frequently use arbitrary local grids (often with `0,0` at a project corner or survey monument), while GIS relies on globally registered systems. Bridging these requires control point registration, Helmert transformations, or affine matrix alignment.
 
-Authoritative CRS definitions come from the [EPSG Geodetic Parameter Registry](https://epsg.org/) and the [PROJ library](https://proj.org/), which implement ISO 19111 and provide the computational backbone for most Python spatial stacks. [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) covers the practical process of parsing, validating, and resolving ambiguous CRS metadata from real CAD and GIS sources.
+Authoritative CRS definitions come from the [EPSG Geodetic Parameter Registry](https://epsg.org/) and the [PROJ library](https://proj.org/), which implement ISO 19111 and provide the computational backbone for most Python spatial stacks. [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) covers the practical process of parsing, validating, and resolving ambiguous CRS metadata from real CAD and GIS sources.
 
 ---
 
@@ -145,19 +144,19 @@ Each stage should log input/output schemas, transformation parameters, and valid
 
 ### CRS Normalization & Axis Resolution
 
-The first operational step is establishing a common spatial reference. Using `pyproj`, engineers instantiate `Transformer` objects that handle datum shifts and projection changes in a single pass. Crucially, `always_xy=True` must be set to override legacy `(lat, lon)` ordering and enforce `(x, y)` consistency across libraries. Strategies for handling ambiguous metadata and automating CRS resolution across DXF, Shapefile, and IFC sources are covered in depth in [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/).
+The first operational step is establishing a common spatial reference. Using `pyproj`, engineers instantiate `Transformer` objects that handle datum shifts and projection changes in a single pass. Crucially, `always_xy=True` must be set to override legacy `(lat, lon)` ordering and enforce `(x, y)` consistency across libraries. Strategies for handling ambiguous metadata and automating CRS resolution across DXF, Shapefile, and IFC sources are covered in depth in [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/).
 
 ### Unit Harmonization Across Formats
 
-CAD files frequently store geometry in millimeters or inches, while GIS defaults to meters. BIM models may use internal project units that differ from survey coordinates. Blindly applying transformations without unit scaling produces geometry that is either microscopic or continent-sized in the output dataset. Implementing explicit unit conversion stages before projection ensures dimensional consistency; detailed patterns for reading format-specific unit declarations and preventing floating-point truncation during scaling are collected in [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/).
+CAD files frequently store geometry in millimeters or inches, while GIS defaults to meters. BIM models may use internal project units that differ from survey coordinates. Blindly applying transformations without unit scaling produces geometry that is either microscopic or continent-sized in the output dataset. Implementing explicit unit conversion stages before projection ensures dimensional consistency; detailed patterns for reading format-specific unit declarations and preventing floating-point truncation during scaling are collected in [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/).
 
 ### Local-to-Global Registration & Affine Alignment
 
-When working with arbitrary CAD/BIM grids, simple reprojection is insufficient. Engineers must compute transformation matrices that account for translation, rotation, and scale differences between local project coordinates and real-world survey control. This involves solving a least-squares Helmert transformation using paired control points. Proper implementation of [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) ensures that rotated site plans, skewed survey grids, and scaled detail drawings align precisely with georeferenced base maps.
+When working with arbitrary CAD/BIM grids, simple reprojection is insufficient. Engineers must compute transformation matrices that account for translation, rotation, and scale differences between local project coordinates and real-world survey control. This involves solving a least-squares Helmert transformation using paired control points. Proper implementation of [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) ensures that rotated site plans, skewed survey grids, and scaled detail drawings align precisely with georeferenced base maps.
 
 ### Layer Mapping & Semantic Preservation
 
-Coordinate transformation is not purely geometric — it must also preserve attribute relationships, layer hierarchies, and object classifications. When merging CAD, GIS, and BIM datasets with differing schemas, explicit mapping rules prevent attribute loss or misalignment. [Layer Mapping Logic](/coordinate-transformation-spatial-alignment/layer-mapping-logic/) covers the construction of schema translation tables and the safe application of attribute joins during spatial merges.
+Coordinate transformation is not purely geometric — it must also preserve attribute relationships, layer hierarchies, and object classifications. When merging CAD, GIS, and BIM datasets with differing schemas, explicit mapping rules prevent attribute loss or misalignment. [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) covers the construction of schema translation tables and the safe application of attribute joins during spatial merges.
 
 ## Implementation Patterns & Code Safety
 
@@ -280,7 +279,7 @@ Over-snapping distorts fine geometry; under-snapping leaves gaps in integrated m
 | Control points match but building footprint is rotated | Missing rotation component in local-to-global alignment | Use at least three non-collinear control points; solve for full affine (not just translate) |
 | Valid geometries become invalid after reprojection | Antimeridian crossing or pole-crossing geometry | Clip geometry to valid projection extents before transforming |
 
-A detailed walkthrough on converting CAD local coordinates through the full chain is available in [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
+A detailed walkthrough on converting CAD local coordinates through the full chain is available in [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
 
 ## Production Deployment Considerations
 
@@ -348,9 +347,9 @@ Python's spatial ecosystem — `pyproj`, `geopandas`, `shapely`, `ezdxf`, and `i
 
 ## Related Pages
 
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — parsing and resolving coordinate reference system metadata from DXF, Shapefile, and IFC sources
-- [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — converting CAD millimeters, inches, and survey feet to metric before reprojection
-- [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — affine and Helmert alignment for rotated site plans and skewed survey grids
-- [Layer Mapping Logic](/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — schema translation and attribute preservation across CAD, GIS, and BIM merges
-- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — upstream parsing of DXF, DWG, and IFC geometry before spatial alignment begins
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — step-by-step guide to the full local-grid-to-geographic-CRS conversion chain
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — parsing and resolving coordinate reference system metadata from DXF, Shapefile, and IFC sources
+- [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — converting CAD millimeters, inches, and survey feet to metric before reprojection
+- [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — affine and Helmert alignment for rotated site plans and skewed survey grids
+- [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — schema translation and attribute preservation across CAD, GIS, and BIM merges
+- [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — upstream parsing of DXF, DWG, and IFC geometry before spatial alignment begins
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — step-by-step guide to the full local-grid-to-geographic-CRS conversion chain

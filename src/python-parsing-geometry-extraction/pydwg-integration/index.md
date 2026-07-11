@@ -2,7 +2,6 @@
 title: "DWG-to-Python Integration: Building Reliable CAD Extraction Pipelines"
 description: "How to parse DWG files in Python using ODA File Converter, libredwg, and ezdxf — covering version detection, headless conversion, XREF handling, and production scaling patterns."
 slug: "pydwg-integration"
-type: "cluster"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -27,8 +26,8 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "DWG-to-Python Integration", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "DWG-to-Python Integration", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/"}
       ]
     },
     {
@@ -78,17 +77,17 @@ dateModified: "2026-06-24"
 
 # DWG-to-Python Integration: Building Reliable CAD Extraction Pipelines
 
-DWG is the de facto delivery format for AEC projects, yet its proprietary binary structure makes direct Python access non-trivial. No general-purpose pure-Python DWG parser covers the full modern schema. As part of the broader [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) pipeline, DWG integration sits at the ingestion boundary: your code must negotiate format version, invoke an external converter, and hand a clean DXF to the rest of the stack before any geometry or attribute work can begin.
+DWG is the de facto delivery format for AEC projects, yet its proprietary binary structure makes direct Python access non-trivial. No general-purpose pure-Python DWG parser covers the full modern schema. As part of the broader [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) pipeline, DWG integration sits at the ingestion boundary: your code must negotiate format version, invoke an external converter, and hand a clean DXF to the rest of the stack before any geometry or attribute work can begin.
 
-Getting this wrong has real costs. A pipeline that silently skips unrecognised DWG versions or drops XREF-bound geometry delivers incomplete spatial data to downstream [Geometry & Mesh Conversion](/python-parsing-geometry-extraction/geometry-mesh-conversion/) stages and produces alignment errors when the output feeds GIS validation or IFC assembly workflows.
+Getting this wrong has real costs. A pipeline that silently skips unrecognised DWG versions or drops XREF-bound geometry delivers incomplete spatial data to downstream [Geometry & Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) stages and produces alignment errors when the output feeds GIS validation or IFC assembly workflows.
 
 ## Prerequisites
 
 - **Python 3.9+** — type annotations and `pathlib` used throughout.
 - **ezdxf ≥ 1.1.0** — `pip install "ezdxf>=1.1.0"` — handles DXF R12 through R2018 after conversion.
 - **ODA File Converter** (binary install, free for non-commercial use) or **libredwg ≥ 0.12** (`libredwg` GPL v3) — for DWG-to-DXF conversion; neither is a Python package.
-- Familiarity with [DXF entity structure](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group codes, entity handles, and block tables are assumed knowledge.
-- Understanding of [DWG version codes and their compatibility constraints](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — AC1009 through AC1032 behave differently under every converter.
+- Familiarity with [DXF entity structure](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group codes, entity handles, and block tables are assumed knowledge.
+- Understanding of [DWG version codes and their compatibility constraints](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — AC1009 through AC1032 behave differently under every converter.
 
 ## Architectural Overview
 
@@ -249,7 +248,7 @@ For `libredwg`, replace the subprocess call with `dwg2dxf <input.dwg> -o <output
 
 ### Step 3: Parse the DXF with ezdxf
 
-Once converted, pass the DXF path to `ezdxf`. The full entity and layer APIs are available, identical to parsing a natively authored DXF file. For entity-level detail, consult the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/).
+Once converted, pass the DXF path to `ezdxf`. The full entity and layer APIs are available, identical to parsing a natively authored DXF file. For entity-level detail, consult the [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/).
 
 ```python
 # ezdxf>=1.1.0
@@ -319,7 +318,7 @@ Enforce pre-ingestion XRef binding at the CAD authoring stage, or automate `XBIN
 
 ### $INSUNITS Carries Through to the DXF
 
-The DWG `$INSUNITS` header variable survives conversion. If the source drawing omits it, the DXF will inherit `$INSUNITS=0` (unitless), which causes silent scale errors when [converting CAD local coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/). Always read this header group code after conversion:
+The DWG `$INSUNITS` header variable survives conversion. If the source drawing omits it, the DXF will inherit `$INSUNITS=0` (unitless), which causes silent scale errors when [converting CAD local coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/). Always read this header group code after conversion:
 
 ```python
 # ezdxf>=1.1.0
@@ -423,7 +422,7 @@ High-volume DWG conversion introduces predictable bottlenecks. Address them syst
 
 **Error budgeting.** Set a per-batch failure threshold — for example, 5%. If the converter fails on more than that fraction of files, halt and emit a diagnostic report rather than silently dropping data. Record `dwg_version`, `conversion_duration_ms`, `entity_count`, `layer_count`, and `converter_exit_code` for every file in structured logs. Non-zero failure rates on specific version codes indicate a converter binary upgrade is needed.
 
-**Downstream routing.** Once geometry is extracted, route it according to target system requirements. For openBIM workflows via the [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/), align the extraction schema with IFC property sets before ingestion. For GIS pipelines applying [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/), apply affine transformations and record the original insertion point, scale factor, and rotation angle in a companion metadata table to enable reversible georeferencing.
+**Downstream routing.** Once geometry is extracted, route it according to target system requirements. For openBIM workflows via the [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/), align the extraction schema with IFC property sets before ingestion. For GIS pipelines applying [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/), apply affine transformations and record the original insertion point, scale factor, and rotation angle in a companion metadata table to enable reversible georeferencing.
 
 ## FAQ
 
@@ -464,8 +463,8 @@ Target ACAD2018 (AC1032) for maximum entity fidelity, including 3D solids, mesh 
 
 ## Related Pages
 
-- [Python Parsing & Geometry Extraction](/python-parsing-geometry-extraction/) — parent pipeline overview
-- [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — full entity and layer API reference for the DXF files this workflow produces
-- [Parsing DWG Layers with Python Scripts](/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/) — layer-scoped extraction after conversion
-- [Understanding DWG Version Compatibility](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — DWG schema evolution and AC-code reference
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — georeferencing the geometry this pipeline extracts
+- [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — parent pipeline overview
+- [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — full entity and layer API reference for the DXF files this workflow produces
+- [Parsing DWG Layers with Python Scripts](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/) — layer-scoped extraction after conversion
+- [Understanding DWG Version Compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — DWG schema evolution and AC-code reference
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — georeferencing the geometry this pipeline extracts

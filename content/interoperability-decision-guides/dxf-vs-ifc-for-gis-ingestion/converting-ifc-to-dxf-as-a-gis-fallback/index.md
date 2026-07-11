@@ -2,7 +2,6 @@
 title: "Converting IFC to DXF as a GIS Fallback in Python"
 description: "Convert IFC to DXF when a GIS toolchain only accepts DXF: evaluate IFC geometry with ifcopenshell and write footprints and meshes with ezdxf, preserving IDs in layers."
 slug: "converting-ifc-to-dxf-as-a-gis-fallback"
-type: "long_tail"
 breadcrumb:
   - label: "Interoperability Decision Guides"
     url: "/interoperability-decision-guides/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/converting-ifc-to-dxf-as-a-gis-fallback/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/converting-ifc-to-dxf-as-a-gis-fallback/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/"},
-        {"@type": "ListItem", "position": 2, "name": "DXF vs IFC for GIS Ingestion", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/"},
-        {"@type": "ListItem", "position": 3, "name": "Converting IFC to DXF as a GIS Fallback", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/converting-ifc-to-dxf-as-a-gis-fallback/"}
+        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/"},
+        {"@type": "ListItem", "position": 2, "name": "DXF vs IFC for GIS Ingestion", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/"},
+        {"@type": "ListItem", "position": 3, "name": "Converting IFC to DXF as a GIS Fallback", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/converting-ifc-to-dxf-as-a-gis-fallback/"}
       ]
     },
     {
@@ -72,7 +71,7 @@ dateModified: "2026-07-11"
 
 # Converting IFC to DXF as a GIS Fallback in Python
 
-To convert IFC to DXF as a fallback, evaluate each IFC product's geometry with `ifcopenshell.geom`, then write the resulting vertices to a new DXF document with `ezdxf` — a footprint `LWPOLYLINE` for 2D toolchains, a `MESH` entity for 3D — and carry the `GlobalId` and name into layer names or XDATA so identity survives the loss of semantics. This is a deliberate downgrade, appropriate only when the receiving GIS toolchain accepts DXF exclusively and cannot run a Python IFC parser. When you can ingest IFC directly, do so; the trade-offs are laid out in the [DXF vs IFC for GIS Ingestion](/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/) guide.
+To convert IFC to DXF as a fallback, evaluate each IFC product's geometry with `ifcopenshell.geom`, then write the resulting vertices to a new DXF document with `ezdxf` — a footprint `LWPOLYLINE` for 2D toolchains, a `MESH` entity for 3D — and carry the `GlobalId` and name into layer names or XDATA so identity survives the loss of semantics. This is a deliberate downgrade, appropriate only when the receiving GIS toolchain accepts DXF exclusively and cannot run a Python IFC parser. When you can ingest IFC directly, do so; the trade-offs are laid out in the [DXF vs IFC for GIS Ingestion](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/) guide.
 
 ## How ifcopenshell and ezdxf Handle the Conversion
 
@@ -80,7 +79,7 @@ The conversion bridges two libraries with opposite jobs. `ifcopenshell.geom.crea
 
 Neither library does the semantic bridging for you. IFC's typed objects, property sets, and relationships have no DXF equivalent, so the conversion is lossy by construction. What `ezdxf` gives you to preserve identity is the layer name and XDATA — free-form string attachments keyed by a registered application id. Use them deliberately: the layer name is the most portable carrier because every DXF consumer preserves it, while XDATA survives only through XDATA-aware readers.
 
-The value of doing this in code rather than a GUI export is control over exactly which representation you keep. Writing a full mesh for every wall produces a DXF that a 2D GIS tool cannot use and that bloats to hundreds of megabytes; writing a footprint keeps the file small and directly indexable. The [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) covers the geometry-settings object in depth.
+The value of doing this in code rather than a GUI export is control over exactly which representation you keep. Writing a full mesh for every wall produces a DXF that a 2D GIS tool cannot use and that bloats to hundreds of megabytes; writing a footprint keeps the file small and directly indexable. The [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) covers the geometry-settings object in depth.
 
 ## Production-Ready Script
 
@@ -190,11 +189,11 @@ Most GIS toolchains that demand DXF are 2D. Writing full meshes produces geometr
 
 **2. Carry attributes through layers first, XDATA second**
 
-Encode the element class and `GlobalId` in the layer name (`IfcWall_1a2B3c...`) because every DXF reader preserves layers, and attach the full property payload as XDATA for readers that support it. If you must preserve richer attributes, write them as block attributes (`ATTRIB`) on an `INSERT`, which more GIS tools surface than XDATA. The layer-to-feature-class mapping on the receiving side is covered in [Layer Mapping Logic](/coordinate-transformation-spatial-alignment/layer-mapping-logic/).
+Encode the element class and `GlobalId` in the layer name (`IfcWall_1a2B3c...`) because every DXF reader preserves layers, and attach the full property payload as XDATA for readers that support it. If you must preserve richer attributes, write them as block attributes (`ATTRIB`) on an `INSERT`, which more GIS tools surface than XDATA. The layer-to-feature-class mapping on the receiving side is covered in [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/).
 
 **3. Resolve units and CRS before writing**
 
-IFC lengths are usually metres, but always read the project length unit rather than assuming it. DXF has no CRS field, so if the IFC carried `IfcMapConversion` georeferencing, apply the offset and rotation to the vertices before writing — the DXF will otherwise land in local coordinates with the georeferencing lost. Reprojection into a target CRS is covered in [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/).
+IFC lengths are usually metres, but always read the project length unit rather than assuming it. DXF has no CRS field, so if the IFC carried `IfcMapConversion` georeferencing, apply the offset and rotation to the vertices before writing — the DXF will otherwise land in local coordinates with the georeferencing lost. Reprojection into a target CRS is covered in [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/).
 
 **4. Stream huge models instead of buffering**
 
@@ -231,7 +230,7 @@ Two mechanisms: encode it in the layer name (for example `IfcWall_1a2B3c`) so it
 
 ## Related Pages
 
-- [DXF vs IFC for GIS Ingestion](/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/) — the decision guide that frames when this fallback is warranted
-- [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — the reverse direction, turning the DXF footprints produced here into GIS-ready GeoJSON
-- [Extracting IFC Wall Geometries to Shapely](/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) — accurate, non-convex footprint extraction by slicing evaluated IFC meshes
-- [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) — geometry-settings configuration and property-set traversal for IFC
+- [DXF vs IFC for GIS Ingestion](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/) — the decision guide that frames when this fallback is warranted
+- [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — the reverse direction, turning the DXF footprints produced here into GIS-ready GeoJSON
+- [Extracting IFC Wall Geometries to Shapely](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) — accurate, non-convex footprint extraction by slicing evaluated IFC meshes
+- [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) — geometry-settings configuration and property-set traversal for IFC

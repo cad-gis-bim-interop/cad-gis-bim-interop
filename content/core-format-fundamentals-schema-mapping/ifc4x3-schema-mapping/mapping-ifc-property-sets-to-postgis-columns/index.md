@@ -2,7 +2,6 @@
 title: "Mapping IFC Property Sets to PostGIS Columns"
 description: "Flatten IFC property sets into a PostGIS relational model: stable core columns, a JSONB pset column, geometry(GeometryZ, srid), and psycopg2 inserts with GIN and GiST indexes."
 slug: "mapping-ifc-property-sets-to-postgis-columns"
-type: "long_tail"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
     url: "/core-format-fundamentals-schema-mapping/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
-        {"@type": "ListItem", "position": 2, "name": "IFC4x3 Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/"},
-        {"@type": "ListItem", "position": 3, "name": "Mapping IFC Property Sets to PostGIS Columns", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/"}
+        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
+        {"@type": "ListItem", "position": 2, "name": "IFC4x3 Schema Mapping", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/"},
+        {"@type": "ListItem", "position": 3, "name": "Mapping IFC Property Sets to PostGIS Columns", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-property-sets-to-postgis-columns/"}
       ]
     },
     {
@@ -73,7 +72,7 @@ dateModified: "2026-07-11"
 
 # Mapping IFC Property Sets to PostGIS Columns
 
-To map IFC property sets into PostGIS, flatten each element's property sets with `ifcopenshell.util.element.get_psets()`, then load them into a table that pairs a small set of stable core columns (`global_id`, `ifc_class`, `name`) with a single `JSONB` column holding the variable property sets — plus a `geometry(GeometryZ, <srid>)` column for the projected footprint. This hybrid layout survives the schema drift that makes one-column-per-property designs brittle, while still letting you promote a whitelist of hot properties into typed columns. This page extends the [IFC4x3 Schema Mapping](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) reference into the persistence layer, where flattened building data becomes a queryable spatial database.
+To map IFC property sets into PostGIS, flatten each element's property sets with `ifcopenshell.util.element.get_psets()`, then load them into a table that pairs a small set of stable core columns (`global_id`, `ifc_class`, `name`) with a single `JSONB` column holding the variable property sets — plus a `geometry(GeometryZ, <srid>)` column for the projected footprint. This hybrid layout survives the schema drift that makes one-column-per-property designs brittle, while still letting you promote a whitelist of hot properties into typed columns. This page extends the [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) reference into the persistence layer, where flattened building data becomes a queryable spatial database.
 
 ## How ifcopenshell Handles Property Sets
 
@@ -111,7 +110,7 @@ The problem is that this shape is unbounded and producer-dependent. Revit, Archi
   <text x="641" y="182" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.7">indexes</text>
 </svg>
 
-The geometry side is separate but equally important: IFC coordinates live in a local engineering system, so the shape must be georeferenced and reprojected before it lands in a `geometry(GeometryZ, <srid>)` column. That reprojection is a full workflow of its own, covered by the [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) extraction pipeline; here we assume you already have a WKB payload in the target CRS and focus on the relational load.
+The geometry side is separate but equally important: IFC coordinates live in a local engineering system, so the shape must be georeferenced and reprojected before it lands in a `geometry(GeometryZ, <srid>)` column. That reprojection is a full workflow of its own, covered by the [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) extraction pipeline; here we assume you already have a WKB payload in the target CRS and focus on the relational load.
 
 ## Production-Ready Script
 
@@ -273,7 +272,7 @@ Use the projected CRS you reprojected the IFC coordinates into, never a placehol
 
 ## Related Pages
 
-- [IFC4x3 Schema Mapping](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — parent reference on the IFC4x3 data model and how classes and property sets are structured
-- [Mapping IFC Properties to GeoJSON Attributes](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-properties-to-geojson-attributes/) — sibling workflow that flattens the same property sets into a flat-file GIS target instead of a database
-- [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) — cross-pillar reference covering IFC geometry extraction and georeferencing that produces the WKB loaded here
-- [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — broader patterns for turning embedded model metadata into queryable attributes
+- [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — parent reference on the IFC4x3 data model and how classes and property sets are structured
+- [Mapping IFC Properties to GeoJSON Attributes](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-properties-to-geojson-attributes/) — sibling workflow that flattens the same property sets into a flat-file GIS target instead of a database
+- [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) — related reference covering IFC geometry extraction and georeferencing that produces the WKB loaded here
+- [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — broader patterns for turning embedded model metadata into queryable attributes

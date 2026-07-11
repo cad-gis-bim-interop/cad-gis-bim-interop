@@ -2,7 +2,6 @@
 title: "Tessellating SPLINE Entities with ezdxf"
 description: "How to tessellate DXF SPLINE entities with ezdxf in Python: flatten NURBS at a sag tolerance, use the BSpline construction tool, and export clean polylines."
 slug: "tessellating-splines-with-ezdxf-in-python"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "/python-parsing-geometry-extraction/ezdxf-deep-dive/tessellating-splines-with-ezdxf-in-python/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/tessellating-splines-with-ezdxf-in-python/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "ezdxf Deep Dive", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/"},
-        {"@type": "ListItem", "position": 3, "name": "Tessellating SPLINE Entities with ezdxf", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/tessellating-splines-with-ezdxf-in-python/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "ezdxf Deep Dive", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/"},
+        {"@type": "ListItem", "position": 3, "name": "Tessellating SPLINE Entities with ezdxf", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/tessellating-splines-with-ezdxf-in-python/"}
       ]
     },
     {
@@ -77,7 +76,7 @@ dateModified: "2026-07-11"
 
 # Tessellating SPLINE Entities with ezdxf
 
-To tessellate a DXF `SPLINE` with `ezdxf`, call `entity.flattening(distance)`, which returns adaptive `Vec3` points whose maximum deviation from the true curve never exceeds `distance` drawing units. A `SPLINE` is stored as a NURBS curve — control points, a knot vector, optional weights, and a degree — not as an explicit list of vertices, so any GIS or mesh consumer needs it converted into a polyline first. `ezdxf` evaluates the NURBS mathematics for you, either through the entity's own `flattening()` method or through the `BSpline` object returned by `entity.construction_tool()`. This page is part of the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) reference and shares its tolerance-driven flattening model with [extracting LWPOLYLINE vertices](/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-lwpolyline-vertices-with-ezdxf/), where bulge arcs are flattened the same way.
+To tessellate a DXF `SPLINE` with `ezdxf`, call `entity.flattening(distance)`, which returns adaptive `Vec3` points whose maximum deviation from the true curve never exceeds `distance` drawing units. A `SPLINE` is stored as a NURBS curve — control points, a knot vector, optional weights, and a degree — not as an explicit list of vertices, so any GIS or mesh consumer needs it converted into a polyline first. `ezdxf` evaluates the NURBS mathematics for you, either through the entity's own `flattening()` method or through the `BSpline` object returned by `entity.construction_tool()`. This page is part of the [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) reference and shares its tolerance-driven flattening model with [extracting LWPOLYLINE vertices](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-lwpolyline-vertices-with-ezdxf/), where bulge arcs are flattened the same way.
 
 ## How ezdxf Handles SPLINE Tessellation
 
@@ -120,7 +119,7 @@ What `ezdxf` does *not* do is guess a tolerance for you or clean up degenerate i
 
 ## Production-Ready Script
 
-The script tessellates every `SPLINE` in a DXF at a configurable sag tolerance, inspects the NURBS definition for reporting, and returns one vertex array per spline suitable for [conversion of CAD polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) or a mesh pipeline.
+The script tessellates every `SPLINE` in a DXF at a configurable sag tolerance, inspects the NURBS definition for reporting, and returns one vertex array per spline suitable for [conversion of CAD polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) or a mesh pipeline.
 
 ```python
 # ezdxf>=1.1.0, Python 3.9+
@@ -194,7 +193,7 @@ if __name__ == "__main__":
 | Degree | Any (commonly 3) | Read from `entity.dxf.degree`; higher degrees tessellate identically. |
 | Closed / periodic | Supported | `flattening()` traverses the periodic curve; check `entity.closed`. |
 
-For the group-code-level view of how control points (`10`), knots (`40`), and weights (`41`) are stored on a `SPLINE`, see the [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/).
+For the group-code-level view of how control points (`10`), knots (`40`), and weights (`41`) are stored on a `SPLINE`, see the [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/).
 
 ## Fallback Strategies
 
@@ -223,7 +222,7 @@ if len(pts) < 2:
 
 **5. Fit-point-only splines from other CAD tools**
 
-Some exporters write a `SPLINE` with fit points but an empty or minimal control-point hull. `flattening()` still evaluates it, but if you see `n_control_points == 0` alongside populated `fit_points`, record it — a few exotic writers omit the interpolated hull, and confirming the tessellation visually is worthwhile before trusting the geometry in a [coordinate transformation and alignment](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/) step.
+Some exporters write a `SPLINE` with fit points but an empty or minimal control-point hull. `flattening()` still evaluates it, but if you see `n_control_points == 0` alongside populated `fit_points`, record it — a few exotic writers omit the interpolated hull, and confirming the tessellation visually is worthwhile before trusting the geometry in a [coordinate transformation and alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/) step.
 
 ## FAQ
 
@@ -259,8 +258,8 @@ Read `entity.closed`. `ezdxf.flattening()` already traverses the full periodic c
 
 ## Related Pages
 
-- [ezdxf Deep Dive: Production-Grade DXF Parsing](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — parent reference covering entity traversal and geometry extraction
-- [Extracting LWPOLYLINE Vertices with ezdxf](/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-lwpolyline-vertices-with-ezdxf/) — the same sag-tolerance flattening applied to bulge arcs
-- [Reading 3D Solids with ezdxf Python](/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — sibling workflow for `3DSOLID` ACIS payloads
-- [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — writing tessellated spline vertices as GIS features
-- [Aligning BIM Models with GIS Survey Data](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/) — aligning the coordinates produced after tessellation with GIS survey control
+- [ezdxf Deep Dive: Production-Grade DXF Parsing](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — parent reference covering entity traversal and geometry extraction
+- [Extracting LWPOLYLINE Vertices with ezdxf](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-lwpolyline-vertices-with-ezdxf/) — the same sag-tolerance flattening applied to bulge arcs
+- [Reading 3D Solids with ezdxf Python](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — sibling workflow for `3DSOLID` ACIS payloads
+- [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — writing tessellated spline vertices as GIS features
+- [Aligning BIM Models with GIS Survey Data](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/) — aligning the coordinates produced after tessellation with GIS survey control

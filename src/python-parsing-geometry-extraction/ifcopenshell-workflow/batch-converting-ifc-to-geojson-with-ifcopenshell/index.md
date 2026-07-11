@@ -2,7 +2,6 @@
 title: "Batch Converting IFC to GeoJSON with ifcopenshell"
 description: "Evaluate IFC geometry with ifcopenshell.geom, project each element to a 2D footprint with shapely, attach GlobalId and property sets, and write RFC 7946 GeoJSON across a folder in parallel."
 slug: "batch-converting-ifc-to-geojson-with-ifcopenshell"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "ifcopenshell Workflow", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/"},
-        {"@type": "ListItem", "position": 3, "name": "Batch Converting IFC to GeoJSON with ifcopenshell", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "ifcopenshell Workflow", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/"},
+        {"@type": "ListItem", "position": 3, "name": "Batch Converting IFC to GeoJSON with ifcopenshell", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/batch-converting-ifc-to-geojson-with-ifcopenshell/"}
       ]
     },
     {
@@ -73,7 +72,7 @@ dateModified: "2026-07-11"
 
 # Batch Converting IFC to GeoJSON with ifcopenshell
 
-The direct answer: evaluate each element's geometry with `ifcopenshell.geom` under `USE_WORLD_COORDS`, project the triangulated mesh onto the XY plane, union the projected triangles into one `shapely` footprint, attach the element's `GlobalId` and chosen property values, and emit an RFC 7946 `FeatureCollection`. Wrap that per-file routine in a `multiprocessing` pool to sweep a directory. The one non-negotiable caveat is coordinate reference: IFC world coordinates are engineering meters, not WGS84, so a CRS step belongs in the pipeline. This task sits alongside the other geometry routines in the [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) guide.
+The direct answer: evaluate each element's geometry with `ifcopenshell.geom` under `USE_WORLD_COORDS`, project the triangulated mesh onto the XY plane, union the projected triangles into one `shapely` footprint, attach the element's `GlobalId` and chosen property values, and emit an RFC 7946 `FeatureCollection`. Wrap that per-file routine in a `multiprocessing` pool to sweep a directory. The one non-negotiable caveat is coordinate reference: IFC world coordinates are engineering meters, not WGS84, so a CRS step belongs in the pipeline. This task sits alongside the other geometry routines in the [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) guide.
 
 ---
 
@@ -125,7 +124,7 @@ What this pipeline does **not** give you for free:
 
 ## Production-Ready Script
 
-Two functions: `ifc_to_features` converts one file to a list of GeoJSON features, and `batch_folder` drives a directory in parallel. Geometry is read through `ifcopenshell.geom.iterator`, which multiprocesses tessellation internally and handles mapped items correctly. Property attributes reuse the `get_psets` helper covered in [Extracting IFC Property Sets with ifcopenshell](/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-property-sets-with-ifcopenshell/).
+Two functions: `ifc_to_features` converts one file to a list of GeoJSON features, and `batch_folder` drives a directory in parallel. Geometry is read through `ifcopenshell.geom.iterator`, which multiprocesses tessellation internally and handles mapped items correctly. Property attributes reuse the `get_psets` helper covered in [Extracting IFC Property Sets with ifcopenshell](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-property-sets-with-ifcopenshell/).
 
 ```python
 # ifcopenshell>=0.8.0, shapely>=2.0.0, numpy>=1.24.0, Python 3.9+
@@ -245,7 +244,7 @@ Key implementation notes:
 - `.simplify(tolerance, preserve_topology=True)` collapses tessellation noise while keeping the polygon valid. Tune `simplify_tol` to your unit scale — `0.02` is 2 cm in a metric model and is usually below survey tolerance.
 - `model.by_guid(shape.guid)` re-associates the compiled shape with its IFC element so property sets and the class name can be read. The iterator yields geometry, not entities.
 
-The features here carry raw world coordinates. Before they are map-ready they must be reprojected — read the file's georeferencing with [Reading IFC Georeferencing with ifcopenshell](/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/), then apply the CRS step described in [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
+The features here carry raw world coordinates. Before they are map-ready they must be reprojected — read the file's georeferencing with [Reading IFC Georeferencing with ifcopenshell](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/), then apply the CRS step described in [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/).
 
 ## Compatibility Matrix
 
@@ -284,7 +283,7 @@ verts_local = verts - origin  # keep magnitudes small for shapely
 
 **4. Output lands in the wrong place on the map**
 
-The footprint shape is correct but geographically displaced because the file's `IfcMapConversion` eastings/northings offset was never applied. Read it and translate before writing GeoJSON — the dedicated georeferencing routine handles IFC2x3 fallbacks too. For pure unit issues (millimeter models), scale first with [Converting DXF Millimeters to Meters Before pyproj Reprojection](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/), whose scaling logic applies equally to IFC vertex arrays.
+The footprint shape is correct but geographically displaced because the file's `IfcMapConversion` eastings/northings offset was never applied. Read it and translate before writing GeoJSON — the dedicated georeferencing routine handles IFC2x3 fallbacks too. For pure unit issues (millimeter models), scale first with [Converting DXF Millimeters to Meters Before pyproj Reprojection](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/), whose scaling logic applies equally to IFC vertex arrays.
 
 **5. Large models exhaust memory mid-batch**
 
@@ -317,7 +316,7 @@ Union of the projected triangles preserves concavities, courtyards, and L-shapes
 
 ## Related Pages
 
-- [ifcopenshell Workflow](/python-parsing-geometry-extraction/ifcopenshell-workflow/) — parent guide to geometry compilation, iteration, and serialization with ifcopenshell
-- [Reading IFC Georeferencing with ifcopenshell](/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/) — read IfcMapConversion and IfcProjectedCRS so the footprints land in real-world coordinates
-- [Extracting IFC Property Sets with ifcopenshell](/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-property-sets-with-ifcopenshell/) — source the attributes attached to each GeoJSON feature
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — the CRS transformation step that follows footprint extraction
+- [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) — parent guide to geometry compilation, iteration, and serialization with ifcopenshell
+- [Reading IFC Georeferencing with ifcopenshell](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/reading-ifc-georeferencing-with-ifcopenshell/) — read IfcMapConversion and IfcProjectedCRS so the footprints land in real-world coordinates
+- [Extracting IFC Property Sets with ifcopenshell](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-property-sets-with-ifcopenshell/) — source the attributes attached to each GeoJSON feature
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — the CRS transformation step that follows footprint extraction

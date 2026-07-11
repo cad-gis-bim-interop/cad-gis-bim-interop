@@ -2,7 +2,6 @@
 title: "DXF Entity Structure Breakdown"
 description: "A technical deep-dive into DXF's section layout, group code taxonomy, coordinate systems, and production-grade Python parsing workflows using ezdxf for CAD/GIS/BIM interoperability pipelines."
 slug: "dxf-entity-structure-breakdown"
-type: "cluster"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
     url: "/core-format-fundamentals-schema-mapping/"
@@ -28,8 +27,8 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
-        {"@type": "ListItem", "position": 2, "name": "DXF Entity Structure Breakdown", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/"}
+        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
+        {"@type": "ListItem", "position": 2, "name": "DXF Entity Structure Breakdown", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/"}
       ]
     },
     {
@@ -95,7 +94,7 @@ dateModified: "2026-06-24"
 
 # DXF Entity Structure Breakdown
 
-The Drawing Exchange Format (DXF) is a tagged-text interchange standard that exposes every CAD object as a sequence of integer-keyed group codes and typed values — a schema-transparent design that makes it the lowest-common-denominator for geometry transfer across heterogeneous AEC, GIS, and infrastructure platforms. This page is part of the [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) reference, which covers the file-level architecture knowledge required to build reliable Python conversion, validation, and spatial ingestion pipelines.
+The Drawing Exchange Format (DXF) is a tagged-text interchange standard that exposes every CAD object as a sequence of integer-keyed group codes and typed values — a schema-transparent design that makes it the lowest-common-denominator for geometry transfer across heterogeneous AEC, GIS, and infrastructure platforms. This page is part of the [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) reference, which covers the file-level architecture knowledge required to build reliable Python conversion, validation, and spatial ingestion pipelines.
 
 Getting the entity structure wrong has measurable costs: OCS-to-WCS transformation errors invert geometry in rendering engines; misread `$INSUNITS` values cause 12× scale drift in spatial databases; unhandled proxy entities silently truncate ingestion batches. The sections below dissect the format's internal layout, provide production-tested parsing workflows, and document the failure modes that catch engineering teams by surprise.
 
@@ -119,7 +118,7 @@ DXF is organized into six strictly ordered sections. Every drawing object is ser
 5. **ENTITIES** — primary drawable objects (`LINE`, `CIRCLE`, `LWPOLYLINE`, `SPLINE`, `TEXT`, `INSERT`, `HATCH`, `3DSOLID`)
 6. **OBJECTS** — non-graphical data structures: layouts, dictionaries, `XRECORD`, `MATERIAL`
 
-Unlike proprietary formats covered in [DWG Proprietary Limitations & Binary Format Constraints](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/), DXF exposes its schema transparently. This transparency comes at the cost of file size and parsing overhead, but it eliminates reverse-engineered binary offsets and makes DXF highly suitable for deterministic parsing in CI/CD validation pipelines.
+Unlike proprietary formats covered in [DWG Proprietary Limitations & Binary Format Constraints](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/), DXF exposes its schema transparently. This transparency comes at the cost of file size and parsing overhead, but it eliminates reverse-engineered binary offsets and makes DXF highly suitable for deterministic parsing in CI/CD validation pipelines.
 
 The diagram below shows how the six sections relate and where parsing branches occur during ingestion:
 
@@ -342,11 +341,11 @@ def ocs_to_wcs(point_ocs: tuple, extrusion: tuple) -> tuple:
 # wcs_boundary = [ocs_to_wcs(pt, extrusion) for pt in boundary_points]
 ```
 
-Misaligned OCS extrusion vectors are a frequent source of inverted geometry or flipped normals in downstream rendering engines. This is especially critical when aligning DXF geometry with [IFC4x3 Schema Mapping](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) workflows, where spatial consistency governs clash detection accuracy and quantity takeoff reliability.
+Misaligned OCS extrusion vectors are a frequent source of inverted geometry or flipped normals in downstream rendering engines. This is especially critical when aligning DXF geometry with [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) workflows, where spatial consistency governs clash detection accuracy and quantity takeoff reliability.
 
 ### Step 5 — Extract Metadata from HEADER
 
-For the complete header extraction implementation with fallback logic for missing variables, see the dedicated guide on [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/).
+For the complete header extraction implementation with fallback logic for missing variables, see the dedicated guide on [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/).
 
 Key HEADER variables for pipeline automation:
 
@@ -539,7 +538,7 @@ def transform_vertices_numpy(vertices: list[tuple], scale: float) -> np.ndarray:
 <details>
 <summary><strong>Does ezdxf reconstruct B-Rep topology from 3DSOLID entities?</strong></summary>
 
-No. `ezdxf` exposes the raw ACIS or ShapeManager SAT/SAB blob embedded in the `3DSOLID` entity but does not parse B-Rep topology. You need an ODA-compatible kernel (ODA Drawings SDK or Teigha) or a dedicated ACIS parser to reconstruct faces, edges, and vertices. For details on working with 3D solid geometry, see [Reading 3D Solids with ezdxf Python](/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/).
+No. `ezdxf` exposes the raw ACIS or ShapeManager SAT/SAB blob embedded in the `3DSOLID` entity but does not parse B-Rep topology. You need an ODA-compatible kernel (ODA Drawings SDK or Teigha) or a dedicated ACIS parser to reconstruct faces, edges, and vertices. For details on working with 3D solid geometry, see [Reading 3D Solids with ezdxf Python](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/).
 
 </details>
 
@@ -568,8 +567,8 @@ No. `ezdxf` exposes the raw ACIS or ShapeManager SAT/SAB blob embedded in the `3
 
 ## Related Pages
 
-- [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) — parent section covering CAD, GIS, and BIM file-level architectures
-- [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — step-by-step header extraction with fallback logic for missing variables
-- [DWG Proprietary Limitations & Binary Format Constraints](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — why DXF remains the preferred interchange medium over DWG for Python automation
-- [IFC4x3 Schema Mapping](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — aligning DXF geometry with IFC property sets for BIM pipeline integration
-- [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — comprehensive API coverage for Python-driven CAD geometry extraction
+- [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) — parent section covering CAD, GIS, and BIM file-level architectures
+- [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — step-by-step header extraction with fallback logic for missing variables
+- [DWG Proprietary Limitations & Binary Format Constraints](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — why DXF remains the preferred interchange medium over DWG for Python automation
+- [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — aligning DXF geometry with IFC property sets for BIM pipeline integration
+- [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — comprehensive API coverage for Python-driven CAD geometry extraction

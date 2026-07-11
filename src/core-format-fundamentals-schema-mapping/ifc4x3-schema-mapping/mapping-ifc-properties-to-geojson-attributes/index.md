@@ -2,7 +2,6 @@
 title: "Mapping IFC Properties to GeoJSON Attributes with Python"
 description: "Step-by-step guide to extracting IfcPropertySet and IfcElementQuantity data, flattening BIM metadata into JSON-safe key-value pairs, and serializing valid GeoJSON FeatureCollection output using ifcopenshell and pyproj."
 slug: "mapping-ifc-properties-to-geojson-attributes"
-type: "long_tail"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
     url: "/core-format-fundamentals-schema-mapping/"
@@ -29,9 +28,9 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
-        {"@type": "ListItem", "position": 2, "name": "IFC4x3 Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/"},
-        {"@type": "ListItem", "position": 3, "name": "Mapping IFC Properties to GeoJSON Attributes", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-properties-to-geojson-attributes/"}
+        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
+        {"@type": "ListItem", "position": 2, "name": "IFC4x3 Schema Mapping", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/"},
+        {"@type": "ListItem", "position": 3, "name": "Mapping IFC Properties to GeoJSON Attributes", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-properties-to-geojson-attributes/"}
       ]
     },
     {
@@ -52,7 +51,7 @@ dateModified: "2026-06-24"
 
 # Mapping IFC Properties to GeoJSON Attributes with Python
 
-To map IFC properties to GeoJSON attributes, extract `IfcPropertySet` and `IfcElementQuantity` data via `ifcopenshell`, flatten the hierarchical BIM metadata into a deterministic key-value dictionary, reproject geometry from the IFC local coordinate system to WGS84 (EPSG:4326) with `pyproj`, and serialize each element as a GeoJSON `Feature`. The complete pipeline is five steps: element filtering, `IsDefinedBy` traversal, EXPRESS type normalization, coordinate transformation, and `FeatureCollection` serialization. For the broader context of IFC entity structures and infrastructure-specific property sets, see the [IFC4x3 Schema Mapping](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) reference.
+To map IFC properties to GeoJSON attributes, extract `IfcPropertySet` and `IfcElementQuantity` data via `ifcopenshell`, flatten the hierarchical BIM metadata into a deterministic key-value dictionary, reproject geometry from the IFC local coordinate system to WGS84 (EPSG:4326) with `pyproj`, and serialize each element as a GeoJSON `Feature`. The complete pipeline is five steps: element filtering, `IsDefinedBy` traversal, EXPRESS type normalization, coordinate transformation, and `FeatureCollection` serialization. For the broader context of IFC entity structures and infrastructure-specific property sets, see the [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) reference.
 
 ---
 
@@ -396,7 +395,7 @@ For infrastructure models where geometry is the bottleneck, open the IFC file wi
 
 ## Related Pages
 
-- [IFC4x3 Schema Mapping](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — parent reference covering entity hierarchy traversal, CRS extraction, and the full IFC4x3 property model
-- [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) — the broader format interoperability context including DXF, DWG, and IFC schema translation patterns
-- [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — parallel extraction patterns for DXF XDATA and block attributes alongside IFC property sets
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — contrast with IFC: how DXF encodes properties as group codes and extended data rather than typed relationship graphs
+- [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — parent reference covering entity hierarchy traversal, CRS extraction, and the full IFC4x3 property model
+- [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) — the broader format interoperability context including DXF, DWG, and IFC schema translation patterns
+- [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — parallel extraction patterns for DXF XDATA and block attributes alongside IFC property sets
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — contrast with IFC: how DXF encodes properties as group codes and extended data rather than typed relationship graphs

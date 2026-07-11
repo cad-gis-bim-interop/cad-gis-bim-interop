@@ -2,7 +2,6 @@
 title: "Reprojecting CAD Coordinates with pyproj Transformer"
 description: "Reproject CAD point arrays with pyproj Transformer: always_xy axis handling, vectorized numpy transforms, cached thread-safe transformers, and automatic UTM zone selection."
 slug: "reprojecting-cad-coordinates-with-pyproj-transformer"
-type: "long_tail"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
     url: "/coordinate-transformation-spatial-alignment/"
@@ -29,9 +28,9 @@ dateModified: "2026-07-11"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
-        {"@type": "ListItem", "position": 2, "name": "CRS Normalization Workflows", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/"},
-        {"@type": "ListItem", "position": 3, "name": "Reprojecting CAD Coordinates with pyproj Transformer", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/"}
+        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
+        {"@type": "ListItem", "position": 2, "name": "CRS Normalization Workflows", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/"},
+        {"@type": "ListItem", "position": 3, "name": "Reprojecting CAD Coordinates with pyproj Transformer", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/reprojecting-cad-coordinates-with-pyproj-transformer/"}
       ]
     },
     {
@@ -76,7 +75,7 @@ dateModified: "2026-07-11"
 
 # Reprojecting CAD Coordinates with pyproj Transformer
 
-To reproject CAD coordinates in Python, build a single `pyproj.Transformer.from_crs(src, dst, always_xy=True)`, then call `.transform(x, y)` on numpy arrays of the whole point set at once. The `always_xy=True` flag is mandatory: it guarantees `(easting/longitude, northing/latitude)` order regardless of how the CRS authority defines its axes, which is the difference between correct output and silently swapped coordinates. This page is an implementation reference within the [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) topic. It assumes the CAD data already sits in a known projected CRS and in metres — if it does not, resolve that first, because reprojection cannot fix an unknown datum or a millimetre-scale drawing.
+To reproject CAD coordinates in Python, build a single `pyproj.Transformer.from_crs(src, dst, always_xy=True)`, then call `.transform(x, y)` on numpy arrays of the whole point set at once. The `always_xy=True` flag is mandatory: it guarantees `(easting/longitude, northing/latitude)` order regardless of how the CRS authority defines its axes, which is the difference between correct output and silently swapped coordinates. This page is an implementation reference within the [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) topic. It assumes the CAD data already sits in a known projected CRS and in metres — if it does not, resolve that first, because reprojection cannot fix an unknown datum or a millimetre-scale drawing.
 
 ## How pyproj Transformer Handles Reprojection
 
@@ -280,9 +279,9 @@ Calling `Transformer.from_crs(...)` inside the loop that processes each coordina
 
 **5. Reprojecting before units are metres**
 
-`pyproj` assumes projected coordinates are in the CRS's linear unit — metres for UTM. A DXF drawing authored in millimetres passed straight into `EPSG:25832` is off by a factor of 1000 and lands far outside the zone, returning `inf`. Normalise units first; the [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) topic covers reading `$INSUNITS` and scaling geometry to metres before any reprojection.
+`pyproj` assumes projected coordinates are in the CRS's linear unit — metres for UTM. A DXF drawing authored in millimetres passed straight into `EPSG:25832` is off by a factor of 1000 and lands far outside the zone, returning `inf`. Normalise units first; the [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) topic covers reading `$INSUNITS` and scaling geometry to metres before any reprojection.
 
-For the datum-parameter side of alignment — when the source is not a registered CRS but a set of published transform parameters — see [Applying a Helmert 7-Parameter Transform in Python](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/applying-helmert-7-parameter-transform-in-python/). Once points are in WGS84, serialise them with [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/).
+For the datum-parameter side of alignment — when the source is not a registered CRS but a set of published transform parameters — see [Applying a Helmert 7-Parameter Transform in Python](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/applying-helmert-7-parameter-transform-in-python/). Once points are in WGS84, serialise them with [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/).
 
 ## FAQ
 
@@ -318,8 +317,8 @@ Estimate the site centroid's longitude and latitude, then use `pyproj.database.q
 
 ## Related Pages
 
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — parent topic: full pipeline from CRS detection through reprojection and validation
-- [Applying a Helmert 7-Parameter Transform in Python](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/applying-helmert-7-parameter-transform-in-python/) — datum-shift parameters for cases where the source is not a registered CRS
-- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — the upstream step that registers an arbitrary CAD grid to a projected CRS from survey control
-- [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — scaling CAD geometry to metres before any reprojection
-- [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — serialising reprojected WGS84 geometry for GIS consumption
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — parent topic: full pipeline from CRS detection through reprojection and validation
+- [Applying a Helmert 7-Parameter Transform in Python](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/applying-helmert-7-parameter-transform-in-python/) — datum-shift parameters for cases where the source is not a registered CRS
+- [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — the upstream step that registers an arbitrary CAD grid to a projected CRS from survey control
+- [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — scaling CAD geometry to metres before any reprojection
+- [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — serialising reprojected WGS84 geometry for GIS consumption

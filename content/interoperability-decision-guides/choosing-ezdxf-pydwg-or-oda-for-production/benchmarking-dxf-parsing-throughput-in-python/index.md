@@ -2,7 +2,6 @@
 title: "Benchmarking DXF Parsing Throughput in Python"
 description: "How to fairly measure ezdxf parsing throughput — entities/sec, MB/sec, and peak memory — with warm-vs-cold runs, perf_counter timing, and a reusable harness for CI regression gates."
 slug: "benchmarking-dxf-parsing-throughput-in-python"
-type: "long_tail"
 breadcrumb:
   - label: "Interoperability Decision Guides"
     url: "/interoperability-decision-guides/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/benchmarking-dxf-parsing-throughput-in-python/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/benchmarking-dxf-parsing-throughput-in-python/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/"},
-        {"@type": "ListItem", "position": 2, "name": "Choosing ezdxf, pydwg, or ODA for Production", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/"},
-        {"@type": "ListItem", "position": 3, "name": "Benchmarking DXF Parsing Throughput in Python", "item": "https://cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/benchmarking-dxf-parsing-throughput-in-python/"}
+        {"@type": "ListItem", "position": 1, "name": "Interoperability Decision Guides", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/"},
+        {"@type": "ListItem", "position": 2, "name": "Choosing ezdxf, pydwg, or ODA for Production", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/"},
+        {"@type": "ListItem", "position": 3, "name": "Benchmarking DXF Parsing Throughput in Python", "item": "https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/benchmarking-dxf-parsing-throughput-in-python/"}
       ]
     },
     {
@@ -72,7 +71,7 @@ dateModified: "2026-07-11"
 
 # Benchmarking DXF Parsing Throughput in Python
 
-To benchmark DXF parsing throughput fairly, warm the OS page cache with an untimed run, time the `ezdxf.readfile()` and full model-space iteration together with `time.perf_counter`, take the median across several runs, and measure memory separately with `tracemalloc` (per-file peak) and `resource.getrusage` (process ceiling). Report entities per second, megabytes per second, and peak resident memory — not a single wall-clock number, which conflates disk I/O, parsing, and garbage collection. This measurement is what turns the throughput claims in the [Choosing ezdxf, pydwg, or ODA for Production](/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/) guide into evidence you can size a pipeline and gate a CI build on.
+To benchmark DXF parsing throughput fairly, warm the OS page cache with an untimed run, time the `ezdxf.readfile()` and full model-space iteration together with `time.perf_counter`, take the median across several runs, and measure memory separately with `tracemalloc` (per-file peak) and `resource.getrusage` (process ceiling). Report entities per second, megabytes per second, and peak resident memory — not a single wall-clock number, which conflates disk I/O, parsing, and garbage collection. This measurement is what turns the throughput claims in the [Choosing ezdxf, pydwg, or ODA for Production](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/) guide into evidence you can size a pipeline and gate a CI build on.
 
 ## How `ezdxf` Parsing Timing Breaks Down
 
@@ -103,7 +102,7 @@ The diagram below contrasts a cold run, where disk I/O dominates the timed regio
   <text x="610" y="212" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.7">t1</text>
 </svg>
 
-Three metrics describe throughput completely. **Entities per second** normalises for drawing complexity and is the most stable figure across files of different sizes. **Megabytes per second** normalises for raw file size and exposes I/O-bound behaviour. **Peak resident memory** is the ceiling that decides how many parallel workers a machine can host. Reporting all three prevents the common mistake of optimising wall-clock time on one file and regressing memory on another. For the entity model these numbers describe, the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) is the reference.
+Three metrics describe throughput completely. **Entities per second** normalises for drawing complexity and is the most stable figure across files of different sizes. **Megabytes per second** normalises for raw file size and exposes I/O-bound behaviour. **Peak resident memory** is the ceiling that decides how many parallel workers a machine can host. Reporting all three prevents the common mistake of optimising wall-clock time on one file and regressing memory on another. For the entity model these numbers describe, the [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) is the reference.
 
 ## Production-Ready Script
 
@@ -219,7 +218,7 @@ if __name__ == "__main__":
 | ezdxf | `>=1.1.0` | Iterator protocol on `modelspace()` is stable; earlier versions differ in lazy-load behaviour. |
 | `resource.getrusage` | Linux, macOS, BSD | `ru_maxrss` is **KiB on Linux**, **bytes on macOS** — adjust the divisor per platform. Not available on Windows. |
 | `tracemalloc` | All platforms | Measures Python-tracked allocations only; C-extension memory outside Python is not counted. |
-| File source | `.dxf` (ASCII or binary) | For DWG, convert to DXF first — see [Choosing ezdxf, pydwg, or ODA for Production](/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/). |
+| File source | `.dxf` (ASCII or binary) | For DWG, convert to DXF first — see [Choosing ezdxf, pydwg, or ODA for Production](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/). |
 | OS page cache | Any | Warm-run figures assume a cache large enough to hold the file; very large files may not stay resident. |
 
 ## Fallback Strategies & Pitfalls
@@ -263,6 +262,6 @@ Generator iteration versus building a list changes memory more than raw throughp
 
 ## Related Pages
 
-- [Choosing ezdxf, pydwg, or ODA for Production](/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/) — the reader decision these throughput numbers inform, with the ODA conversion route for DWG inputs
-- [Interoperability Decision Guides](/interoperability-decision-guides/) — the wider framework for choosing libraries, formats, and storage targets across CAD, GIS, and BIM
-- [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — the entity traversal and memory-aware iteration patterns the harness exercises
+- [Choosing ezdxf, pydwg, or ODA for Production](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/) — the reader decision these throughput numbers inform, with the ODA conversion route for DWG inputs
+- [Interoperability Decision Guides](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/) — the wider framework for choosing libraries, formats, and storage targets across CAD, GIS, and BIM
+- [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — the entity traversal and memory-aware iteration patterns the harness exercises

@@ -2,7 +2,6 @@
 title: "Metadata Extraction Strategies for CAD, GIS, and BIM Pipelines"
 description: "A production-tested guide to extracting, normalizing, and validating metadata from DXF, IFC, and geospatial vector formats using Python — covering format routing, attribute harvesting, schema validation, and scaling patterns."
 slug: "metadata-extraction-strategies"
-type: "cluster"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
     url: "/core-format-fundamentals-schema-mapping/"
@@ -31,13 +30,13 @@ dateModified: "2026-06-24"
           "@type": "ListItem",
           "position": 1,
           "name": "Core Format Fundamentals & Schema Mapping",
-          "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"
+          "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Metadata Extraction Strategies",
-          "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/"
+          "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/"
         }
       ]
     },
@@ -104,7 +103,7 @@ dateModified: "2026-06-24"
 
 # Metadata Extraction Strategies for CAD, GIS, and BIM Pipelines
 
-Metadata extraction strategies define how raw attributes embedded in CAD drawings, BIM models, and geospatial vector files are transformed into structured, queryable records. As part of the broader [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) discipline, this topic bridges the gap between heterogeneous source formats and the clean, schema-aligned datasets that feed asset registries, digital twins, and spatial analytics platforms. Without deterministic extraction pipelines, downstream systems inherit silent data corruption, incomplete property sets, and non-reproducible results that are impossible to audit.
+Metadata extraction strategies define how raw attributes embedded in CAD drawings, BIM models, and geospatial vector files are transformed into structured, queryable records. As part of the broader [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) discipline, this topic bridges the gap between heterogeneous source formats and the clean, schema-aligned datasets that feed asset registries, digital twins, and spatial analytics platforms. Without deterministic extraction pipelines, downstream systems inherit silent data corruption, incomplete property sets, and non-reproducible results that are impossible to audit.
 
 AEC tech engineers routinely encounter source files where spatial geometry and non-spatial attributes are tightly coupled: manufacturer specifications stored as DXF XData blobs, installation dates buried inside IFC property sets, coordinate reference system declarations embedded in GeoPackage layer metadata. The extraction discipline unifies these disparate data models into a single, validated schema before any downstream consumer ever sees the data.
 
@@ -182,9 +181,9 @@ pip install ezdxf ifcopenshell geopandas pydantic pyproj lxml
 
 The extraction mechanism differs substantially across the three primary format families this site covers.
 
-**DXF (ASCII/Binary):** Metadata lives in three distinct layers — entity-level DXF group codes (attributes on `ATTRIB` entities attached to `INSERT` block references), object-level extension dictionaries (custom application data stored in the `OBJECTS` section), and XData blobs (group-code-1001 records keyed by application name). The `ezdxf` library exposes all three via distinct APIs. Understanding how entities nest within block definitions is essential for accurate mapping; consult the [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) for a complete group-code taxonomy and entity hierarchy reference.
+**DXF (ASCII/Binary):** Metadata lives in three distinct layers — entity-level DXF group codes (attributes on `ATTRIB` entities attached to `INSERT` block references), object-level extension dictionaries (custom application data stored in the `OBJECTS` section), and XData blobs (group-code-1001 records keyed by application name). The `ezdxf` library exposes all three via distinct APIs. Understanding how entities nest within block definitions is essential for accurate mapping; consult the [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) for a complete group-code taxonomy and entity hierarchy reference.
 
-**IFC (STEP/EXPRESS):** Attributes are organized as property sets (`Pset_*` and custom `IfcPropertySet` instances) linked to `IfcProduct` entities through `IfcRelDefinesByProperties` relationship objects. The schema is strongly typed and versioned — IFC4x3 introduced civil-specific entities (`IfcAlignment`, `IfcBridge`) that do not exist in IFC2x3 or IFC4. The [IFC4x3 Schema Mapping](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) guide covers relationship traversal and schema-version detection in depth.
+**IFC (STEP/EXPRESS):** Attributes are organized as property sets (`Pset_*` and custom `IfcPropertySet` instances) linked to `IfcProduct` entities through `IfcRelDefinesByProperties` relationship objects. The schema is strongly typed and versioned — IFC4x3 introduced civil-specific entities (`IfcAlignment`, `IfcBridge`) that do not exist in IFC2x3 or IFC4. The [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) guide covers relationship traversal and schema-version detection in depth.
 
 **GIS Vector (GeoPackage, Shapefile, GeoJSON):** Non-spatial attributes live in feature attribute tables with SQL-like schemas. Column names and data types are declared in the layer metadata and are relatively straightforward to extract, but type coercion and null handling vary across driver versions in `fiona` and `geopandas`.
 
@@ -193,7 +192,7 @@ The extraction mechanism differs substantially across the three primary format f
 | Format | Parser | Supported Versions | Notes |
 |---|---|---|---|
 | DXF | `ezdxf >= 1.1.0` | R12 – R2024 | XData requires `entity.xdata` API |
-| DWG (binary) | ODA File Converter (licensed) | R14 – R2024 | Must convert to DXF first; see [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) |
+| DWG (binary) | ODA File Converter (licensed) | R14 – R2024 | Must convert to DXF first; see [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) |
 | IFC | `ifcopenshell >= 0.8.0` | IFC2x3, IFC4, IFC4x3 | Schema version declared in STEP FILE_SCHEMA header |
 | GeoPackage | `fiona >= 1.9.0` + GDAL 3.6+ | 1.0 – 1.4 | SQLite-backed; thread-safe with separate connections per worker |
 | Shapefile | `geopandas >= 0.14.0` | ESRI Shapefile | `.dbf` encoding defaults to latin-1; specify encoding explicitly |
@@ -235,7 +234,7 @@ def detect_format(filepath: str) -> str:
     return "unknown"
 ```
 
-Route `.dwg` files through a licensed conversion gateway or the ODA File Converter CLI, as described in [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/). Open-source parsers will silently fail or return truncated attribute data if forced to read closed-binary DWG structures.
+Route `.dwg` files through a licensed conversion gateway or the ODA File Converter CLI, as described in [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/). Open-source parsers will silently fail or return truncated attribute data if forced to read closed-binary DWG structures.
 
 ### Step 2 — Parser Initialization and Context Loading
 
@@ -304,7 +303,7 @@ def harvest_ifc_psets(ifc_file: ifcopenshell.file) -> list[dict]:
 
 **DXF block attribute and XData harvesting:**
 
-Block references in AutoCAD-originated files carry the bulk of semantic metadata. When working with `INSERT` entities and their attached `ATTRIB` children, recursive traversal is required to resolve nested block definitions back to parent geometries. The [Extracting Block Attributes from CAD Files](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) guide details this pattern with a full production script.
+Block references in AutoCAD-originated files carry the bulk of semantic metadata. When working with `INSERT` entities and their attached `ATTRIB` children, recursive traversal is required to resolve nested block definitions back to parent geometries. The [Extracting Block Attributes from CAD Files](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) guide details this pattern with a full production script.
 
 ```python
 # ezdxf>=1.1.0
@@ -554,8 +553,8 @@ Use entity-type filtering early — `ifc_file.by_type("IfcProduct")` — to avoi
 
 ## Related Pages
 
-- [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) — parent section covering format parsing, schema standards, and interoperability foundations
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group-code taxonomy and entity hierarchy for DXF attribute containers
-- [IFC4x3 Schema Mapping](/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — EXPRESS schema traversal and relationship resolution for civil BIM models
-- [Extracting Block Attributes from CAD Files](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) — production script for harvesting `ATTRIB` entities from `INSERT` block references
-- [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — conversion gateway requirements and open-source parser constraints for binary DWG files
+- [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) — parent section covering format parsing, schema standards, and interoperability foundations
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group-code taxonomy and entity hierarchy for DXF attribute containers
+- [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — EXPRESS schema traversal and relationship resolution for civil BIM models
+- [Extracting Block Attributes from CAD Files](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) — production script for harvesting `ATTRIB` entities from `INSERT` block references
+- [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — conversion gateway requirements and open-source parser constraints for binary DWG files

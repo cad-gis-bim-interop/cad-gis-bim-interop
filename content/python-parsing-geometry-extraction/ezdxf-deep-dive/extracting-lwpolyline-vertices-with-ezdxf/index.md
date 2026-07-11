@@ -2,7 +2,6 @@
 title: "Extracting LWPOLYLINE Vertices with ezdxf"
 description: "How to extract LWPOLYLINE vertices with ezdxf in Python: read xyb points, decode bulge arcs, flatten arcs to line segments, and handle OCS elevation."
 slug: "extracting-lwpolyline-vertices-with-ezdxf"
-type: "long_tail"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
     url: "/python-parsing-geometry-extraction/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-lwpolyline-vertices-with-ezdxf/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-lwpolyline-vertices-with-ezdxf/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
-        {"@type": "ListItem", "position": 2, "name": "ezdxf Deep Dive", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/"},
-        {"@type": "ListItem", "position": 3, "name": "Extracting LWPOLYLINE Vertices with ezdxf", "item": "https://cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-lwpolyline-vertices-with-ezdxf/"}
+        {"@type": "ListItem", "position": 1, "name": "Python Parsing & Geometry Extraction", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/"},
+        {"@type": "ListItem", "position": 2, "name": "ezdxf Deep Dive", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/"},
+        {"@type": "ListItem", "position": 3, "name": "Extracting LWPOLYLINE Vertices with ezdxf", "item": "https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/extracting-lwpolyline-vertices-with-ezdxf/"}
       ]
     },
     {
@@ -77,7 +76,7 @@ dateModified: "2026-07-11"
 
 # Extracting LWPOLYLINE Vertices with ezdxf
 
-To extract `LWPOLYLINE` vertices with `ezdxf`, query the entities from modelspace and call `entity.get_points(format="xyb")` for raw `(x, y, bulge)` tuples, or `entity.flattening(distance)` when you need every arc segment resolved into straight line segments. `LWPOLYLINE` is a lightweight 2D polyline: all its vertices lie on a single plane defined by `dxf.elevation` and the extrusion vector, and curved segments are encoded not as extra points but as *bulge* values on the preceding vertex. Getting a correct coordinate list therefore means deciding whether you want the raw control points or a flattened approximation, and whether you need to lift the 2D coordinates back into world space. This page is part of the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) reference on production-grade DXF parsing.
+To extract `LWPOLYLINE` vertices with `ezdxf`, query the entities from modelspace and call `entity.get_points(format="xyb")` for raw `(x, y, bulge)` tuples, or `entity.flattening(distance)` when you need every arc segment resolved into straight line segments. `LWPOLYLINE` is a lightweight 2D polyline: all its vertices lie on a single plane defined by `dxf.elevation` and the extrusion vector, and curved segments are encoded not as extra points but as *bulge* values on the preceding vertex. Getting a correct coordinate list therefore means deciding whether you want the raw control points or a flattened approximation, and whether you need to lift the 2D coordinates back into world space. This page is part of the [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) reference on production-grade DXF parsing.
 
 ## How ezdxf Handles LWPOLYLINE Vertices
 
@@ -120,7 +119,7 @@ What `ezdxf` does *not* do automatically is project the 2D coordinates into worl
 
 ## Production-Ready Script
 
-The script below queries every `LWPOLYLINE`, chooses raw or flattened extraction based on whether the entity actually contains arcs, lifts coordinates through the OCS when needed, and returns a list of coordinate lists ready for [conversion of CAD polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) or Shapely.
+The script below queries every `LWPOLYLINE`, chooses raw or flattened extraction based on whether the entity actually contains arcs, lifts coordinates through the OCS when needed, and returns a list of coordinate lists ready for [conversion of CAD polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) or Shapely.
 
 ```python
 # ezdxf>=1.1.0, Python 3.9+
@@ -204,7 +203,7 @@ if __name__ == "__main__":
 | OCS handling | Any extrusion | Use `entity.ocs().to_wcs()`; identity when extrusion is `(0, 0, 1)`. |
 | Elevation | Single Z | All vertices share `dxf.elevation`; there is no per-vertex Z. |
 
-For the storage-level view of how these vertices are encoded as group codes `10`/`20`/`42`, see the [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/).
+For the storage-level view of how these vertices are encoded as group codes `10`/`20`/`42`, see the [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/).
 
 ## Fallback Strategies
 
@@ -274,8 +273,8 @@ A closed `LWPOLYLINE` does not repeat its first point as a final vertex; the clo
 
 ## Related Pages
 
-- [ezdxf Deep Dive: Production-Grade DXF Parsing](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — parent reference covering entity traversal, block resolution, and memory-efficient DXF processing
-- [Tessellating SPLINE Entities with ezdxf](/python-parsing-geometry-extraction/ezdxf-deep-dive/tessellating-splines-with-ezdxf-in-python/) — the same flattening tolerance approach applied to NURBS curves
-- [Reading 3D Solids with ezdxf Python](/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — sibling workflow for `3DSOLID` ACIS payloads that polylines cannot represent
-- [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — turning the extracted coordinate lists into GIS-ready features
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group code taxonomy that governs how `LWPOLYLINE` vertices and bulges are stored
+- [ezdxf Deep Dive: Production-Grade DXF Parsing](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — parent reference covering entity traversal, block resolution, and memory-efficient DXF processing
+- [Tessellating SPLINE Entities with ezdxf](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/tessellating-splines-with-ezdxf-in-python/) — the same flattening tolerance approach applied to NURBS curves
+- [Reading 3D Solids with ezdxf Python](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/reading-3d-solids-with-ezdxf-python/) — sibling workflow for `3DSOLID` ACIS payloads that polylines cannot represent
+- [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — turning the extracted coordinate lists into GIS-ready features
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group code taxonomy that governs how `LWPOLYLINE` vertices and bulges are stored

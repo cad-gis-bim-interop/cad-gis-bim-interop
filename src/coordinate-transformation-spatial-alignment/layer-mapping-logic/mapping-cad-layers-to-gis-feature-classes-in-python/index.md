@@ -2,7 +2,6 @@
 title: "Mapping CAD Layers to GIS Feature Classes in Python"
 description: "Classify CAD layer names into GIS feature classes with a Python rule engine of exact, regex, and prefix rules, then build a geopandas GeoDataFrame per class."
 slug: "mapping-cad-layers-to-gis-feature-classes-in-python"
-type: "long_tail"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
     url: "/coordinate-transformation-spatial-alignment/"
@@ -25,14 +24,14 @@ dateModified: "2026-07-11"
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
-      "mainEntityOfPage": {"@type": "WebPage", "@id": "/coordinate-transformation-spatial-alignment/layer-mapping-logic/mapping-cad-layers-to-gis-feature-classes-in-python/"}
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/mapping-cad-layers-to-gis-feature-classes-in-python/"}
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "/coordinate-transformation-spatial-alignment/"},
-        {"@type": "ListItem", "position": 2, "name": "Layer Mapping Logic", "item": "/coordinate-transformation-spatial-alignment/layer-mapping-logic/"},
-        {"@type": "ListItem", "position": 3, "name": "Mapping CAD Layers to GIS Feature Classes", "item": "/coordinate-transformation-spatial-alignment/layer-mapping-logic/mapping-cad-layers-to-gis-feature-classes-in-python/"}
+        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
+        {"@type": "ListItem", "position": 2, "name": "Layer Mapping Logic", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/"},
+        {"@type": "ListItem", "position": 3, "name": "Mapping CAD Layers to GIS Feature Classes", "item": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/mapping-cad-layers-to-gis-feature-classes-in-python/"}
       ]
     },
     {
@@ -77,7 +76,7 @@ dateModified: "2026-07-11"
 
 # Mapping CAD Layers to GIS Feature Classes in Python
 
-CAD drawings organise geometry by **layer name** — often terse, coded strings such as `A-WALL` or `C-ROAD-CNTR` — while GIS organises by **feature class**. To bridge the two in Python, drive a rule engine from a configuration table that combines exact, regex, and prefix rules, resolve each `ezdxf` entity's layer to a target feature class through that cascade, send anything unmatched to an explicit default bucket, and build one `geopandas` `GeoDataFrame` per feature class. This page is part of the [Layer Mapping Logic](/coordinate-transformation-spatial-alignment/layer-mapping-logic/) workflow, and the feature classes it produces are the ingest units for downstream steps such as [converting CAD polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/). A declarative rule table keeps the mapping auditable and reviewable instead of scattered through conditional code.
+CAD drawings organise geometry by **layer name** — often terse, coded strings such as `A-WALL` or `C-ROAD-CNTR` — while GIS organises by **feature class**. To bridge the two in Python, drive a rule engine from a configuration table that combines exact, regex, and prefix rules, resolve each `ezdxf` entity's layer to a target feature class through that cascade, send anything unmatched to an explicit default bucket, and build one `geopandas` `GeoDataFrame` per feature class. This page is part of the [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) workflow, and the feature classes it produces are the ingest units for downstream steps such as [converting CAD polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/). A declarative rule table keeps the mapping auditable and reviewable instead of scattered through conditional code.
 
 ## How Layer-to-Feature-Class Mapping Works
 
@@ -272,7 +271,7 @@ if __name__ == "__main__":
 - Regex rules are compiled once in `__init__`, not per entity. On drawings with hundreds of thousands of entities this is the difference between a scan that finishes and one that crawls.
 - Prefix rules are sorted longest-first so `C-ROAD` wins over `C-`, mirroring how a human reads the more specific rule as more authoritative.
 - `re.IGNORECASE` plus uppercasing the layer name handles CAD's case-insensitive layer semantics uniformly, so `A-Wall` and `a-wall` classify identically.
-- Each feature carries `source_layer`, preserving provenance even when several layers merge into one feature class — essential for auditing and for the [metadata extraction strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) that attach further attributes downstream.
+- Each feature carries `source_layer`, preserving provenance even when several layers merge into one feature class — essential for auditing and for the [metadata extraction strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) that attach further attributes downstream.
 
 ## Compatibility Matrix
 
@@ -331,7 +330,7 @@ Decide by policy and make it explicit. Frozen and off layers are still present i
 
 ## Related Pages
 
-- [Layer Mapping Logic](/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — parent reference on translating CAD layer conventions into GIS schemas
-- [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — attaching block attributes and properties to the classified features
-- [Converting CAD Polylines to GeoJSON](/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — serialising the per-feature-class GeoDataFrames to GeoJSON
-- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — assigning and reprojecting the CRS of the resulting feature classes
+- [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — parent reference on translating CAD layer conventions into GIS schemas
+- [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — attaching block attributes and properties to the classified features
+- [Converting CAD Polylines to GeoJSON](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/converting-cad-polylines-to-geojson/) — serialising the per-feature-class GeoDataFrames to GeoJSON
+- [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — assigning and reprojecting the CRS of the resulting feature classes

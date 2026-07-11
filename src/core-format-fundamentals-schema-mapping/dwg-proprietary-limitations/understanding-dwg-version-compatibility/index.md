@@ -2,7 +2,6 @@
 title: "Detecting and Routing DWG Version Compatibility in Python Pipelines"
 description: "Read the 6-byte ACAD header, map it to the correct AutoCAD release schema, and route DWG files through version-aware converters to prevent silent data loss in CAD/GIS/BIM interoperability pipelines."
 slug: "understanding-dwg-version-compatibility"
-type: "long_tail"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
     url: "/core-format-fundamentals-schema-mapping/"
@@ -30,9 +29,9 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
-        {"@type": "ListItem", "position": 2, "name": "DWG Proprietary Limitations", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/"},
-        {"@type": "ListItem", "position": 3, "name": "Detecting and Routing DWG Version Compatibility in Python Pipelines", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/"}
+        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
+        {"@type": "ListItem", "position": 2, "name": "DWG Proprietary Limitations", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/"},
+        {"@type": "ListItem", "position": 3, "name": "Detecting and Routing DWG Version Compatibility in Python Pipelines", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/"}
       ]
     },
     {
@@ -53,7 +52,7 @@ dateModified: "2026-06-24"
 
 # Detecting and Routing DWG Version Compatibility in Python Pipelines
 
-Detecting DWG version compatibility requires mapping the 6-byte `ACADxxxx` binary header at file offset `0x00` to a schema revision, then routing the file through a version-aware converter before any GIS or BIM ingestion stage runs. The `.dwg` extension alone carries no schema guarantee — each major AutoCAD release introduces new compression algorithms, object-ID widths, or cloud metadata blocks that silently corrupt naive parsers. As part of the [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) workflow, header-first routing is the minimal safeguard that keeps interoperability pipelines deterministic.
+Detecting DWG version compatibility requires mapping the 6-byte `ACADxxxx` binary header at file offset `0x00` to a schema revision, then routing the file through a version-aware converter before any GIS or BIM ingestion stage runs. The `.dwg` extension alone carries no schema guarantee — each major AutoCAD release introduces new compression algorithms, object-ID widths, or cloud metadata blocks that silently corrupt naive parsers. As part of the [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) workflow, header-first routing is the minimal safeguard that keeps interoperability pipelines deterministic.
 
 ---
 
@@ -61,7 +60,7 @@ Detecting DWG version compatibility requires mapping the 6-byte `ACADxxxx` binar
 
 Every DWG file stores a 6-byte ASCII version string starting at file offset `0x00`. This code is the sole reliable signal of the binary schema in use — no reliable fallback exists once parsing has started. Autodesk introduced `LZ77` section compression at `AC1018` (2004), widened object IDs from 32-bit to 64-bit at `AC1027` (2013), and embedded cloud-sync metadata blocks at `AC1032` (2018). Each change breaks parsers that were not written against that schema.
 
-Because the DWG specification is proprietary, reverse-engineered parsers — including the Open Design Alliance (ODA) libraries — sometimes fail silently on unsupported codes rather than raising exceptions. This means the failure mode you must guard against is not a crash but a silently truncated geometry set that passes downstream validation while missing entire layer groups or 3D solids. The [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) layer in your pipeline is the right place to gate files by version before any geometry or attribute extraction runs.
+Because the DWG specification is proprietary, reverse-engineered parsers — including the Open Design Alliance (ODA) libraries — sometimes fail silently on unsupported codes rather than raising exceptions. This means the failure mode you must guard against is not a crash but a silently truncated geometry set that passes downstream validation while missing entire layer groups or 3D solids. The [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) layer in your pipeline is the right place to gate files by version before any geometry or attribute extraction runs.
 
 <svg viewBox="0 0 760 320" role="img" aria-label="DWG version routing pipeline: header inspection, version lookup, converter routing, and schema normalisation stages" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:760px;display:block;margin:1.5rem auto;">
   <title>DWG Version Routing Pipeline</title>
@@ -332,7 +331,7 @@ The ODA binary is not on `$PATH`. On Linux, install the `.run` bundle from the O
 If `read_dwg_version` returns a header not in `VERSION_MAP` (e.g. a future `AC1035`), the pipeline logs a warning and attempts `AC1032` as the conversion target. If ODA also rejects that code, the only option is a read-only metadata pass: log the raw header bytes, the file size, and any layer names extractable from the ASCII sections of the DWG header, then quarantine the file for manual review.
 
 **3. Silent entity loss after conversion**
-Compare the layer count in the input DWG (readable via `odafileconverter` audit output or a lightweight binary scan for the `LAYER` section marker) against the layer count in the converted DXF parsed with [ezdxf](/python-parsing-geometry-extraction/ezdxf-deep-dive/). A mismatch signals proxy objects that were silently dropped. Re-run with a lower target version (`AC1015`) to see if ODA can reconstruct the geometry without the proprietary extensions.
+Compare the layer count in the input DWG (readable via `odafileconverter` audit output or a lightweight binary scan for the `LAYER` section marker) against the layer count in the converted DXF parsed with [ezdxf](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/). A mismatch signals proxy objects that were silently dropped. Re-run with a lower target version (`AC1015`) to see if ODA can reconstruct the geometry without the proprietary extensions.
 
 **4. `RuntimeError: ODA converter failed with exit code 1`**
 ODA exit code 1 usually indicates an encrypted or password-protected DWG. There is no programmatic bypass — request an unprotected export from the source. Log the file hash and notify the upstream data provider.
@@ -344,8 +343,8 @@ Increase `timeout_seconds` in `convert_dwg_to_dxf`. For files above 500 MB, pre-
 
 ## Related Pages
 
-- [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — parent: routing strategies, ODA environment setup, and licensing boundaries
-- [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) — pillar overview: format normalisation, schema mapping, and pipeline architecture
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — sibling cluster: group code taxonomy and entity parsing after DWG-to-DXF conversion
-- [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — downstream task: extracting `$ACADVER`, `$INSUNITS`, and variable section values from the converted DXF output
-- [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) — cross-pillar: alternative DWG parsing approach using pydwg without an ODA converter dependency
+- [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — parent: routing strategies, ODA environment setup, and licensing boundaries
+- [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) — section overview: format normalisation, schema mapping, and pipeline architecture
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — sibling guide: group code taxonomy and entity parsing after DWG-to-DXF conversion
+- [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — downstream task: extracting `$ACADVER`, `$INSUNITS`, and variable section values from the converted DXF output
+- [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) — related: alternative DWG parsing approach using pydwg without an ODA converter dependency

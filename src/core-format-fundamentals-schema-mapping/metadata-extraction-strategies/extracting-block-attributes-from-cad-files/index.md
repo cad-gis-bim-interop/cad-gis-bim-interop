@@ -2,7 +2,6 @@
 title: "Extracting Block Attributes from CAD Files with ezdxf"
 description: "Step-by-step guide to extracting ATTRIB entities from DXF INSERT blocks using Python ezdxf, covering DWG conversion, attribute mapping, coordinate export, and production error handling."
 slug: "extracting-block-attributes-from-cad-files"
-type: "long_tail"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
     url: "/core-format-fundamentals-schema-mapping/"
@@ -29,9 +28,9 @@ dateModified: "2026-06-24"
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
-        {"@type": "ListItem", "position": 2, "name": "Metadata Extraction Strategies", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/"},
-        {"@type": "ListItem", "position": 3, "name": "Extracting Block Attributes from CAD Files", "item": "https://cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/"}
+        {"@type": "ListItem", "position": 1, "name": "Core Format Fundamentals & Schema Mapping", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/"},
+        {"@type": "ListItem", "position": 2, "name": "Metadata Extraction Strategies", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/"},
+        {"@type": "ListItem", "position": 3, "name": "Extracting Block Attributes from CAD Files", "item": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/"}
       ]
     },
     {
@@ -52,7 +51,7 @@ dateModified: "2026-06-24"
 
 # Extracting Block Attributes from CAD Files with ezdxf
 
-Use Python's `ezdxf` library to iterate every layout in a DXF document, query `INSERT` entities, and call `insert.get_attribs()` to retrieve the `ATTRIB` children that carry metadata like equipment tags, part numbers, and installation dates. For binary DWG files — which `ezdxf` cannot parse directly — first convert them to DXF R2018 using the ODA File Converter or `LibreDWG`. The result is a list of dictionaries ready for GIS feature creation, BIM property-set ingestion, or infrastructure asset registry import. This page is a companion to the [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) cluster, which covers routing logic, schema normalization, and validation patterns for the broader pipeline.
+Use Python's `ezdxf` library to iterate every layout in a DXF document, query `INSERT` entities, and call `insert.get_attribs()` to retrieve the `ATTRIB` children that carry metadata like equipment tags, part numbers, and installation dates. For binary DWG files — which `ezdxf` cannot parse directly — first convert them to DXF R2018 using the ODA File Converter or `LibreDWG`. The result is a list of dictionaries ready for GIS feature creation, BIM property-set ingestion, or infrastructure asset registry import. This page is a companion to the [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) guide, which covers routing logic, schema normalization, and validation patterns for the broader pipeline.
 
 ## How ezdxf Handles Block Attributes
 
@@ -117,7 +116,7 @@ Understanding the internal data model prevents silent data loss before you write
 
 **Dynamic block parameters:** AutoCAD's dynamic blocks store parametric data in `ACAD_ENHANCEDBLOCK` extension dictionaries on the `BLOCKRECORD` entity. The standard `get_attribs()` call does not surface these values; they require reading the extension dictionary separately via `insert.get_extension_dict()`.
 
-**`ezdxf` version note:** `get_attribs()` was renamed from `get_attrib_handles()` in `ezdxf` 0.17. Ensure your environment meets the version range in the compatibility table below. See the [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) for a full taxonomy of group codes and entity types.
+**`ezdxf` version note:** `get_attribs()` was renamed from `get_attrib_handles()` in `ezdxf` 0.17. Ensure your environment meets the version range in the compatibility table below. See the [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) for a full taxonomy of group codes and entity types.
 
 ## Production-Ready Script
 
@@ -263,7 +262,7 @@ Always target DXF R2018 or newer (`2018`). Older targets (R12, R2000) truncate U
 dwg2dxf --as r2018 -o output.dxf input.dwg
 ```
 
-For the broader context of working around closed-binary constraints, see [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/).
+For the broader context of working around closed-binary constraints, see [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/).
 
 ## Compatibility Matrix
 
@@ -280,7 +279,7 @@ For the broader context of working around closed-binary constraints, see [DWG Pr
 ## Fallback Strategies and Troubleshooting
 
 **1. `get_attribs()` returns an empty list despite visible attributes in the drawing.**
-The block was exploded before saving — `INSERT` entities with attributes become standalone `TEXT` or `MTEXT` entities at the insertion point. Query `layout.query("TEXT MTEXT")` and filter by proximity to known equipment insertion coordinates. Cross-reference [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) for spatial-filter patterns.
+The block was exploded before saving — `INSERT` entities with attributes become standalone `TEXT` or `MTEXT` entities at the insertion point. Query `layout.query("TEXT MTEXT")` and filter by proximity to known equipment insertion coordinates. Cross-reference [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) for spatial-filter patterns.
 
 **2. `UnicodeDecodeError` during `ezdxf.readfile()`.**
 The source file mixes Windows-1252 and UTF-8 encoding (common on drawings opened and re-saved across regional AutoCAD installs). Force the encoding at startup:
@@ -314,8 +313,8 @@ Map group codes 1000–1079 (strings, reals, ints, points) to your target schema
 
 ## Related Pages
 
-- [Metadata Extraction Strategies](/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — parent cluster covering format routing, schema normalization, and validation patterns
-- [DXF Entity Structure Breakdown](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group code taxonomy, section structure, and entity hierarchy reference
-- [DWG Proprietary Limitations](/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — ODA converter setup, version compatibility gaps, and proxy-object handling
-- [How to Parse DXF Headers with Python](/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — extracting `$INSUNITS`, `$ACADVER`, and drawing-level metadata from the HEADER section
-- [Core Format Fundamentals & Schema Mapping](/core-format-fundamentals-schema-mapping/) — pillar overview linking all format-specific clusters
+- [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — parent guide covering format routing, schema normalization, and validation patterns
+- [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — group code taxonomy, section structure, and entity hierarchy reference
+- [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — ODA converter setup, version compatibility gaps, and proxy-object handling
+- [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) — extracting `$INSUNITS`, `$ACADVER`, and drawing-level metadata from the HEADER section
+- [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) — section overview linking all format-specific guides
