@@ -151,6 +151,15 @@
   flex-wrap: wrap;
   gap: var(--s-2);
 }
+.site-footer__gh {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-left: var(--s-2);
+  color: inherit;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+.site-footer__gh svg { display: block; }
+.site-footer__gh:hover { color: var(--color-primary); opacity: 0.85; }
 
 /* ===== Hero ===== */
 .hero {
