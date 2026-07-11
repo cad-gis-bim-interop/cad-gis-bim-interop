@@ -1,223 +1,448 @@
 ---
-title: "Layer Mapping Logic in Python for CAD/GIS/BIM Pipelines"
-description: "In multi-format AEC and geospatial pipelines, raw geometry is only half the battle. The semantic classification, visibility rules, and attribute routing that…"
+title: "Layer Mapping Logic for CAD/GIS & BIM Interoperability Pipelines"
+description: "Build deterministic Python layer mapping pipelines that translate CAD layer names, BIM categories, and GIS feature classes across heterogeneous format boundaries without silent data loss."
+slug: "layer-mapping-logic"
+type: "cluster"
+breadcrumb:
+  - label: "Coordinate Transformation & Spatial Alignment"
+    url: "/coordinate-transformation-spatial-alignment/"
+  - label: "Layer Mapping Logic"
+    url: "/coordinate-transformation-spatial-alignment/layer-mapping-logic/"
+datePublished: "2025-08-14"
+dateModified: "2026-06-24"
 ---
-# Layer Mapping Logic in Python for CAD/GIS & BIM Interoperability Pipelines
 
-In multi-format AEC and geospatial pipelines, raw geometry is only half the battle. The semantic classification, visibility rules, and attribute routing that travel alongside coordinates are governed by **layer mapping logic**. Without deterministic translation rules, data exported from AutoCAD DWG, ArcGIS Shapefiles, or Revit BIM models will misalign, lose metadata, or break downstream automation. This logic bridges the gap between heterogeneous naming conventions, schema constraints, and platform-specific hierarchies, ensuring that spatial features retain their intended classification and behavior across the entire interoperability stack.
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Layer Mapping Logic for CAD/GIS & BIM Interoperability Pipelines",
+      "description": "Build deterministic Python layer mapping pipelines that translate CAD layer names, BIM categories, and GIS feature classes across heterogeneous format boundaries without silent data loss.",
+      "datePublished": "2025-08-14",
+      "dateModified": "2026-06-24",
+      "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},
+      "publisher": {"@type": "Organization", "name": "CAD GIS BIM Interop"}
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Coordinate Transformation & Spatial Alignment", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/"},
+        {"@type": "ListItem", "position": 2, "name": "Layer Mapping Logic", "item": "https://cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/"}
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "name": "Implement Deterministic Layer Mapping Logic in Python",
+      "description": "Translate CAD, GIS, and BIM layer names across format boundaries using externalized rule schemas, priority-ranked regex routing, and full audit logging.",
+      "step": [
+        {"@type": "HowToStep", "position": 1, "name": "Ingest and normalize source metadata", "text": "Extract raw layer names, visibility states, and attributes from the source file; flatten into a consistent schema and apply a normalization pass that strips whitespace, unifies casing, and standardizes delimiters."},
+        {"@type": "HowToStep", "position": 2, "name": "Build deterministic mapping rules", "text": "Load an external YAML or JSON schema into memory and compile it into exact-match, pattern-based, and fallback routing tiers with explicit priority weights."},
+        {"@type": "HowToStep", "position": 3, "name": "Apply transformations and resolve ambiguity", "text": "Iterate through normalized source layers in priority order, log every routing decision, and apply a conflict-resolution strategy when multiple sources collide on the same target."},
+        {"@type": "HowToStep", "position": 4, "name": "Validate and route to the target format", "text": "Check output names against destination constraints (character limits, reserved words, duplicate names), then write via the appropriate format adapter after geometric alignment is complete."}
+      ]
+    }
+  ]
+}
+</script>
 
-When integrated correctly with [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) routines, layer mapping becomes the semantic backbone of automated pipelines. It dictates how `A-WALL-FULL` becomes `Building_Walls_Exterior` in GIS, or how `IfcWall` categories route to discipline-specific CAD layers. This article provides a production-tested workflow, Python implementation patterns, and error-handling strategies for engineering teams building robust translation pipelines.
+# Layer Mapping Logic for CAD/GIS & BIM Interoperability Pipelines
+
+Raw geometry is only half the data. The semantic classification, visibility state, and attribute routing that travel alongside coordinates are governed by layer mapping logic — the set of translation rules that determine how `A-WALL-FULL` becomes `Building_Walls_Exterior` in GIS, or how an `IfcWall` category routes to a discipline-specific CAD layer. Without deterministic translation rules, data exported from AutoCAD DWG, ArcGIS Shapefiles, or Revit BIM models will misalign, lose metadata, or break downstream automation silently.
+
+This topic sits at the semantic end of the [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) pipeline. Geometric transformations resolve where features are; layer mapping resolves what they mean and which schema bucket they belong to. The two concerns must stay decoupled — running semantic routing before geometric alignment prevents coordinate drift during layer reassignment, and vice versa.
 
 ## Prerequisites
 
-Before implementing layer mapping logic in Python, ensure your environment meets these baseline requirements:
+Before implementing layer mapping logic, confirm your environment meets these baseline requirements:
 
-- **Python 3.9+** with strict type hinting and `dataclasses` support
-- **Core libraries**: `pandas`, `pyproj`, `re`, `logging`, `pathlib`
-- **Format-specific adapters** (optional but recommended): `ezdxf` for DXF/DWG, `geopandas`/`fiona` for vector GIS, `ifcopenshell` for IFC/BIM
-- **External mapping schema**: CSV, JSON, or YAML defining source-to-target relationships, priority rules, and fallback defaults
-- **Version-controlled registry**: Mappings must be externalized, peer-reviewed, and tracked in Git to prevent silent drift
-- **Spatial context awareness**: Mapping must operate alongside coordinate reference system alignment and unit standardization to prevent geometric-semantic decoupling. See [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) for baseline alignment patterns.
+- **Python 3.9+** — strict type hinting and `dataclasses` support (`# python>=3.9`)
+- **`pandas>=1.5`** — vectorized DataFrame operations for bulk layer application
+- **`re`** (stdlib) — regex compilation for pattern-based routing
+- **`pyyaml>=6.0`** or `json` — loading external rule schemas
+- **`pydantic>=2.0`** or `jsonschema>=4.0` — schema validation on pipeline initialization
+- **Format adapters** (optional): `ezdxf>=1.1` for DXF/DWG, `geopandas>=0.13` / `fiona>=1.9` for vector GIS, `ifcopenshell>=0.7` for IFC/BIM
+- **Version-controlled rule registry** — mapping schemas must live in Git, peer-reviewed, and never hardcoded into pipeline scripts
+- **CRS alignment upstream** — layer mapping must receive geometrically aligned data; consult [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) and [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) before this stage
 
-## Step-by-Step Workflow
+## Architectural Overview
 
-A reliable layer mapping pipeline follows a deterministic, stateless sequence. Each step isolates a specific transformation concern, enabling parallel testing, rollback capabilities, and clear audit trails.
+Layer naming conventions differ not only across formats but across discipline standards, company BIM templates, and national CAD standards. A production mapper must handle all three simultaneously.
 
-### 1. Ingest & Normalize Source Metadata
-Extract raw layer names, visibility states, color indices, and associated attributes from the source file. Normalize the extraction into a flat structure, typically a `pandas.DataFrame` or list of dictionaries. Avoid embedding format-specific parsing logic directly into the mapper; instead, use adapter functions that return a consistent schema: `source_layer`, `entity_count`, `is_visible`, `attributes`. Apply a normalization pass that strips whitespace, standardizes casing (typically uppercase or snake_case), and replaces platform-specific delimiters (`-`, `_`, `.`, ` `) with a unified token. Early normalization prevents downstream regex failures and ensures consistent matching behavior.
+### Naming Convention Landscape
+
+| Source Format | Convention Example | Convention Standard |
+|---|---|---|
+| AutoCAD DWG/DXF | `A-WALL-FULL`, `S-COLS-EXST` | AIA Layer Guidelines, ISO 13567 |
+| Revit / IFC | `IfcWall`, `IfcBeam[StructuralFraming]` | buildingSMART IFC 4.x schema |
+| ArcGIS Shapefile | `BuildingFootprint`, `RoadCenterline` | ESRI feature class naming |
+| OpenStreetMap GeoJSON | `building`, `highway` | OSM tagging schema |
+| Civil 3D | `C-ROAD-CGRD`, `C-PROP-LINE` | NCS/ISO 13567 civil extensions |
+
+The three structural challenges that map against every combination in this table are:
+
+1. **Synonym collapse** — multiple source names that represent the same semantic class (e.g., `A-WALL`, `ARCH-WALL`, `Wall-Architectural`) must converge to one target.
+2. **Ambiguity splitting** — one source name that could belong to two target classes depending on attributes or geometry type (e.g., `ANNO` routing to either `Annotation_Text` or `Annotation_Dimensions`).
+3. **Schema mismatch** — target formats enforce naming constraints that source formats do not (Shapefiles cap field names at 10 characters; DXF allows 255).
+
+### Rule Routing Architecture
+
+A three-tier priority system handles the full space of cases:
+
+<svg viewBox="0 0 640 320" role="img" aria-label="Layer mapping rule routing tiers: exact match, pattern-based regex, and fallback" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:1.5rem auto;">
+  <title>Three-tier layer mapping rule routing architecture</title>
+  <desc>Flowchart showing a normalized source layer name passing through three routing tiers in priority order: exact-match dictionary (Tier 1), compiled regex patterns (Tier 2), and fallback default route (Tier 3), with an audit log written at every decision.</desc>
+  <!-- Background -->
+  <rect width="640" height="320" fill="none"/>
+  <!-- Source layer box -->
+  <rect x="240" y="16" width="160" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="320" y="35" text-anchor="middle" font-size="12" fill="currentColor" font-family="system-ui,sans-serif">Normalized source</text>
+  <text x="320" y="51" text-anchor="middle" font-size="12" fill="currentColor" font-family="system-ui,sans-serif">layer name</text>
+  <!-- Arrow down -->
+  <line x1="320" y1="60" x2="320" y2="86" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- Tier 1 -->
+  <rect x="200" y="86" width="240" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="320" y="105" text-anchor="middle" font-size="12" fill="currentColor" font-family="system-ui,sans-serif">Tier 1 — Exact match</text>
+  <text x="320" y="121" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">O(1) dict lookup (highest priority)</text>
+  <!-- Match arrow right from T1 -->
+  <line x1="440" y1="108" x2="530" y2="108" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="462" y="101" font-size="10" fill="currentColor" font-family="system-ui,sans-serif">matched</text>
+  <rect x="530" y="88" width="96" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
+  <text x="578" y="112" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Target + audit</text>
+  <!-- No-match arrow down from T1 -->
+  <line x1="320" y1="130" x2="320" y2="156" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="328" y="147" font-size="10" fill="currentColor" font-family="system-ui,sans-serif">no match</text>
+  <!-- Tier 2 -->
+  <rect x="200" y="156" width="240" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="320" y="175" text-anchor="middle" font-size="12" fill="currentColor" font-family="system-ui,sans-serif">Tier 2 — Regex patterns</text>
+  <text x="320" y="191" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Compiled, priority-ranked rules</text>
+  <!-- Match arrow right from T2 -->
+  <line x1="440" y1="178" x2="530" y2="178" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="462" y="171" font-size="10" fill="currentColor" font-family="system-ui,sans-serif">matched</text>
+  <rect x="530" y="158" width="96" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
+  <text x="578" y="182" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Target + audit</text>
+  <!-- No-match arrow down from T2 -->
+  <line x1="320" y1="200" x2="320" y2="226" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="328" y="217" font-size="10" fill="currentColor" font-family="system-ui,sans-serif">no match</text>
+  <!-- Tier 3 -->
+  <rect x="200" y="226" width="240" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="320" y="245" text-anchor="middle" font-size="12" fill="currentColor" font-family="system-ui,sans-serif">Tier 3 — Fallback default</text>
+  <text x="320" y="261" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Routes to __UNMAPPED__ + alert</text>
+  <!-- Arrow right from T3 -->
+  <line x1="440" y1="248" x2="530" y2="248" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="530" y="228" width="96" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
+  <text x="578" y="252" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Target + audit</text>
+  <!-- Arrowhead marker -->
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
+    </marker>
+  </defs>
+</svg>
+
+Priority weights are stored with each rule. When multiple patterns could match a single source layer, the highest-priority rule wins, eliminating ambiguity across heterogeneous datasets.
+
+## Step-by-Step Implementation
+
+A reliable layer mapping pipeline follows a deterministic, stateless sequence. Each step isolates a specific transformation concern, enabling parallel testing, rollback, and clear audit trails.
+
+### 1. Ingest and Normalize Source Metadata
+
+Extract raw layer names, visibility states, color indices, and associated attributes from the source file. Normalize the extraction into a flat structure — typically a `pandas.DataFrame` or list of dicts — and apply a normalization pass before any matching occurs.
+
+```python
+# ezdxf>=1.1.0, pandas>=1.5.0
+import ezdxf
+import pandas as pd
+from pathlib import Path
+
+def extract_dxf_layers(dxf_path: Path) -> pd.DataFrame:
+    doc = ezdxf.readfile(str(dxf_path))
+    rows = []
+    for layer in doc.layers:
+        rows.append({
+            "source_layer": layer.dxf.name,
+            "is_visible": not bool(layer.dxf.flags & 1),
+            "color_index": layer.dxf.color,
+        })
+    df = pd.DataFrame(rows)
+    # Normalize: strip whitespace, uppercase, unify delimiters
+    df["normalized"] = (
+        df["source_layer"]
+        .str.strip()
+        .str.upper()
+        .str.replace(r"[-.\s]", "_", regex=True)
+    )
+    return df
+```
+
+Normalization must happen at ingestion, not inside the mapping loop, so that regex compilation and lookup keys share the same canonical form.
 
 ### 2. Build Deterministic Mapping Rules
-Load your external schema into memory and compile it into a structured lookup. A production-ready system should support three routing tiers:
-- **Exact matches**: Direct dictionary lookups for high-frequency, stable layer names
-- **Pattern-based routing**: Compiled regular expressions for wildcard or discipline-based naming conventions
-- **Fallback/Default routing**: Unmatched layers route to `__UNMAPPED__` or a discipline-specific catch-all, triggering an alert rather than failing silently
 
-Store priority weights alongside each rule. When multiple patterns could match a single source layer, the highest-priority rule wins. This eliminates ambiguity and ensures predictable routing across heterogeneous datasets.
-
-### 3. Apply Transformations & Handle Ambiguity
-Iterate through normalized source layers and apply the mapping rules in priority order. Log every match, partial match, and fallback. Implement a conflict resolution strategy when multiple source layers map to the same target (e.g., merge attributes, append numeric suffixes, or raise a validation error). This stage is where **layer mapping logic** proves its value: deterministic routing prevents silent data loss and ensures downstream consumers receive predictable, well-structured outputs. Always validate target names against destination constraints before writing; some GIS formats restrict layer names to 10 characters, while CAD allows 255.
-
-### 4. Validate & Route to Target Format
-After mapping, validate the output schema against the target platform’s requirements. Check for duplicate target names, invalid characters, or missing required attributes. Once validated, route the mapped layers to the appropriate writer. If your pipeline also handles geometric transformations, ensure that [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) is applied *after* semantic routing to avoid coordinate drift during layer reassignment. Geometric and semantic transformations must be decoupled to maintain pipeline stability.
-
-## Schema Design & Externalization
-
-Hardcoding mappings directly into Python scripts breaks version control, slows onboarding, and creates maintenance debt. Instead, externalize rules to a structured format like YAML or JSON. A robust schema should include:
+Externalize rules to YAML and compile them into a structured lookup on pipeline initialization. Schema validation acts as a circuit breaker — malformed rules fail fast, not silently at runtime.
 
 ```yaml
+# layer_rules.yaml
 mappings:
-  - pattern: "^A-WALL.*"
+  - pattern: "A_WALL_FULL"
     target: "Building_Walls_Exterior"
-    priority: 10
-    is_regex: true
-  - pattern: "MECH-DUCT"
-    target: "HVAC_Ductwork"
-    priority: 5
+    priority: 100
     is_regex: false
+
+  - pattern: "^A_WALL.*"
+    target: "Building_Walls_Exterior"
+    priority: 90
+    is_regex: true
+
+  - pattern: "^MECH_DUCT.*"
+    target: "HVAC_Ductwork"
+    priority: 80
+    is_regex: true
+
+  - pattern: "^S_(COLS|BEAM).*"
+    target: "Structural_Frame"
+    priority: 75
+    is_regex: true
+
   - pattern: ".*"
     target: "__UNMAPPED__"
     priority: 0
     is_regex: true
 ```
 
-Validate this schema on pipeline initialization. Use `pydantic` or `jsonschema` to enforce required fields, validate priority ranges, and catch malformed regex patterns before they reach production. Schema validation acts as a circuit breaker, preventing malformed rules from corrupting downstream outputs.
-
-<figure aria-label="Layer mapping logic: source layer name → normalize → iterate rules by priority → regex match? → exact match? → more rules? → fallback → all results written to audit log">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 510" role="img" aria-label="Layer mapping decision flow diagram" style="max-width:100%;height:auto;display:block">
-  <defs>
-    <marker id="lm-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
-      <path d="M0,0 L0,7 L8,3.5 z" fill="#444"/>
-    </marker>
-  </defs>
-  <!-- L: Source layer name -->
-  <rect x="185" y="10" width="220" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
-  <text x="295" y="28" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Source layer name</text>
-  <text x="295" y="44" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">e.g. A-WALL-EXT</text>
-  <line x1="295" y1="54" x2="295" y2="74" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
-  <!-- NM: Normalize -->
-  <rect x="195" y="74" width="200" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
-  <text x="295" y="92" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Normalize</text>
-  <text x="295" y="108" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">upper-case · trim</text>
-  <line x1="295" y1="118" x2="295" y2="138" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
-  <!-- P: Iterate rules -->
-  <rect x="185" y="138" width="220" height="44" rx="6" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
-  <text x="295" y="156" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e3a5f">Iterate rules by</text>
-  <text x="295" y="172" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">priority desc</text>
-  <line x1="295" y1="182" x2="295" y2="202" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
-  <!-- R1: Regex rule matches? -->
-  <polygon points="295,202 400,228 295,254 190,228" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
-  <text x="295" y="224" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">Regex rule</text>
-  <text x="295" y="240" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">matches?</text>
-  <!-- yes → OK (right) -->
-  <line x1="400" y1="228" x2="450" y2="228" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
-  <text x="423" y="222" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">yes</text>
-  <rect x="450" y="206" width="155" height="44" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
-  <text x="527" y="224" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">Emit target_layer</text>
-  <text x="527" y="240" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">log: regex</text>
-  <!-- no → R2 diamond -->
-  <line x1="295" y1="254" x2="295" y2="274" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
-  <text x="310" y="268" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">no</text>
-  <polygon points="295,274 400,300 295,326 190,300" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
-  <text x="295" y="296" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">Exact rule</text>
-  <text x="295" y="312" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">matches?</text>
-  <!-- yes → OK2 (right) -->
-  <line x1="400" y1="300" x2="450" y2="300" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
-  <text x="423" y="294" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">yes</text>
-  <rect x="450" y="278" width="155" height="44" rx="6" fill="#d1f4ee" stroke="#0d9488" stroke-width="1.5"/>
-  <text x="527" y="296" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#0d5c55">Emit target_layer</text>
-  <text x="527" y="312" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0d5c55">log: exact</text>
-  <!-- no → NXT diamond -->
-  <line x1="295" y1="326" x2="295" y2="346" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
-  <text x="310" y="340" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">no</text>
-  <polygon points="295,346 390,368 295,390 200,368" fill="#fff3cd" stroke="#b45309" stroke-width="1.5"/>
-  <text x="295" y="364" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">More</text>
-  <text x="295" y="380" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7c3d00">rules?</text>
-  <!-- yes → back to P (left loop) -->
-  <line x1="200" y1="368" x2="100" y2="368" stroke="#444" stroke-width="1.5"/>
-  <line x1="100" y1="368" x2="100" y2="160" stroke="#444" stroke-width="1.5"/>
-  <line x1="100" y1="160" x2="185" y2="160" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
-  <text x="148" y="361" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">yes</text>
-  <!-- no → FB -->
-  <line x1="295" y1="390" x2="295" y2="410" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
-  <text x="310" y="404" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#444">no</text>
-  <rect x="175" y="410" width="240" height="44" rx="6" fill="#f8d7da" stroke="#9b1c1c" stroke-width="1.5"/>
-  <text x="295" y="428" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7b1111">Emit __UNMAPPED__</text>
-  <text x="295" y="444" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#7b1111">log: fallback</text>
-  <!-- All three results converge to A cylinder -->
-  <!-- OK down -->
-  <line x1="527" y1="250" x2="527" y2="470" stroke="#444" stroke-width="1.5"/>
-  <line x1="527" y1="470" x2="365" y2="470" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
-  <!-- OK2 down -->
-  <line x1="527" y1="322" x2="527" y2="250" stroke="#444" stroke-width="1.5"/>
-  <!-- FB down to A -->
-  <line x1="295" y1="454" x2="295" y2="470" stroke="#444" stroke-width="1.5"/>
-  <line x1="295" y1="470" x2="315" y2="470" stroke="#444" stroke-width="1.5" marker-end="url(#lm-arrow)"/>
-  <!-- A: Audit log cylinder -->
-  <ellipse cx="340" cy="470" rx="50" ry="13" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
-  <rect x="290" y="470" width="100" height="22" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
-  <ellipse cx="340" cy="492" rx="50" ry="13" fill="#e8f0fb" stroke="#1e3a5f" stroke-width="1.5"/>
-  <text x="340" y="483" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">Audit log</text>
-  <text x="340" y="496" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1e3a5f">source → target</text>
-</svg>
-</figure>
-
-> **Note:** Priority is the only knob that controls rule order — higher numbers win. Tie-breaking falls back to insertion order, so write your most-specific patterns at high priorities and your `.*` catch-all at `priority: 0`.
-
-## Production-Ready Python Implementation
-
-Below is a type-safe, audit-ready implementation that externalizes mapping rules, handles regex compilation, and logs all routing decisions. It uses `dataclasses` for schema validation, `logging` for traceability, and `pandas` for vectorized application.
-
 ```python
+# pyyaml>=6.0, pydantic>=2.0
+import yaml
 import re
-import logging
-import pandas as pd
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Optional
-
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+from pathlib import Path
 
 @dataclass
 class MappingRule:
     pattern: str
-    target_layer: str
+    target: str
     priority: int = 0
     is_regex: bool = False
     compiled: Optional[re.Pattern] = field(init=False, default=None)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.is_regex:
             try:
                 self.compiled = re.compile(self.pattern, re.IGNORECASE)
-            except re.error as e:
-                raise ValueError(f"Invalid regex pattern '{self.pattern}': {e}")
+            except re.error as exc:
+                raise ValueError(f"Invalid regex '{self.pattern}': {exc}") from exc
+
+def load_rules(schema_path: Path) -> list[MappingRule]:
+    with schema_path.open() as fh:
+        raw = yaml.safe_load(fh)
+    rules = [MappingRule(**m) for m in raw["mappings"]]
+    return sorted(rules, key=lambda r: r.priority, reverse=True)
+```
+
+### 3. Apply Transformations and Resolve Ambiguity
+
+With rules loaded and source metadata normalized, apply the routing in priority order. Log every decision — match method, source, target — to a structured audit log for downstream traceability.
+
+```python
+# stdlib logging
+import logging
+import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 class LayerMapper:
-    def __init__(self, rules: list[MappingRule], default_target: str = "__UNMAPPED__"):
-        self.rules = sorted(rules, key=lambda r: r.priority, reverse=True)
-        self.default = default_target
-        self.mapping_log: list[dict] = []
+    def __init__(self, rules: list[MappingRule], default: str = "__UNMAPPED__") -> None:
+        self.rules = rules  # already sorted by priority descending
+        self.default = default
+        self.audit: list[dict] = []
 
-    def map_layer(self, source: str) -> str:
-        normalized = source.strip().upper().replace("-", "_")
+    def map_one(self, normalized: str) -> str:
         for rule in self.rules:
             if rule.is_regex and rule.compiled and rule.compiled.search(normalized):
-                self.mapping_log.append({"source": source, "target": rule.target_layer, "method": "regex"})
-                return rule.target_layer
+                self.audit.append({"src": normalized, "target": rule.target, "method": "regex"})
+                return rule.target
             elif not rule.is_regex and normalized == rule.pattern.upper().replace("-", "_"):
-                self.mapping_log.append({"source": source, "target": rule.target_layer, "method": "exact"})
-                return rule.target_layer
-        self.mapping_log.append({"source": source, "target": self.default, "method": "fallback"})
+                self.audit.append({"src": normalized, "target": rule.target, "method": "exact"})
+                return rule.target
+        self.audit.append({"src": normalized, "target": self.default, "method": "fallback"})
+        logger.warning("Unmapped layer: %s -> %s", normalized, self.default)
         return self.default
 
-    def apply_to_dataframe(self, df: pd.DataFrame, source_col: str = "source_layer") -> pd.DataFrame:
-        df["target_layer"] = df[source_col].apply(self.map_layer)
+    def apply(self, df: pd.DataFrame, norm_col: str = "normalized") -> pd.DataFrame:
+        df = df.copy()
+        df["target_layer"] = df[norm_col].apply(self.map_one)
         return df
 
     def export_audit(self, path: Path) -> None:
-        pd.DataFrame(self.mapping_log).to_csv(path, index=False)
-        logger.info(f"Audit log exported to {path}")
+        pd.DataFrame(self.audit).to_csv(path, index=False)
+        logger.info("Audit log written to %s", path)
 ```
 
-This implementation isolates mapping concerns from I/O operations, making it highly testable and CI/CD friendly. You can load rules from YAML using `pyyaml`, instantiate the mapper, and apply it to any normalized layer list. For comprehensive logging configuration patterns, consult the official [Python `logging` module documentation](https://docs.python.org/3/library/logging.html).
+When multiple source layers map to the same target name, apply one of three conflict strategies: merge attributes into a combined record, append a numeric suffix to the duplicate target, or raise a `ValueError` and halt — the right choice depends on the destination format's tolerance for duplicate names.
 
-## Performance & Vectorization Considerations
+### 4. Validate and Route to the Target Format
 
-When processing datasets with tens of thousands of layers, Python-level iteration becomes a bottleneck. While `df.apply()` works for moderate workloads, large-scale pipelines benefit from vectorized operations or precompiled lookup dictionaries. Cache exact matches in a `frozenset` or `dict` for O(1) retrieval, and reserve regex evaluation only for unmatched entries. Additionally, batch process layers by discipline to reduce memory overhead and improve cache locality.
+Before writing, validate output names against destination constraints. Then apply geometric alignment. [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) must run after semantic routing to prevent coordinate drift during layer reassignment.
 
-For spatial datasets, attribute routing often intersects with geometric joins. If your pipeline relies on spatial indexing to assign layers, ensure that coordinate alignment precedes semantic mapping. Refer to the [Open Geospatial Consortium (OGC) Simple Features specification](https://www.ogc.org/standards/sfs) for standardized spatial relationship definitions that prevent ambiguous layer assignments during bulk imports.
+```python
+# geopandas>=0.13.0
+import re
+import geopandas as gpd
 
-## Testing & CI/CD Integration
+SHAPEFILE_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,9}$")  # 10-char limit
 
-Deterministic mapping requires deterministic testing. Implement a test suite that covers:
-- **Exact match routing**: Verify high-priority rules override lower ones
-- **Regex boundary cases**: Test overlapping patterns, case sensitivity, and delimiter variations
-- **Fallback thresholds**: Assert that pipelines halt or alert when unmapped layers exceed a configurable percentage (e.g., >5%)
-- **Schema validation**: Ensure malformed YAML/JSON fails fast during initialization
+def validate_for_shapefile(target_names: list[str]) -> list[str]:
+    errors = []
+    for name in set(target_names):
+        if name == "__UNMAPPED__":
+            errors.append(f"Unmapped layers present: {name}")
+        elif not SHAPEFILE_NAME_RE.match(name):
+            errors.append(f"Invalid Shapefile name: '{name}' (max 10 chars, alphanumeric+underscore)")
+    if errors:
+        raise ValueError("Layer name validation failed:\n" + "\n".join(errors))
+    return target_names
 
-Integrate these tests into your CI/CD pipeline using `pytest`. Mock format-specific adapters and feed synthetic layer lists to validate routing logic independently of file I/O. This approach catches regression errors before they reach production environments.
+def write_to_shapefile(gdf: gpd.GeoDataFrame, out_path: Path) -> None:
+    validate_for_shapefile(gdf["target_layer"].unique().tolist())
+    for layer_name, group in gdf.groupby("target_layer"):
+        layer_gdf = group.drop(columns=["target_layer"])
+        layer_gdf.to_file(out_path / f"{layer_name}.shp")
+```
 
-## Conclusion
+## Edge Cases and Gotchas
 
-Deterministic **layer mapping logic** transforms chaotic, multi-platform AEC and geospatial data into structured, automation-ready outputs. By externalizing rules, normalizing inputs early, and coupling semantic routing with geometric alignment, engineering teams can eliminate silent data loss and accelerate cross-platform delivery. When paired with robust validation, audit logging, and standardized spatial workflows, this approach becomes a foundational component of modern infrastructure data pipelines.
+### 1. Shapefile 10-Character Name Truncation
+
+Shapefiles silently truncate layer/field names at 10 characters. `Building_Walls_Exterior` becomes `Building_W`, which may collide with `Building_W_Interior` producing data overwriting with no error raised. Always validate name length before writing and maintain an explicit truncation map in the rule schema.
+
+### 2. DXF Layer 0 Inheritance
+
+Layer `0` in DXF has special semantic meaning: entities on layer `0` inside blocks inherit the color, linetype, and visibility of the block insertion layer, not layer `0` itself. Routing layer-`0` entities to a target layer without unwrapping block inheritance first produces incorrect classification. Detect block membership before mapping:
+
+```python
+# ezdxf>=1.1.0
+for entity in msp:
+    layer = entity.dxf.layer
+    if layer == "0" and hasattr(entity, "dxf") and entity.dxftype() == "INSERT":
+        layer = entity.dxf.layer  # block insertion layer overrides
+```
+
+### 3. IFC Type vs. Layer Name Divergence
+
+IFC models carry classification in `IfcType` attributes (`IfcWall`, `IfcSlab`), not in a layer name field. Extracting "layer" from `ifc_entity.get_info().get("Name")` produces the object's instance name, not its type class. Use `entity.is_a()` for type-based routing:
+
+```python
+# ifcopenshell>=0.7.0
+import ifcopenshell
+
+def ifc_layer_name(entity) -> str:
+    return entity.is_a()  # e.g. "IfcWall", "IfcBeam"
+```
+
+### 4. Regex Priority Collisions
+
+When two regex rules both match a source layer and have identical priority weights, routing is order-dependent. This is a maintenance trap: adding a new rule can silently change existing routing. Enforce unique priority values at schema load time:
+
+```python
+def assert_unique_priorities(rules: list[MappingRule]) -> None:
+    weights = [r.priority for r in rules if r.is_regex]
+    if len(weights) != len(set(weights)):
+        raise ValueError("Duplicate priority weights in regex rules — routing will be non-deterministic")
+```
+
+### 5. Unicode and Non-ASCII Layer Names
+
+DXF R2007+ files encoded in UTF-8 may contain non-ASCII layer names (e.g., `Straße`, `구조벽`). Python `str.upper()` handles these correctly, but normalization that replaces non-ASCII characters with underscores must apply consistently before lookup — otherwise the same name produces different normalized forms on different platforms. Use `unicodedata.normalize('NFC', name)` before any casing or delimiter pass.
+
+### 6. Cascading Mapping (Multi-Hop Translation)
+
+Some pipelines require CAD → GIS → BIM routing across two format boundaries using two separate rule schemas. Apply schemas sequentially with an intermediate validation step between them. Never merge two schemas into one — the combined rule set becomes untestable and the priority space becomes unbounded.
+
+## Validation and Testing
+
+```python
+# pytest>=7.0.0
+import pytest
+from pathlib import Path
+
+def test_exact_match_priority_over_regex(tmp_path: Path) -> None:
+    rules = load_rules(Path("tests/fixtures/layer_rules.yaml"))
+    mapper = LayerMapper(rules)
+    # "A_WALL_FULL" should hit exact match (priority 100), not regex (priority 90)
+    result = mapper.map_one("A_WALL_FULL")
+    assert result == "Building_Walls_Exterior"
+    assert mapper.audit[-1]["method"] == "exact"
+
+def test_fallback_triggers_warning(caplog) -> None:
+    rules = load_rules(Path("tests/fixtures/layer_rules.yaml"))
+    mapper = LayerMapper(rules)
+    with caplog.at_level(logging.WARNING):
+        result = mapper.map_one("UNKNOWN_LAYER_XYZ")
+    assert result == "__UNMAPPED__"
+    assert "Unmapped layer" in caplog.text
+
+def test_unmapped_threshold_gate() -> None:
+    rules = load_rules(Path("tests/fixtures/layer_rules.yaml"))
+    mapper = LayerMapper(rules)
+    layers = ["A_WALL_FULL", "UNKNOWN_1", "UNKNOWN_2", "UNKNOWN_3"]
+    for l in layers:
+        mapper.map_one(l)
+    unmapped_ratio = sum(1 for e in mapper.audit if e["target"] == "__UNMAPPED__") / len(mapper.audit)
+    assert unmapped_ratio < 0.05, f"Unmapped ratio {unmapped_ratio:.1%} exceeds 5% threshold"
+```
+
+Run an unmapped-ratio gate in CI: if more than 5% of source layers route to `__UNMAPPED__`, the pipeline halts. This prevents schema drift from silently degrading output quality across project delivery cycles.
+
+## Performance and Scale
+
+For datasets with tens of thousands of layers, Python-level iteration in `map_one` becomes a bottleneck. Apply these strategies at scale:
+
+- **Pre-index exact matches** into a `dict[str, str]` for O(1) lookup; only fall through to regex evaluation for unmatched entries.
+- **Vectorize with `pandas.Series.map`** for exact-match-dominant datasets: build a full lookup dict from the rule schema and call `df["normalized"].map(lookup_dict).fillna(df["normalized"].map(regex_fallback))`.
+- **Batch by discipline prefix** — group layers by their first token (`A_`, `S_`, `M_`, `E_`) and apply a discipline-scoped rule subset, reducing the number of regex compilations and comparisons per batch.
+- **Cache compiled regex objects** at the `MappingRule` level (already done via `__post_init__`); never recompile inside a loop.
+- **Limit `re.search` scope** with anchored patterns (`^`, `$`) wherever possible; unanchored patterns scan the full normalized string on every call.
+
+For spatial datasets where attribute routing intersects with geometric joins, ensure that coordinate alignment (see [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/)) precedes semantic mapping. Mixed geometric-semantic operations in a single pass produce hard-to-debug state dependencies.
+
+## FAQ
+
+<details>
+<summary>Should mapping rules live in the codebase or in a database?</summary>
+
+For most AEC pipelines, a version-controlled YAML file checked into the project repository is the right default. It is diff-able, peer-reviewable, and deployable without a database dependency. Move rules into a database only when multiple teams need to edit them concurrently through a UI, or when the rule count exceeds a few thousand and query-time filtering becomes necessary. Hybrid approaches — rules in Git, synced to a read-only database table on deploy — work well for enterprise delivery environments.
+</details>
+
+<details>
+<summary>What happens when the source format has no layer concept?</summary>
+
+GeoJSON and some GeoPackage files carry type classification in feature properties rather than a layer field. In this case, derive the "source layer" from the relevant property key (e.g., `feature["properties"]["class"]` or `feature["properties"]["type"]`) during the ingestion normalization pass. The mapping engine itself is agnostic to where the string originated — it only operates on the normalized string value.
+</details>
+
+<details>
+<summary>How should IFC object types map to GIS feature classes?</summary>
+
+The most reliable approach is a two-level mapping: first from `entity.is_a()` (the IFC type class) to an intermediate semantic label, then from that label to the GIS feature class name. This isolates IFC-version differences (IFC2x3 vs IFC4 type hierarchies) from GIS schema decisions and makes each hop independently testable. Avoid direct IFC-to-GIS mappings in a single rule set; they become brittle when IFC schema versions change.
+</details>
+
+<details>
+<summary>What is the correct behavior when two source layers must merge into one target?</summary>
+
+Explicitly model merge rules as a separate concern from routing rules. After routing, detect target collision by grouping on `target_layer` and counting rows. For merges that are expected and intentional (e.g., `A-WALL-FULL` and `A-WALL-HALF` both routing to `Building_Walls_Exterior`), log the merge in the audit trail. For unexpected collisions — two layers that should have been distinct but share a target — raise a validation error before writing.
+</details>
+
+<details>
+<summary>Does normalization need to run again after mapping?</summary>
+
+No. Run normalization exactly once, during ingestion. The `target_layer` value written by the mapper is already in its final canonical form, derived from the rule schema — it does not need a second normalization pass. Applying normalization again after mapping risks altering target names that were intentionally authored in mixed case or with specific delimiters for the destination format.
+</details>
+
+## Related Pages
+
+- [Coordinate Transformation & Spatial Alignment](/coordinate-transformation-spatial-alignment/) — parent pipeline covering datum shifts, projection, and geometric alignment
+- [CRS Normalization Workflows](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — upstream stage that resolves coordinate reference system ambiguity before semantic routing
+- [Unit Conversion Pipelines](/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — harmonizes measurement units across CAD, GIS, and BIM before geometric processing
+- [Scale and Rotation Synchronization](/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — downstream geometric alignment step that must follow semantic routing to prevent coordinate drift

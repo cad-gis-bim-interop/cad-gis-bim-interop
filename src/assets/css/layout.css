@@ -88,3 +88,10 @@
 .skip-link:focus {
   top: var(--s-2);
 }
+
+/* In-article diagram SVGs fill the text column (override inline max-width cap). */
+.prose svg[role="img"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto;
+}

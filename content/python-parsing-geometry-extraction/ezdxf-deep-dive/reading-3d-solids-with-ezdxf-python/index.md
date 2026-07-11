@@ -75,6 +75,8 @@ dateModified: "2026-06-24"
 }
 </script>
 
+# Reading 3D Solids with ezdxf Python: Extract ACIS Payloads from DXF Files
+
 To read 3D solids with `ezdxf` in Python, query `3DSOLID` entities from the DXF modelspace and access their embedded ACIS/SAT payload via the `.acis` property. `ezdxf` does not reconstruct B-Rep topology, generate meshes, or convert parametric geometry to standard triangle formats — it exposes the raw ACIS string exactly as stored in the DXF file. For production AEC/GIS pipelines, pair this extraction with a dedicated ACIS parser or geometry kernel (`python-occ`, OpenCASCADE, or `cadquery`) to convert the payload into usable vertices, faces, or STEP/IGES outputs. For broader entity traversal and memory-efficient DXF processing, see the [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/).
 
 ## How `ezdxf` Handles 3D Solids in DXF Files

@@ -122,23 +122,23 @@ AEC tech engineers routinely encounter source files where spatial geometry and n
   <rect x="10" y="90" width="120" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
   <text x="70" y="111" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif" font-weight="600">Format</text>
   <text x="70" y="126" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif" font-weight="600">Detection</text>
-  <text x="70" y="141" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.65">magic bytes / header</text>
+  <text x="70" y="141" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.65">magic bytes / header</text>
   <rect x="163" y="90" width="120" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
   <text x="223" y="111" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif" font-weight="600">Parser Init</text>
   <text x="223" y="126" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif" font-weight="600">&amp; Context Load</text>
-  <text x="223" y="141" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.65">ezdxf / ifcopenshell</text>
+  <text x="223" y="141" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.65">ezdxf / ifcopenshell</text>
   <rect x="316" y="90" width="120" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
   <text x="376" y="111" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif" font-weight="600">Attribute</text>
   <text x="376" y="126" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif" font-weight="600">Harvest</text>
-  <text x="376" y="141" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.65">XData / Psets / attrs</text>
+  <text x="376" y="141" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.65">XData / Psets / attrs</text>
   <rect x="469" y="90" width="120" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
   <text x="529" y="111" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif" font-weight="600">Schema</text>
   <text x="529" y="126" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif" font-weight="600">Normalize</text>
-  <text x="529" y="141" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.65">units / CRS / keys</text>
+  <text x="529" y="141" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.65">units / CRS / keys</text>
   <rect x="622" y="90" width="120" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
   <text x="682" y="111" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif" font-weight="600">Validate &amp;</text>
   <text x="682" y="126" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif" font-weight="600">Serialize</text>
-  <text x="682" y="141" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.65">pydantic / Parquet</text>
+  <text x="682" y="141" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.65">pydantic / Parquet</text>
   <!-- Connector arrows -->
   <line x1="132" y1="116" x2="161" y2="116" stroke="currentColor" stroke-width="1.5" opacity="0.55" marker-end="url(#arrow)"/>
   <line x1="285" y1="116" x2="314" y2="116" stroke="currentColor" stroke-width="1.5" opacity="0.55" marker-end="url(#arrow)"/>

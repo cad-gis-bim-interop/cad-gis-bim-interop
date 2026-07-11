@@ -182,15 +182,15 @@ This guide delivers a production-tested Python workflow: header validation, cont
   <text x="535" y="122" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.7">IfcProjectedCRS</text>
   <text x="690" y="122" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.7">EPSG-aligned</text>
   <!-- Failure callouts below stages 2 and 4 -->
-  <rect x="165" y="225" width="120" height="46" rx="4" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
-  <text x="225" y="243" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.75">Gotcha: linear</text>
-  <text x="225" y="257" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.75">referencing differs</text>
-  <text x="225" y="271" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.75">from building trees</text>
+  <rect x="155" y="225" width="140" height="58" rx="4" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
+  <text x="225" y="243" text-anchor="middle" font-size="8" fill="currentColor" opacity="0.75">Gotcha: linear</text>
+  <text x="225" y="257" text-anchor="middle" font-size="8" fill="currentColor" opacity="0.75">referencing differs</text>
+  <text x="225" y="271" text-anchor="middle" font-size="8" fill="currentColor" opacity="0.75">from building trees</text>
   <line x1="225" y1="210" x2="225" y2="225" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2" opacity="0.5"/>
-  <rect x="475" y="225" width="120" height="46" rx="4" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
-  <text x="535" y="243" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.75">Gotcha: missing</text>
-  <text x="535" y="257" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.75">IfcProjectedCRS →</text>
-  <text x="535" y="271" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.75">fallback required</text>
+  <rect x="465" y="225" width="140" height="58" rx="4" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
+  <text x="535" y="243" text-anchor="middle" font-size="8" fill="currentColor" opacity="0.75">Gotcha: missing</text>
+  <text x="535" y="257" text-anchor="middle" font-size="8" fill="currentColor" opacity="0.75">IfcProjectedCRS →</text>
+  <text x="535" y="271" text-anchor="middle" font-size="8" fill="currentColor" opacity="0.75">fallback required</text>
   <line x1="535" y1="210" x2="535" y2="225" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2" opacity="0.5"/>
   <!-- Arrow marker -->
   <defs>

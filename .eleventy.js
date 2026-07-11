@@ -76,25 +76,15 @@ module.exports = function (eleventyConfig) {
       liClass: "task-list-item"
     });
 
-  // Fenced code: render mermaid blocks as <pre class="mermaid">…</pre> for client-side render.
-  // Also auto-convert ASCII diagrams in plain code blocks.
+  // Fenced code rendering. NOTE: Mermaid is intentionally NOT emitted — the site's
+  // QA gate (mermaid_check) forbids any client-side Mermaid; all diagrams must be
+  // hand-authored inline SVGs. So both explicit ```mermaid fences and the former
+  // ASCII-diagram auto-conversion are disabled; every fence renders as a normal,
+  // copy-button-wrapped code block.
   const defaultFence = md.renderer.rules.fence.bind(md.renderer.rules);
   md.renderer.rules.fence = (tokens, idx, options, env, self) => {
     const token = tokens[idx];
     const info = (token.info || "").trim().toLowerCase();
-    const raw = token.content || "";
-
-    if (info === "mermaid") {
-      return `<pre class="mermaid">${md.utils.escapeHtml(raw)}</pre>`;
-    }
-
-    // Auto-detect ASCII diagrams in unlabeled / "text" / "txt" / "ascii" fences
-    if (!info || info === "text" || info === "txt" || info === "ascii" || info === "plain") {
-      if (looksLikeAsciiDiagram(raw)) {
-        const mer = asciiToMermaid(raw);
-        if (mer) return `<pre class="mermaid">${md.utils.escapeHtml(mer)}</pre>`;
-      }
-    }
 
     // Default: pass through to syntax highlighter wrapped in a copy-button-aware container
     const rendered = defaultFence(tokens, idx, options, env, self);
@@ -232,6 +222,19 @@ module.exports = function (eleventyConfig) {
         return `<h2${h2attrs}>${h2text}</h2><div class="faq-accordion">${accordion}</div>`;
       }
     );
+  });
+
+  // Ensure hand-authored FAQ <details> get the accordion class the site CSS targets,
+  // so a bare <details> written in markdown still renders as a styled disclosure widget.
+  eleventyConfig.addTransform("faqDetailsClass", function (content) {
+    if (!this.page.outputPath || !this.page.outputPath.endsWith(".html")) return content;
+    let out = content.replace(/<details(?![^>]*\bclass=)/g, '<details class="faq-item"');
+    // Wrap <summary> content in a single <span> so an inline <code>/<strong> inside the
+    // question does not fragment the flex row (question left, disclosure marker right).
+    out = out.replace(/<summary>([\s\S]*?)<\/summary>/g, (m, inner) =>
+      /^\s*<span\b/.test(inner) ? m : `<summary><span class="faq-q">${inner.trim()}</span></summary>`
+    );
+    return out;
   });
 
   // Callout / admonition transform — convert blockquotes whose first inline

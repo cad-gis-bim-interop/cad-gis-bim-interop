@@ -4,7 +4,7 @@
      - Static assets (css, js, img, fonts, svg): stale-while-revalidate.
      - Manifest / icons: cache-first.
 */
-const VERSION = "v1.0.0";
+const VERSION = "v1.1.0";
 const PRECACHE = `precache-${VERSION}`;
 const RUNTIME = `runtime-${VERSION}`;
 

@@ -86,7 +86,7 @@
   {%- endif %}
 
   <!-- Styles -->
-  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/main.css?v={{ assets.css }}">
 
   <!-- JSON-LD: site / article / collection -->
   {%- if page.url == "/" %}
@@ -173,6 +173,6 @@
 
   {% include "partials/footer.njk" %}
 
-  <script src="/assets/js/site.js" defer></script>
+  <script src="/assets/js/site.js?v={{ assets.js }}" defer></script>
 </body>
 </html>

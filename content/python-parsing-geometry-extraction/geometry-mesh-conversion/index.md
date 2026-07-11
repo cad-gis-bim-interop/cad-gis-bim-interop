@@ -148,23 +148,23 @@ The mesh conversion process follows a deterministic five-stage sequence. Deviati
   <rect x="4" y="60" width="112" height="56" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="60" y="83" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Source</text>
   <text x="60" y="98" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Ingestion</text>
-  <text x="60" y="113" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">DXF · IFC · GIS</text>
+  <text x="60" y="113" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">DXF · IFC · GIS</text>
   <rect x="136" y="60" width="112" height="56" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="192" y="83" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Coordinate</text>
   <text x="192" y="98" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Normalisation</text>
-  <text x="192" y="113" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">CRS · units · centroid</text>
+  <text x="192" y="113" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">CRS · units · centroid</text>
   <rect x="268" y="60" width="120" height="56" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="328" y="83" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Triangulation</text>
   <text x="328" y="98" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">&amp; Repair</text>
-  <text x="328" y="113" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">winding · holes · degenerate</text>
+  <text x="328" y="113" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">winding · holes · degenerate</text>
   <rect x="404" y="60" width="120" height="56" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="464" y="83" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Attribute</text>
   <text x="464" y="98" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Mapping</text>
-  <text x="464" y="113" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">layers · materials · IFC props</text>
+  <text x="464" y="113" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">layers · materials · IFC props</text>
   <rect x="540" y="60" width="132" height="56" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="606" y="83" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Validation</text>
   <text x="606" y="98" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">&amp; Export</text>
-  <text x="606" y="113" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">glTF · OBJ · STL</text>
+  <text x="606" y="113" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">glTF · OBJ · STL</text>
   <!-- Arrows between boxes -->
   <line x1="116" y1="88" x2="134" y2="88" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
   <line x1="248" y1="88" x2="266" y2="88" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
@@ -318,7 +318,7 @@ For assemblies with logical branches (e.g. IFC boolean results vs. simple extrus
   <!-- Root -->
   <rect x="180" y="8" width="200" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="280" y="26" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Source Entity Type</text>
-  <text x="280" y="42" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">route by entity class</text>
+  <text x="280" y="42" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">route by entity class</text>
   <!-- Branch lines from root -->
   <line x1="220" y1="52" x2="80" y2="100" stroke="currentColor" stroke-width="1.2"/>
   <line x1="280" y1="52" x2="280" y2="100" stroke="currentColor" stroke-width="1.2"/>
@@ -327,19 +327,19 @@ For assemblies with logical branches (e.g. IFC boolean results vs. simple extrus
   <!-- Node: IFC Boolean -->
   <rect x="8" y="100" width="148" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="82" y="118" text-anchor="middle" font-size="10.5" fill="currentColor" font-family="system-ui,sans-serif">IfcBooleanResult</text>
-  <text x="82" y="134" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">OCC kernel via geom.create_shape</text>
+  <text x="82" y="134" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">OCC kernel via geom.create_shape</text>
   <!-- Node: LWPOLYLINE bulge -->
   <rect x="174" y="100" width="148" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="248" y="118" text-anchor="middle" font-size="10.5" fill="currentColor" font-family="system-ui,sans-serif">LWPOLYLINE + bulge</text>
-  <text x="248" y="134" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">arc-tessellate → shapely</text>
+  <text x="248" y="134" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">arc-tessellate → shapely</text>
   <!-- Node: Planar poly -->
   <rect x="344" y="100" width="132" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="410" y="118" text-anchor="middle" font-size="10.5" fill="currentColor" font-family="system-ui,sans-serif">LWPOLYLINE / region</text>
-  <text x="410" y="134" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">shapely triangulate_polygon</text>
+  <text x="410" y="134" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">shapely triangulate_polygon</text>
   <!-- Node: 3DFACE -->
   <rect x="490" y="100" width="66" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="523" y="118" text-anchor="middle" font-size="10.5" fill="currentColor" font-family="system-ui,sans-serif">3DFACE</text>
-  <text x="523" y="134" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">direct faces</text>
+  <text x="523" y="134" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">direct faces</text>
   <!-- Arrow down to trimesh -->
   <line x1="82" y1="144" x2="280" y2="202" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4,3"/>
   <line x1="248" y1="144" x2="280" y2="202" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4,3"/>
@@ -348,7 +348,7 @@ For assemblies with logical branches (e.g. IFC boolean results vs. simple extrus
   <!-- Final merge box -->
   <rect x="180" y="202" width="200" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="280" y="220" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">trimesh.Trimesh</text>
-  <text x="280" y="236" text-anchor="middle" font-size="9.5" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">repair → validate → export</text>
+  <text x="280" y="236" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.7">repair → validate → export</text>
 </svg>
 
 ### Step 4 — Semantic Attribute Mapping and Export

@@ -28,5 +28,15 @@ module.exports = [
       "CRS normalization, unit conversion, layer mapping, and scale/rotation synchronization — for reliable, survey-grade alignment across pipelines.",
     icon: "compass",
     accent: "highlight"
+  },
+  {
+    slug: "interoperability-decision-guides",
+    url: "/interoperability-decision-guides/",
+    title: "Interoperability Decision Guides",
+    short: "Decision guides",
+    blurb:
+      "Choose the right library and interchange format for production pipelines — ezdxf vs pyDWG vs ODA, DXF vs IFC for GIS ingestion, and GeoPackage vs PostGIS for CAD output.",
+    icon: "compare",
+    accent: "primary"
   }
 ];

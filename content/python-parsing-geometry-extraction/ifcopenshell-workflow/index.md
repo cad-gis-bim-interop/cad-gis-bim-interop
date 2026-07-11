@@ -307,7 +307,7 @@ def project_vertices(
     return np.column_stack([x, y, z])
 ```
 
-`always_xy=True` prevents axis-order surprises when the source CRS uses a latitude-first convention (common with legacy EPSG codes). See [Converting CAD Local Coordinates to EPSG:4326](/python-parsing-geometry-extraction/converting-cad-local-coordinates-to-epsg4326/) for a worked example with real survey data.
+`always_xy=True` prevents axis-order surprises when the source CRS uses a latitude-first convention (common with legacy EPSG codes). See [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) for a worked example with real survey data.
 
 ### Step 6 — Extract Property Sets and Serialize to GeoJSON
 
@@ -572,4 +572,4 @@ Federated IFC is not a single file format — federation is a host-application c
 - [Extracting IFC Wall Geometries to Shapely](/python-parsing-geometry-extraction/ifcopenshell-workflow/extracting-ifc-wall-geometries-to-shapely/) — optimized projection and polygonization routines for building footprints.
 - [ezdxf Deep Dive](/python-parsing-geometry-extraction/ezdxf-deep-dive/) — production DXF parsing patterns using a sibling Python library; shared architectural patterns apply.
 - [pydwg Integration](/python-parsing-geometry-extraction/pydwg-integration/) — legacy DWG format access from Python; relevant when IFC deliverables are unavailable.
-- [Converting CAD Local Coordinates to EPSG:4326](/python-parsing-geometry-extraction/converting-cad-local-coordinates-to-epsg4326/) — worked CRS transformation example that pairs directly with the vertex projection step above.
+- [Converting CAD Local Coordinates to EPSG:4326](/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — worked CRS transformation example that pairs directly with the vertex projection step above.
