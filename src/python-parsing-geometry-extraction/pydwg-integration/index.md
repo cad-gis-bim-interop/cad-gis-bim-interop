@@ -93,6 +93,37 @@ Getting this wrong has real costs. A pipeline that silently skips unrecognised D
 
 Production pipelines take one of two approaches. The first — and most widely applicable — converts DWG to DXF offline using the ODA File Converter or `libredwg`, then parses the result with `ezdxf`. The second wraps a licensed SDK (ODA Teigha, RealDWG) through subprocess calls or compiled C-extension bindings, preserving full native access at the cost of licence management and build complexity.
 
+<!-- fig:dwg-two-approaches -->
+<svg viewBox="-20 -20 586 194.1" role="img" aria-label="Converting DWG to DXF offline versus reading the binary directly — coverage against deployment cost" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:586px;display:block;margin:1.5rem auto;">
+  <title>Convert offline, or read the binary directly</title>
+  <desc>The two production approaches to DWG. Converting to DXF first adds a process boundary and a licensed binary to the deployment but gives full, well-understood version coverage and a pure-Python parse afterwards. Reading the binary directly removes the external dependency at the cost of partial and release-dependent coverage. The first is what most pipelines can actually operate.</desc>
+  <defs>
+    <marker id="pdw1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="pdw1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="586" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="258" height="130" rx="6" fill="currentColor" fill-opacity="0.11" stroke="currentColor" stroke-width="1.9"/>
+  <text x="129" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Convert to DXF first</text>
+  <line x1="14" y1="33" x2="244" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— full version coverage</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— pure-Python parse afterwards</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— a licensed binary in the image</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— a subprocess to supervise</text>
+  <rect x="288" y="0" width="258" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="417" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Read the binary directly</text>
+  <line x1="302" y1="33" x2="532" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="304" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— no external dependency</text>
+  <text x="304" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— no subprocess</text>
+  <text x="304" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— partial version coverage</text>
+  <text x="304" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— coverage varies by release</text>
+  <text x="273" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">Coverage is what decides it — a pipeline cannot choose which DWG releases arrive.</text>
+</svg>
+<!-- /fig:dwg-two-approaches -->
+
 The table below summarises the trade-offs:
 
 | Approach | Tool | Licence | Trade-offs |
@@ -109,6 +140,7 @@ The diagram below shows the recommended conversion-first architecture:
 <svg viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DWG-to-Python pipeline: version probe feeds converter selection, converter produces DXF, ezdxf parses entities, then geometry routes to BIM or GIS" style="width:100%;max-width:640px;display:block;margin:1.5rem auto">
   <title>DWG-to-Python Integration Pipeline</title>
   <desc>Flowchart showing DWG files entering a version probe step, branching to ODA Converter or libredwg based on version, producing a DXF file, parsed by ezdxf, then routing geometry to BIM validation or GIS transformation stages.</desc>
+  <rect x="0" y="0" width="640" height="320" fill="var(--color-surface)"/>
   <!-- Stage boxes -->
   <rect x="8" y="130" width="100" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="58" y="149" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">DWG Files</text>
@@ -376,6 +408,42 @@ def safe_convert(dwg_path: Path, output_root: Path) -> Path:
 
 After conversion and parsing, verify round-trip fidelity at three levels:
 
+<!-- fig:dwg-roundtrip-checks -->
+<svg viewBox="-45 -20 493.8 236.6" role="img" aria-label="Entity counts per type, drawing extents and the layer table — three round-trip checks after a DWG conversion" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:494px;display:block;margin:1.5rem auto;">
+  <title>Three levels of round-trip verification</title>
+  <desc>Three checks after a conversion, in increasing strength. Counting entities per type catches a converter that dropped a class. Comparing drawing extents catches a unit or placement change. Comparing the layer table catches a conversion that flattened or renamed layers. Each is cheap, and together they turn a converter's exit code into an actual claim about the output.</desc>
+  <defs>
+    <marker id="pdw2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="pdw2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-45" y="-20" width="493.8" height="236.6" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="268" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="134" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Entity counts per type</text>
+  <text x="134" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">in versus out</text>
+  <circle cx="-14" cy="24.1" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="27.6" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">1</text>
+  <text x="286" y="27.6" font-size="9.5" fill="currentColor" fill-opacity="0.75">catches a dropped class</text>
+  <rect x="0" y="74.2" width="268" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="134" y="94.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Drawing extents</text>
+  <text x="134" y="108.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">$EXTMIN / $EXTMAX</text>
+  <circle cx="-14" cy="98.3" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="101.8" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">2</text>
+  <text x="286" y="101.8" font-size="9.5" fill="currentColor" fill-opacity="0.75">catches a unit or placement shift</text>
+  <rect x="0" y="148.4" width="268" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="134" y="168.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Layer table</text>
+  <text x="134" y="182.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">names, colours, states</text>
+  <circle cx="-14" cy="172.5" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="176" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">3</text>
+  <text x="286" y="176" font-size="9.5" fill="currentColor" fill-opacity="0.75">catches flattening and renaming</text>
+  <line x1="134" y1="48.2" x2="134" y2="74.2" stroke="currentColor" stroke-width="1.4" marker-end="url(#pdw2-a)"/>
+  <line x1="134" y1="122.4" x2="134" y2="148.4" stroke="currentColor" stroke-width="1.4" marker-end="url(#pdw2-a)"/>
+</svg>
+<!-- /fig:dwg-roundtrip-checks -->
+
 1. **Entity count parity** — compare entity counts between the DWG version reported by your CAD authoring tool and the parsed DXF. A significant drop (>5%) indicates converter coverage gaps.
 2. **Bounding box sanity** — compute the model space bounding box using `ezdxf`'s `bbox` utility and confirm it matches the design extents stored in `$EXTMIN`/`$EXTMAX`.
 3. **Layer inventory** — assert that every layer name in `doc.layers` appears at least once in the entity layer attributes. Orphaned layers indicate dropped entities.
@@ -468,3 +536,4 @@ Target ACAD2018 (AC1032) for maximum entity fidelity, including 3D solids, mesh 
 - [Parsing DWG Layers with Python Scripts](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/parsing-dwg-layers-with-python-scripts/) — layer-scoped extraction after conversion
 - [Understanding DWG Version Compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) — DWG schema evolution and AC-code reference
 - [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — georeferencing the geometry this pipeline extracts
+- [Running the ODA File Converter in Docker](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/running-the-oda-file-converter-in-docker/) — packaging a desktop converter for a headless container, with a health check that actually converts

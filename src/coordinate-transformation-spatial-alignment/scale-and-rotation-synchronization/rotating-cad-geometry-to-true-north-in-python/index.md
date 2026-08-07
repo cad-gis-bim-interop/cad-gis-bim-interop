@@ -84,6 +84,46 @@ A CAD drawing has its own internal orientation. Drafters align plans to the shee
 
 DXF records the drawing's north reference in the header variable `$NORTHDIRECTION`, an angle in **radians** measured in the current UCS. Reading it with `doc.header.get("$NORTHDIRECTION", 0.0)` gives you the angle of the north direction; the rotation needed to bring project north onto the UCS Y axis is derived from it. When `$NORTHDIRECTION` is absent or unreliable, fall back to a documented survey bearing supplied by the surveyor — for example "grid north is 12.5° clockwise from project north".
 
+<!-- fig:north-rotation-applied -->
+<svg viewBox="-48 -8 507.9 278.1" role="img" aria-label="A footprint drafted to project north and the same footprint rotated onto grid north — congruent, only the bearing changes" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:508px;display:block;margin:1.5rem auto;">
+  <title>A site outline before and after rotation to grid north</title>
+  <desc>The same building footprint drawn twice. The first outline is as drafted, squared to the sheet on project north. The second is the identical outline rotated by the drawing rotation recorded in the header, which brings its axes onto grid north. The rotation is rigid: every edge length and interior angle is unchanged, only the bearing differs.</desc>
+  <defs>
+    <marker id="nth1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="nth1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-48" y="-8" width="507.9" height="278.1" fill="var(--color-surface)"/>
+  <rect x="34" y="12" width="310" height="194" rx="4" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="34" y1="206" x2="344" y2="206" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5"/>
+  <line x1="34" y1="12" x2="34" y2="206" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5"/>
+  <text x="189" y="228" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.7">Easting (m)</text>
+  <text x="26" y="109" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.7">Northing (m)</text>
+  <polyline points="97.1,206 344,206 344,93.7 195.9,93.7 195.9,32.5 97.1,32.5 97.1,206" fill="none" stroke="currentColor" stroke-width="1.4" stroke-opacity="0.6" stroke-dasharray="5 4"/>
+  <circle cx="97.1" cy="206" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="344" cy="206" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="344" cy="93.7" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="195.9" cy="93.7" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="195.9" cy="32.5" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="97.1" cy="32.5" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="97.1" cy="206" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <text x="337" y="222" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.85">as drafted</text>
+  <polyline points="97.1,206 332.6,144.6 291.7,37.6 150.5,74.4 128.2,16 34,40.5 97.1,206" fill="none" stroke="currentColor" stroke-width="2" stroke-opacity="0.95"/>
+  <circle cx="97.1" cy="206" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="332.6" cy="144.6" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="291.7" cy="37.6" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="150.5" cy="74.4" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="128.2" cy="16" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="34" cy="40.5" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="97.1" cy="206" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <text x="143.5" y="64.4" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.85">grid north</text>
+  <text x="34" y="248" font-size="9.5" fill="currentColor" fill-opacity="0.7">Rotation of 17.5° about the drawing origin — lengths and angles preserved, bearings changed.</text>
+</svg>
+<!-- /fig:north-rotation-applied -->
+
 The rotation itself is a rigid 2D transform about a chosen centre. For a point $(x, y)$ rotated by angle $\theta$ about the base point $(x_0, y_0)$:
 
 $$
@@ -103,6 +143,7 @@ The matrix as written rotates **counter-clockwise** for positive $\theta$, the m
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="660" height="300" fill="var(--color-surface)"/>
   <!-- Base point -->
   <circle cx="150" cy="240" r="5" fill="currentColor"/>
   <text x="150" y="266" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">base point (x0, y0)</text>
@@ -256,6 +297,47 @@ if __name__ == "__main__":
 ## Fallback Strategies
 
 **1. Radians vs. degrees.** `$NORTHDIRECTION` and `numpy` trig are both radians; survey bearings are almost always quoted in degrees. Convert once with `np.radians()` at the boundary and keep everything internal in radians. Mixing the two produces rotations off by a factor of ~57.
+
+<!-- fig:north-flavours -->
+<svg viewBox="-20 -20 549 184.1" role="img" aria-label="Project north, grid north and true north compared on definition, where the drawing records them, and whether the offset varies across a site" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:549px;display:block;margin:1.5rem auto;">
+  <title>Three norths and where each one is recorded</title>
+  <desc>A comparison of project north, grid north and true north: what each means, where a drawing records it, and whether the angle between it and the next varies across a site. Grid convergence in particular is not constant — it changes with easting, so a single rotation angle is only correct near the point it was measured at.</desc>
+  <defs>
+    <marker id="nth2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="nth2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="549" height="184.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="509" height="122" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="509" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">North</text>
+  <text x="155.5" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">What it is</text>
+  <line x1="221.2" y1="0" x2="221.2" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="295.9" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Recorded in</text>
+  <line x1="370.6" y1="0" x2="370.6" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="439.8" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Constant on site?</text>
+  <line x1="89.9" y1="0" x2="89.9" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="509" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">Project north</text>
+  <text x="155.5" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">drafting convenience</text>
+  <text x="295.9" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">$NORTHDIRECTION / UCS</text>
+  <text x="439.8" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes</text>
+  <line x1="0" y1="62" x2="509" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Grid north</text>
+  <text x="155.5" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">projection northing axis</text>
+  <text x="295.9" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">the projected CRS</text>
+  <text x="439.8" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes</text>
+  <line x1="0" y1="92" x2="509" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">True north</text>
+  <text x="155.5" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">toward the pole</text>
+  <text x="295.9" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">derived, not stored</text>
+  <text x="439.8" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no — convergence varies</text>
+  <text x="0" y="142" font-size="9.5" fill="currentColor" fill-opacity="0.7">Rotating to grid north is a fixed angle; rotating to true north is not.</text>
+</svg>
+<!-- /fig:north-flavours -->
 
 **2. Rotation centre (base point vs. origin).** Always rotate about the shared survey base point, not the drawing origin. Rotating about the origin swings distant geometry through a huge arc and breaks registration to the control network. If the base point is unknown, request it from the surveyor before proceeding.
 

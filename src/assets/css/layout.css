@@ -79,7 +79,7 @@
   top: -3rem;
   left: 1rem;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
   padding: var(--s-2) var(--s-3);
   border-radius: var(--r-sm);
   z-index: 1000;

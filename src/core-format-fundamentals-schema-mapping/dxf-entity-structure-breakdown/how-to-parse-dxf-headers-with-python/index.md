@@ -61,9 +61,43 @@ The DXF HEADER section is a flat list of variable definitions, each expressed as
 
 The diagram below shows how a DXF file's sections relate to each other and where the HEADER sits in relation to the geometry you ultimately want.
 
-<svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DXF section layout showing HEADER feeding into pipeline routing before geometry extraction" style="width:100%;max-width:640px;display:block;margin:1.5rem auto;">
+<!-- fig:header-pair-encoding -->
+<svg viewBox="-20 -20 312.2 208" role="img" aria-label="Group code 9 names a DXF header variable and the following code carries both its value and its type" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>How a HEADER variable is encoded as group-code pairs</title>
+  <desc>Three header variables as they appear in the tagged text. Code 9 names the variable; the code that follows carries its value and also declares its type — 70 for a signed integer, 10 with 20 and 30 for a point. The type code is the reason a header value comes back from the library as an integer or a vector rather than as a string.</desc>
+  <defs>
+    <marker id="hdr1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="hdr1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="312.2" height="208" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="90.1" height="168" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">  9</text>
+  <line x1="96.1" y1="12.9" x2="128.1" y2="12.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="136.1" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">names the variable that follows</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">$INSUNITS</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95"> 70</text>
+  <line x1="96.1" y1="50.9" x2="128.1" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="136.1" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">type 70 = signed integer</text>
+  <text x="14" y="73" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">  4</text>
+  <line x1="96.1" y1="69.9" x2="128.1" y2="69.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="136.1" y="73" font-size="9.5" fill="currentColor" fill-opacity="0.78">millimetres</text>
+  <text x="14" y="92" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">  9</text>
+  <text x="14" y="111" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">$EXTMIN</text>
+  <text x="14" y="130" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95"> 10</text>
+  <line x1="96.1" y1="126.9" x2="128.1" y2="126.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="136.1" y="130" font-size="9.5" fill="currentColor" fill-opacity="0.78">type 10/20/30 = a point</text>
+  <text x="14" y="149" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.55">0.0</text>
+</svg>
+<!-- /fig:header-pair-encoding -->
+
+<svg viewBox="-6 64 554 194" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DXF section layout showing HEADER feeding into pipeline routing before geometry extraction" style="width:100%;max-width:640px;display:block;margin:1.5rem auto;">
   <title>DXF Section Layout and Pipeline Entry Point</title>
   <desc>A diagram showing the five DXF sections (HEADER, CLASSES, TABLES, BLOCKS, ENTITIES) arranged left to right, with an arrow from the HEADER section to a pipeline routing box, which then feeds into geometry extraction.</desc>
+  <rect x="-6" y="64" width="554" height="194" fill="var(--color-surface)"/>
   <!-- Section boxes -->
   <rect x="10" y="80" width="90" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="55" y="97" text-anchor="middle" font-size="12" fill="currentColor" font-family="monospace">HEADER</text>
@@ -246,6 +280,46 @@ Files saved by non-Autodesk CAD tools (BricsCAD, DraftSight, LibreCAD) generally
 ## Fallback Strategies and Troubleshooting
 
 **1. `$INSUNITS` is 0 (Unitless)**
+
+<!-- fig:header-defensive-reads -->
+<svg viewBox="-20 -20 489.1 214.1" role="img" aria-label="ACADVER, INSUNITS, EXTMIN/EXTMAX and MEASUREMENT — what each header variable governs and what to do when it is absent" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:489px;display:block;margin:1.5rem auto;">
+  <title>The header variables worth reading before any geometry</title>
+  <desc>Four header variables, what each one is for, and what a pipeline should do when it is missing. All four are cheap to read and all four change how the geometry that follows must be interpreted, so reading them first turns a class of silent scale and version errors into an early, attributable failure.</desc>
+  <defs>
+    <marker id="hdr2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="hdr2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="489.1" height="214.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="449.1" height="152" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="449.1" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Variable</text>
+  <text x="216.8" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Governs</text>
+  <line x1="295.3" y1="0" x2="295.3" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="372.2" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">If missing</text>
+  <line x1="138.3" y1="0" x2="138.3" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="449.1" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">$ACADVER</text>
+  <text x="216.8" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">DXF revision</text>
+  <text x="372.2" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">reject — version unknown</text>
+  <line x1="0" y1="62" x2="449.1" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">$INSUNITS</text>
+  <text x="216.8" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">base unit of every coordinate</text>
+  <text x="372.2" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">apply a logged policy default</text>
+  <line x1="0" y1="92" x2="449.1" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">$EXTMIN / $EXTMAX</text>
+  <text x="216.8" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">drawing extents</text>
+  <text x="372.2" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">compute from geometry</text>
+  <line x1="0" y1="122" x2="449.1" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">$MEASUREMENT</text>
+  <text x="216.8" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">imperial or metric drafting</text>
+  <text x="372.2" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">weak tiebreaker only</text>
+  <text x="0" y="172" font-size="9.5" fill="currentColor" fill-opacity="0.7">All four are read before the first entity, because all four change what the entities mean.</text>
+</svg>
+<!-- /fig:header-defensive-reads -->
 
 The file was exported without a declared unit. Possible recoveries in priority order: (a) check a sidecar metadata file if your ingest workflow supports one; (b) read `$MEASUREMENT` — if it equals `1`, metric is likely, but you still need to guess between mm/cm/m; (c) apply the unit declared in a pipeline config for that project or data source; (d) reject the file and log it for manual review. Never silently assume metres.
 

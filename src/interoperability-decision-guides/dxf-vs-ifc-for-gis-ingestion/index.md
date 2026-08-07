@@ -87,6 +87,7 @@ Both routes converge on the same destination — a spatially indexed GIS store �
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="776" height="260" fill="var(--color-surface)"/>
   <!-- Sources -->
   <rect x="24" y="40" width="150" height="64" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
   <text x="99" y="70" text-anchor="middle" font-size="12" fill="currentColor" font-family="sans-serif" font-weight="600">DXF input</text>
@@ -136,6 +137,37 @@ The two formats differ at the level of what a "feature" even is. In DXF, a featu
 
 That distinction cascades into every downstream concern:
 
+<!-- fig:dxfifc-what-is-a-feature -->
+<svg viewBox="-20 -20 590 194.1" role="img" aria-label="A DXF feature is an entity classified by layer-name convention; an IFC feature is a typed product classified by the schema" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:590px;display:block;margin:1.5rem auto;">
+  <title>What counts as a feature in each format</title>
+  <desc>The two formats disagree about what the unit of data is. In DXF a feature is a geometric entity whose meaning lives in its layer name, so classification is a string convention. In IFC a feature is a typed product with an explicit class, relationships and property sets, so classification is in the schema. That difference decides how much of the ingestion is parsing and how much is convention-guessing.</desc>
+  <defs>
+    <marker id="dvi1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="dvi1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="590" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="260" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="130" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DXF: a geometric entity</text>
+  <line x1="14" y1="33" x2="246" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— class lives in the layer name</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— convention, not schema</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— cheap to read, cheap to break</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— no units beyond $INSUNITS</text>
+  <rect x="290" y="0" width="260" height="130" rx="6" fill="currentColor" fill-opacity="0.11" stroke="currentColor" stroke-width="1.9"/>
+  <text x="420" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IFC: a typed product</text>
+  <line x1="304" y1="33" x2="536" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="306" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— class is in the schema</text>
+  <text x="306" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— relationships and psets attached</text>
+  <text x="306" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— expensive to evaluate</text>
+  <text x="306" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— units and CRS declared</text>
+  <text x="275" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">DXF ingestion is mostly convention handling; IFC ingestion is mostly geometry evaluation.</text>
+</svg>
+<!-- /fig:dxfifc-what-is-a-feature -->
+
 | Dimension | DXF | IFC |
 |-----------|-----|-----|
 | Data model | Geometry entities + layers | Typed semantic objects + relationships |
@@ -163,6 +195,34 @@ That distinction cascades into every downstream concern:
 ## Step-by-Step Implementation
 
 ### 1. Classify the source and pick the route
+
+<!-- fig:dxfifc-route-by-input -->
+<svg viewBox="-20 -20 354.7 216.2" role="img" aria-label="Route 2D survey linework through DXF and a coordinated model with property sets through IFC — choose by deliverable, not format preference" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>Choosing the route from what the deliverable actually is</title>
+  <desc>A branch on the nature of the deliverable rather than on format preference. Two-dimensional survey and cadastral linework carries its meaning in layer names and belongs on the DXF route. A coordinated model whose value is its typed products and property sets belongs on the IFC route. Choosing by format preference rather than by deliverable is what produces pipelines that fight their own input.</desc>
+  <defs>
+    <marker id="dvi2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="dvi2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="354.7" height="216.2" fill="var(--color-surface)"/>
+  <polygon points="157.3,0 252.3,31 157.3,62 62.3,31" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.6"/>
+  <text x="157.3" y="35" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">What is the deliverable?</text>
+  <rect x="0" y="128" width="143.3" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="71.7" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DXF route</text>
+  <text x="71.7" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">layer-name classification</text>
+  <path d="M 157.3 62 L 157.3 92 L 71.7 92 L 71.7 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#dvi2-a)" stroke-linejoin="round"/>
+  <text x="71.7" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">2D linework</text>
+  <rect x="171.3" y="128" width="143.3" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="243" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IFC route</text>
+  <text x="243" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">typed products + psets</text>
+  <path d="M 157.3 62 L 157.3 92 L 243 92 L 243 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#dvi2-a)" stroke-linejoin="round"/>
+  <text x="243" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">coordinated model</text>
+</svg>
+<!-- /fig:dxfifc-route-by-input -->
 
 Before writing extraction code, classify the input. A survey or cadastral deliverable is 2D linework with meaning encoded in layer names — route it through DXF. A building model exported from Revit, ArchiCAD, or Tekla carries typed elements and properties you want to preserve — route it through IFC. The decision is about information content, not file extension.
 

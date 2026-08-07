@@ -60,7 +60,7 @@ DXF stores linework as parametric entities rather than raw coordinate arrays. Un
   <title>DXF polyline entity type decision tree</title>
   <desc>Decision diagram showing how LWPOLYLINE and POLYLINE entities differ in vertex access method, Z support, and closure detection, converging on a shared Shapely geometry construction step.</desc>
   <!-- background -->
-  <rect width="720" height="320" rx="8" fill="none"/>
+  <rect x="0" y="0" width="720" height="320" fill="var(--color-surface)"/>
   <!-- entry node -->
   <rect x="270" y="14" width="180" height="40" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="360" y="39" text-anchor="middle" font-size="13" fill="currentColor" font-family="sans-serif">DXF Entity</text>
@@ -81,10 +81,10 @@ DXF stores linework as parametric entities rather than raw coordinate arrays. Un
   <text x="555" y="206" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">entity.vertices → xyz</text>
   <text x="555" y="222" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">dxf.flags &amp; 1 → closed</text>
   <!-- arrows from diamond to branches -->
-  <line x1="270" y1="114" x2="165" y2="168" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
-  <text x="195" y="148" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">LWPOLYLINE</text>
-  <line x1="450" y1="114" x2="555" y2="168" stroke="currentColor" stroke-width="1.5" marker-end="url(#arr)"/>
-  <text x="528" y="148" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">POLYLINE</text>
+  <path d="M 270 114 L 270 141 L 165 141 L 165 168" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arr)"/>
+  <text x="195" y="133" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">LWPOLYLINE</text>
+  <path d="M 450 114 L 450 141 L 555 141 L 555 168" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arr)"/>
+  <text x="528" y="133" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">POLYLINE</text>
   <!-- merge node -->
   <rect x="240" y="258" width="240" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="360" y="276" text-anchor="middle" font-size="12" fill="currentColor" font-family="sans-serif">Shapely LineString</text>
@@ -228,6 +228,36 @@ if __name__ == "__main__":
     )
 ```
 
+<!-- fig:geojson-ring-closure -->
+<svg viewBox="-20 -20 468.5 156.1" role="img" aria-label="A closed CAD polyline stores four vertices and a flag; a GeoJSON ring must repeat the first position as the last" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:469px;display:block;margin:1.5rem auto;">
+  <title>Why a closed polyline needs a repeated coordinate</title>
+  <desc>The same four-corner boundary in both representations. The CAD entity records four vertices and a closed flag; the closing segment is implied. A GeoJSON polygon ring requires the first position to be repeated as the last, so a converter that copies the vertex list across produces a ring that is not closed and a polygon most readers reject.</desc>
+  <defs>
+    <marker id="gjs1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="gjs1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="468.5" height="156.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="200.5" height="92" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">LWPOLYLINE  4 vertices</text>
+  <line x1="206.5" y1="12.9" x2="238.5" y2="12.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="246.5" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">closure is a flag, not a vertex</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">  closed = True</text>
+  <line x1="206.5" y1="31.9" x2="238.5" y2="31.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="246.5" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.78">the final segment is implied</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">GeoJSON ring  5 positions</text>
+  <line x1="206.5" y1="50.9" x2="238.5" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="246.5" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">the first position repeats at the end</text>
+  <text x="14" y="73" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">  [p0, p1, p2, p3, p0]</text>
+  <line x1="206.5" y1="69.9" x2="238.5" y2="69.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="246.5" y="73" font-size="9.5" fill="currentColor" fill-opacity="0.78">copying the list verbatim leaves it open</text>
+  <text x="0" y="114" font-size="9.5" fill="currentColor" fill-opacity="0.7">Never infer closure from coincident endpoints — an open path may legitimately end where it began.</text>
+</svg>
+<!-- /fig:geojson-ring-closure -->
+
 Key implementation notes:
 
 - **CRS validation before file I/O.** `pyproj.CRS.from_user_input()` is called before opening the DXF. A bad CRS string crashes here with a clear message rather than deep inside a `to_crs()` call after processing thousands of entities.
@@ -252,6 +282,46 @@ Key implementation notes:
 
 **1. DXF file fails to open with `DXFStructureError`.**
 The file may be a binary DWG masquerading with a `.dxf` extension, or have a truncated entity table from an aborted export. Verify the file header: the first few bytes of a valid ASCII DXF read `0\nSECTION`. For genuine DWG files, convert first using `ezdxf.recover.readfile()` for recoverable ASCII DXFs, or ODA File Converter for binary DWG. See [Understanding DWG Version Compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/) for binary format pitfalls.
+
+<!-- fig:geojson-requirements -->
+<svg viewBox="-20 -20 449.6 214.1" role="img" aria-label="Coordinate reference system, ring closure, winding and validity — what GeoJSON requires and DXF does not provide" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:450px;display:block;margin:1.5rem auto;">
+  <title>What GeoJSON requires that a DXF never guarantees</title>
+  <desc>Four requirements the specification places on a GeoJSON document, what the CAD source offers instead, and the step that closes the gap. None of them cause a converter to raise, so all four have to be enforced deliberately on the way out rather than discovered by a downstream consumer.</desc>
+  <defs>
+    <marker id="gjs2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="gjs2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="449.6" height="214.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="409.6" height="152" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="409.6" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Requirement</text>
+  <text x="203.6" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">What DXF gives</text>
+  <line x1="271.7" y1="0" x2="271.7" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="340.7" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">The step that closes it</text>
+  <line x1="135.5" y1="0" x2="135.5" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="409.6" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">WGS84 coordinates</text>
+  <text x="203.6" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">arbitrary drawing units</text>
+  <text x="340.7" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">scale, then reproject</text>
+  <line x1="0" y1="62" x2="409.6" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Explicitly closed rings</text>
+  <text x="203.6" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">a closed flag</text>
+  <text x="340.7" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">repeat the first position</text>
+  <line x1="0" y1="92" x2="409.6" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Right-hand winding</text>
+  <text x="203.6" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">drafting order</text>
+  <text x="340.7" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">orient the ring</text>
+  <line x1="0" y1="122" x2="409.6" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">Simple geometry</text>
+  <text x="203.6" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">self-intersection allowed</text>
+  <text x="340.7" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">validate and repair</text>
+  <text x="0" y="172" font-size="9.5" fill="currentColor" fill-opacity="0.7">None of these raise on write — they surface as a rejected upload days later.</text>
+</svg>
+<!-- /fig:geojson-requirements -->
 
 **2. Coordinates land thousands of kilometres from the expected location.**
 The most common cause is an undeclared or wrong source CRS. A local state-plane drawing in `EPSG:27700` (British National Grid) interpreted as `EPSG:4326` will project to coordinates in the Pacific Ocean. Inspect `$INSUNITS` and `$MEASUREMENT` in the DXF header — see [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) for extraction code. Cross-check against a known control point before bulk export.

@@ -1,11 +1,32 @@
 /* Site-wide client JS:
+   - Theme toggle (light/dark, persisted)
    - Mobile nav toggle
    - Copy-to-clipboard for code blocks
-   - Lazy mermaid initialization (only if a mermaid block is present)
    - Service worker registration
 */
 (function () {
   "use strict";
+
+  // --- Theme toggle ---
+  // The <head> script has already stamped data-theme before first paint; this only
+  // has to flip it, label the control, and remember the choice. Once the visitor
+  // chooses, their choice outranks the OS preference on every later visit.
+  const themeBtn = document.querySelector("[data-theme-toggle]");
+  if (themeBtn) {
+    const label = (theme) => {
+      const next = theme === "dark" ? "light" : "dark";
+      themeBtn.setAttribute("aria-label", "Switch to " + next + " theme");
+      themeBtn.setAttribute("title", "Switch to " + next + " theme");
+      themeBtn.setAttribute("aria-pressed", String(theme === "dark"));
+    };
+    label(document.documentElement.getAttribute("data-theme") || "light");
+    themeBtn.addEventListener("click", () => {
+      const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      label(next);
+      try { localStorage.setItem("theme", next); } catch (e) { /* private mode */ }
+    });
+  }
 
   // --- Mobile nav toggle ---
   const toggle = document.querySelector("[data-nav-toggle]");
@@ -55,32 +76,6 @@
       li.classList.toggle("is-checked", cb.checked);
     });
   });
-
-  // --- Mermaid (lazy load only if needed) ---
-  if (document.querySelector("pre.mermaid")) {
-    const s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js";
-    s.onload = () => {
-      if (!window.mermaid) return;
-      window.mermaid.initialize({
-        startOnLoad: false,
-        securityLevel: "strict",
-        theme: "base",
-        themeVariables: {
-          background: "#fbf8f3",
-          primaryColor: "#e2ecf6",
-          primaryTextColor: "#14202e",
-          primaryBorderColor: "#1e3a5f",
-          lineColor: "#2c5282",
-          secondaryColor: "#d1f4ee",
-          tertiaryColor: "#fdecd3",
-          fontFamily: "Inter, system-ui, sans-serif"
-        }
-      });
-      window.mermaid.run({ querySelector: "pre.mermaid" }).catch(() => {});
-    };
-    document.head.appendChild(s);
-  }
 
   // --- Service worker ---
   if ("serviceWorker" in navigator && location.protocol === "https:") {

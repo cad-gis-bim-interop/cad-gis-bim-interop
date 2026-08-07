@@ -84,6 +84,7 @@ The decision matters because the three tools are not substitutes. `ezdxf` reads 
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="720" height="372" fill="var(--color-surface)"/>
   <!-- source box -->
   <rect x="290" y="12" width="140" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.45"/>
   <text x="360" y="32" text-anchor="middle" font-size="11" fill="currentColor" font-weight="600">CAD source file</text>
@@ -145,6 +146,36 @@ The three approaches differ along a small number of measurable dimensions. The t
 | Headless / CI | Native, trivial | Native (CLI/bindings) | Needs `xvfb`; GUI-derived binary |
 | Throughput | High (pure parse) | Moderate, variable | Conversion adds a subprocess per file |
 | Failure mode | Clear exception on non-DXF | Silent partial reads | Non-zero exit / empty output |
+
+<!-- fig:choose-route-decision -->
+<svg viewBox="-20 -20 379.7 229.6" role="img" aria-label="DXF input is a pure Python parse; DWG input forces a conversion step with a licensed binary in the deployment" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>The decision the source format actually forces</title>
+  <desc>A branch on what the input really is, established from the file magic rather than the extension. A DXF is a pure parse in Python with no external dependency. A DWG needs a conversion step first, which brings a redistributable licence, an installed binary and a subprocess into the deployment. The library question is downstream of this branch, not upstream of it.</desc>
+  <defs>
+    <marker id="chz1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="chz1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="379.7" height="229.6" fill="var(--color-surface)"/>
+  <polygon points="169.8,0 264.8,31 169.8,62 74.8,31" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.6"/>
+  <text x="169.8" y="35" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">What are the first bytes?</text>
+  <rect x="0" y="128" width="155.8" height="61.6" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="77.9" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DXF</text>
+  <text x="77.9" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">ezdxf, pure Python</text>
+  <text x="77.9" y="175.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">no external binary</text>
+  <path d="M 169.8 62 L 169.8 92 L 77.9 92 L 77.9 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#chz1-a)" stroke-linejoin="round"/>
+  <text x="77.9" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">tagged text</text>
+  <rect x="183.8" y="128" width="155.8" height="61.6" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="261.8" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DWG</text>
+  <text x="261.8" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">convert, then parse</text>
+  <text x="261.8" y="175.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">licensed binary in the image</text>
+  <path d="M 169.8 62 L 169.8 92 L 261.8 92 L 261.8 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#chz1-a)" stroke-linejoin="round"/>
+  <text x="261.8" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">&quot;AC10xx&quot;</text>
+</svg>
+<!-- /fig:choose-route-decision -->
 
 Two conclusions fall out of the table. First, `ezdxf` is not in competition with the DWG tools; it is the DXF reader that sits *after* whichever DWG strategy you pick. Second, the real contest is between community readers and the ODA converter, and it turns almost entirely on how much you value guaranteed version coverage and clear failure behaviour versus avoiding a licensed binary.
 
@@ -283,6 +314,52 @@ def audit_fidelity(doc: ezdxf.document.Drawing) -> dict:
 ## Edge Cases & Gotchas
 
 ### DWG passed to ezdxf.readfile()
+
+<!-- fig:choose-capability-matrix -->
+<svg viewBox="-20 -20 582 184.1" role="img" aria-label="ezdxf on DXF, ODA conversion and pure-Python DWG readers compared on input, external binary, headless operation and version coverage" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:582px;display:block;margin:1.5rem auto;">
+  <title>The three routes on the dimensions that decide deployment</title>
+  <desc>Reading DXF directly, converting DWG with the ODA File Converter, and the pure-Python DWG readers compared on the properties that decide whether a route can be deployed: what input it accepts, whether it needs a binary in the container image, whether it runs unattended, and how far its version coverage reaches.</desc>
+  <defs>
+    <marker id="chz2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="chz2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="582" height="184.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="542" height="122" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="542" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Route</text>
+  <text x="202.7" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Accepts</text>
+  <line x1="247.7" y1="0" x2="247.7" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="304.5" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">External binary</text>
+  <line x1="361.3" y1="0" x2="361.3" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="396.8" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Headless</text>
+  <line x1="432.3" y1="0" x2="432.3" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="487.2" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Version reach</text>
+  <line x1="157.7" y1="0" x2="157.7" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="542" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">ezdxf on DXF</text>
+  <text x="202.7" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">DXF only</text>
+  <text x="304.5" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">none</text>
+  <text x="396.8" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes</text>
+  <text x="487.2" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">R12 → R2018</text>
+  <line x1="0" y1="62" x2="542" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">ODA converter → ezdxf</text>
+  <text x="202.7" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">DWG and DXF</text>
+  <text x="304.5" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">ODA File Converter</text>
+  <text x="396.8" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes</text>
+  <text x="487.2" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">R2000 → current</text>
+  <line x1="0" y1="92" x2="542" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Pure-Python DWG readers</text>
+  <text x="202.7" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">some DWG</text>
+  <text x="304.5" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">none</text>
+  <text x="396.8" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes</text>
+  <text x="487.2" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">partial, per release</text>
+  <text x="0" y="142" font-size="9.5" fill="currentColor" fill-opacity="0.7">The middle row is the only one that reads arbitrary DWG unattended — and the only one with a licence to read.</text>
+</svg>
+<!-- /fig:choose-capability-matrix -->
 
 `ezdxf.readfile()` on a DWG raises, but the message is not always obvious to a caller who expected it to "just read CAD." Classify first (Step 1) so the failure is a deliberate route decision, not an unhandled exception deep in a worker.
 

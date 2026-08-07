@@ -107,6 +107,40 @@ pip install ifcopenshell numpy pyproj shapely
 
 ### How ifcopenshell Compiles IFC Geometry
 
+<!-- fig:ifcos-representation-kinds -->
+<svg viewBox="-20 -20 680.5 254" role="img" aria-label="Swept solids, boolean results, faceted B-reps and mapped representations — the IFC representation kinds and their evaluation cost" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:681px;display:block;margin:1.5rem auto;">
+  <title>The representation kinds a compiler has to evaluate</title>
+  <desc>Four ways IFC describes the same kind of solid, in rough order of evaluation cost. A swept area solid is a profile and a direction; a boolean result is a tree of operations on other solids; a faceted representation is already explicit; and a mapped representation is a reference to geometry defined once and placed many times. A pipeline that handles only the first silently loses whatever the model expressed with the others.</desc>
+  <defs>
+    <marker id="ios1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ios1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="680.5" height="254" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="21" font-size="11.5" font-weight="600" fill="currentColor">IfcFacetedBrep</text>
+  <text x="16" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.72">already explicit faces</text>
+  <text x="524" y="26.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">cheapest</text>
+  <rect x="0" y="56" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="77" font-size="11.5" font-weight="600" fill="currentColor">IfcMappedItem</text>
+  <text x="16" y="91" font-size="9.5" fill="currentColor" fill-opacity="0.72">a placement of shared geometry</text>
+  <text x="524" y="82.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">evaluate once</text>
+  <rect x="0" y="112" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="133" font-size="11.5" font-weight="600" fill="currentColor">IfcExtrudedAreaSolid</text>
+  <text x="16" y="147" font-size="9.5" fill="currentColor" fill-opacity="0.72">profile swept along a direction</text>
+  <text x="524" y="138.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">common</text>
+  <rect x="0" y="168" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2"/>
+  <text x="16" y="189" font-size="11.5" font-weight="600" fill="currentColor">IfcBooleanResult</text>
+  <text x="16" y="203" font-size="9.5" fill="currentColor" fill-opacity="0.72">a tree of solid operations</text>
+  <text x="524" y="194.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">most expensive</text>
+  <line x1="566" y1="2" x2="566" y2="212" stroke="currentColor" stroke-width="1.4" stroke-opacity="0.6" marker-end="url(#ios1-a)"/>
+  <text x="574" y="107" font-size="9.5" fill="currentColor" fill-opacity="0.7">evaluation cost</text>
+</svg>
+<!-- /fig:ifcos-representation-kinds -->
+
 IFC stores geometry as parametric descriptions: extruded area profiles, swept solids, constructive solid geometry (CSG) trees, and boolean operations. None of these representations are ready-made mesh data — they must be compiled. `ifcopenshell.geom` delegates this compilation to OpenCASCADE Technology (OCCT), a C++ solid modelling kernel, which evaluates the parametric tree and produces a triangulated BRep (boundary representation) surface.
 
 The key internal objects are:
@@ -140,6 +174,7 @@ Always read the schema token from `ifc_file.schema` before dispatching geometry 
       <polygon points="0 0, 10 3.5, 0 7" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="720" height="420" fill="var(--color-surface)"/>
   <!-- Stage 1: IFC File -->
   <rect x="20" y="30" width="160" height="64" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
   <text x="100" y="57" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">IFC File</text>
@@ -350,6 +385,36 @@ def product_to_geojson_feature(product, verts, faces):
 ## Edge Cases & Gotchas
 
 ### 1. Unit Scale Not Applied
+
+<!-- fig:ifcos-unit-trap -->
+<svg viewBox="-20 -33.5 488.6 125.8" role="img" aria-label="An unapplied IfcUnitAssignment leaves vertices in the authoring unit, so a metre-assuming consumer shrinks the model a thousandfold" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:489px;display:block;margin:1.5rem auto;">
+  <title>How a millimetre model becomes a millimetre-scale building</title>
+  <desc>The chain that produces the classic thousandfold error. The model declares its length unit on the project entity; the geometry settings decide whether the compiler applies it; if the unit is not applied, the returned vertices are raw numbers in the authoring unit; and a consumer that assumes metres draws a ten-metre wall one centimetre long. Nothing raises at any stage.</desc>
+  <defs>
+    <marker id="ios2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ios2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="488.6" height="125.8" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="130.8" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="65.4" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IfcUnitAssignment</text>
+  <text x="65.4" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">declares millimetres</text>
+  <rect x="164.8" y="0" width="118.7" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="224.1" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Raw vertices</text>
+  <text x="224.1" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">in the authoring unit</text>
+  <rect x="317.5" y="0" width="131" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="383" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">10 m wall → 0.01 m</text>
+  <text x="383" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">nothing raised</text>
+  <line x1="130.8" y1="24.1" x2="164.8" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#ios2-a)"/>
+  <text x="147.8" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">not applied</text>
+  <line x1="283.5" y1="24.1" x2="317.5" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#ios2-a)"/>
+  <text x="300.5" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">consumed as metres</text>
+  <text x="0" y="70.2" font-size="9.5" fill="currentColor" fill-opacity="0.7">Read the unit assignment and assert the model extents before trusting any geometry.</text>
+</svg>
+<!-- /fig:ifcos-unit-trap -->
 
 **Symptom:** Extracted buildings appear at millimeter scale (a 10m wall becomes 0.01m). **Root cause:** The file was authored in millimeters but `unit_scale` was never applied. **Fix:** Always call `ifcopenshell.util.unit.calculate_unit_scale(ifc)` and multiply vertex arrays before projection. Never assume meters.
 

@@ -5,7 +5,7 @@
   z-index: 50;
   backdrop-filter: saturate(140%) blur(10px);
   -webkit-backdrop-filter: saturate(140%) blur(10px);
-  background: rgba(251, 248, 243, 0.82);
+  background: var(--color-header-bg);
   border-bottom: 1px solid var(--color-border-soft);
   height: var(--header-h);
   display: flex;
@@ -37,7 +37,6 @@
   .brand__name { display: inline; }
 }
 
-.nav { margin-left: auto; }
 .nav__list {
   list-style: none;
   display: flex;
@@ -84,7 +83,6 @@
   align-items: center;
   justify-content: center;
   width: 40px; height: 40px;
-  margin-left: auto;
   border: 1px solid var(--color-border);
   background: var(--color-surface-alt);
   border-radius: var(--r-md);
@@ -92,6 +90,41 @@
 }
 .nav-toggle svg { width: 22px; height: 22px; color: var(--color-primary); }
 @media (min-width: 720px) { .nav-toggle { display: none; } }
+
+/* ===== Theme toggle =====
+   Sits last in the header on desktop and beside the menu button on mobile. The
+   icon shown is the theme you would switch TO, so the control reads as an
+   action rather than a status light. */
+.theme-toggle {
+  order: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; height: 40px;
+  flex: none;
+  margin-left: auto;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  border-radius: var(--r-md);
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease-out), background var(--t-fast) var(--ease-out);
+}
+.theme-toggle:hover { border-color: var(--color-primary); background: var(--color-primary-100); }
+.theme-toggle svg { width: 20px; height: 20px; }
+/* Light scheme offers the moon; dark scheme offers the sun. */
+.theme-toggle__sun { display: none; }
+.theme-toggle__moon { display: block; }
+:root[data-theme="dark"] .theme-toggle__sun { display: block; }
+:root[data-theme="dark"] .theme-toggle__moon { display: none; }
+
+.nav-toggle { order: 4; margin-left: var(--s-2); }
+.nav { order: 5; margin-left: auto; }
+@media (min-width: 720px) {
+  /* On desktop the nav takes the middle and the toggle trails it. */
+  .theme-toggle { order: 5; margin-left: var(--s-3); }
+  .nav { order: 3; }
+}
 
 @media (max-width: 719.98px) {
   .nav {
@@ -114,7 +147,7 @@
 .site-footer {
   margin-top: var(--s-8);
   background:
-    linear-gradient(180deg, transparent, rgba(30, 58, 95, 0.04)),
+    linear-gradient(180deg, transparent, var(--color-veil-primary)),
     var(--color-surface);
   border-top: 1px solid var(--color-border-soft);
   color: var(--color-text-soft);
@@ -171,7 +204,7 @@
   height: auto;
   display: block;
   margin: 0 auto var(--s-5);
-  filter: drop-shadow(0 10px 24px rgba(30, 58, 95, 0.12));
+  filter: drop-shadow(0 10px 24px rgba(var(--shadow-tint), 0.22));
   transition: transform var(--t-med) var(--ease-out);
 }
 .hero__logo:hover { transform: translateY(-2px) rotate(-1deg); }
@@ -230,7 +263,7 @@
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
   border-color: var(--color-primary);
-  background: linear-gradient(180deg, #fff, var(--color-primary-100));
+  background: linear-gradient(180deg, var(--color-card-raise), var(--color-primary-100));
 }
 .cta__icon {
   width: 36px; height: 36px;
@@ -412,7 +445,7 @@
 .code-copy:focus-visible { opacity: 1; }
 .code-copy.is-copied {
   background: var(--color-highlight);
-  color: #fff;
+  color: var(--color-on-highlight);
   border-color: var(--color-highlight);
   opacity: 1;
 }
@@ -458,7 +491,7 @@
   position: sticky;
   top: 0;
 }
-.table-wrap tr:hover td { background: rgba(13, 148, 136, 0.04); }
+.table-wrap tr:hover td { background: var(--color-row-hover); }
 .table-wrap tr:last-child td { border-bottom: 0; }
 
 /* ===== Blockquote ===== */
@@ -466,7 +499,7 @@ blockquote {
   margin: var(--s-5) 0;
   padding: var(--s-3) var(--s-5);
   border-left: 4px solid var(--color-highlight);
-  background: rgba(13, 148, 136, 0.06);
+  background: var(--color-veil-highlight);
   color: var(--color-text-soft);
   font-style: italic;
   border-radius: 0 var(--r-md) var(--r-md) 0;
@@ -555,7 +588,7 @@ blockquote {
   top: 1px;
   width: 5px;
   height: 9px;
-  border: solid #fff;
+  border: solid var(--color-on-highlight);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
@@ -587,7 +620,7 @@ pre.mermaid {
   padding: var(--s-4) var(--s-5);
   border-radius: var(--r-md);
   border-left: 4px solid var(--color-primary);
-  background: rgba(30, 58, 95, 0.05);
+  background: var(--color-veil-primary);
   box-shadow: var(--shadow-sm);
 }
 .callout__label {
@@ -619,12 +652,12 @@ pre.mermaid {
 
 .callout--note {
   border-left-color: var(--color-primary);
-  background: rgba(30, 58, 95, 0.06);
+  background: var(--color-veil-primary-strong);
   --callout-icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'><path d='M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H8l-4 4V5a1 1 0 0 1 1-1zM8 8h8v2H8zM8 12h8v2H8z'/></svg>");
 }
 .callout--tip {
   border-left-color: var(--color-highlight);
-  background: rgba(13, 148, 136, 0.07);
+  background: var(--color-veil-highlight);
 }
 .callout--tip .callout__label {
   color: var(--color-highlight);
@@ -632,7 +665,7 @@ pre.mermaid {
 }
 .callout--warning {
   border-left-color: var(--color-accent-600);
-  background: rgba(217, 119, 6, 0.08);
+  background: var(--color-veil-warn);
 }
 .callout--warning .callout__label {
   color: var(--color-accent-600);
@@ -640,23 +673,23 @@ pre.mermaid {
 }
 .callout--important {
   border-left-color: var(--color-accent);
-  background: rgba(194, 65, 12, 0.07);
+  background: var(--color-veil-accent);
 }
 .callout--important .callout__label {
   color: var(--color-accent);
   --callout-icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'><path d='M12 1l11 6v10l-11 6L1 17V7l11-6zm0 5a1.5 1.5 0 0 0-1.5 1.5v5a1.5 1.5 0 0 0 3 0v-5A1.5 1.5 0 0 0 12 6zm0 11a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5z'/></svg>");
 }
 .callout--danger {
-  border-left-color: #b91c1c;
-  background: rgba(185, 28, 28, 0.07);
+  border-left-color: var(--color-danger);
+  background: var(--color-veil-danger);
 }
-.callout--danger .callout__label { color: #b91c1c; }
+.callout--danger .callout__label { color: var(--color-danger); }
 
 /* ===== On-this-page TOC ===== */
 .page-toc {
   margin: var(--s-5) 0 var(--s-7);
   padding: var(--s-3) var(--s-5);
-  background: linear-gradient(180deg, rgba(30, 58, 95, 0.04), transparent 80%);
+  background: linear-gradient(180deg, var(--color-veil-primary), transparent 80%);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--r-md);
   box-shadow: var(--shadow-sm);

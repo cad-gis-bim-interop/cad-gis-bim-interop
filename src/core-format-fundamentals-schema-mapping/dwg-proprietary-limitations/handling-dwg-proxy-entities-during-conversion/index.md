@@ -80,7 +80,42 @@ Autodesk vertical products define their own object classes — a Civil 3D corrid
 
 `ezdxf` is exactly such a reader. It never had the object enabler, so a proxy stays a proxy: `entity.dxftype()` returns `"ACAD_PROXY_ENTITY"`, and there is no property that reconstructs the original corridor or pipe. At best, if the file was saved with cached proxy graphics, a downstream tool can recover a frozen visual snapshot of lines and arcs — an approximation with no editable topology and no attributes. Treating that snapshot as authoritative geometry is the central mistake this page exists to prevent. Because DWG is a closed format, this limitation compounds the general reasons `ezdxf` cannot read DWG directly, detailed in the [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) reference.
 
-<svg viewBox="0 0 720 300" role="img" aria-label="Decision flow for a converted DXF entity: native types decode to real geometry while ACAD_PROXY_ENTITY objects split into cached-graphics approximation or total loss and are logged" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
+<!-- fig:proxy-enabler-chain -->
+<svg viewBox="-20 -33.5 684.2 125.8" role="img" aria-label="A custom object becomes a proxy record on save and, without the object enabler, converts to a DXF shell carrying only cached graphics" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:684px;display:block;margin:1.5rem auto;">
+  <title>What a proxy entity is left holding after conversion</title>
+  <desc>A four-stage chain. A vertical product authors a custom object through its own object enabler. Saved to DWG, the object is written with a proxy record and, optionally, cached display graphics. Converted to DXF without the enabler present, only the proxy record survives. A reader then sees a shell that knows its class name and its cached outline but not the geometry that produced them.</desc>
+  <defs>
+    <marker id="pxy1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="pxy1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="684.2" height="125.8" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="108.4" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="54.2" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Custom object</text>
+  <text x="54.2" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">Civil 3D corridor</text>
+  <rect x="142.4" y="0" width="129.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="206.9" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DWG proxy record</text>
+  <text x="206.9" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">+ cached graphics</text>
+  <rect x="305.5" y="0" width="162.7" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="386.8" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">ACAD_PROXY_ENTITY</text>
+  <text x="386.8" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">in the DXF</text>
+  <rect x="502.1" y="0" width="142" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="573.2" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Class name + extent</text>
+  <text x="573.2" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">no true geometry</text>
+  <line x1="108.4" y1="24.1" x2="142.4" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#pxy1-a)"/>
+  <text x="125.4" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">save</text>
+  <line x1="271.5" y1="24.1" x2="305.5" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#pxy1-a)"/>
+  <text x="288.5" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">no enabler</text>
+  <line x1="468.1" y1="24.1" x2="502.1" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#pxy1-a)"/>
+  <text x="485.1" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">read</text>
+  <text x="0" y="70.2" font-size="9.5" fill="currentColor" fill-opacity="0.7">The enabler is what turns the record back into geometry, and it is not in the file.</text>
+</svg>
+<!-- /fig:proxy-enabler-chain -->
+
+<svg viewBox="4 48 714 248" role="img" aria-label="Decision flow for a converted DXF entity: native types decode to real geometry while ACAD_PROXY_ENTITY objects split into cached-graphics approximation or total loss and are logged" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>Classifying Native Geometry versus Proxy Entities After Conversion</title>
   <desc>Decision diagram: each converted DXF entity is tested; native types such as LINE and LWPOLYLINE decode to real geometry, while ACAD_PROXY_ENTITY objects branch into a cached-graphics approximation when PROXYGRAPHICS was on, or total loss when it was off, and both proxy outcomes are logged by handle.</desc>
   <defs>
@@ -88,6 +123,7 @@ Autodesk vertical products define their own object classes — a Civil 3D corrid
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="4" y="48" width="714" height="248" fill="var(--color-surface)"/>
   <rect x="20" y="126" width="130" height="56" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="85" y="150" text-anchor="middle" font-size="11" fill="currentColor">DXF entity</text>
   <text x="85" y="168" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.7">dxftype()?</text>
@@ -227,6 +263,52 @@ if __name__ == "__main__":
 ## Fallback Strategies
 
 **1. Re-export with PROXYGRAPHICS=1**
+
+<!-- fig:proxy-recovery-routes -->
+<svg viewBox="-20 -20 577.8 214.1" role="img" aria-label="Proxy graphics, exploding in the authoring app, installing the object enabler and quarantining compared on geometry recovered, semantics kept and headless suitability" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:578px;display:block;margin:1.5rem auto;">
+  <title>What each proxy recovery route actually returns</title>
+  <desc>Four recovery routes compared on what geometry they return, whether the object keeps its semantic identity, and whether the route can run unattended. Re-exporting with proxy graphics enabled and exploding in the authoring application both recover drawable geometry; only the authoring application preserves the meaning of the object, and neither the enabler route nor the explode route runs headlessly.</desc>
+  <defs>
+    <marker id="pxy2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="pxy2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="577.8" height="214.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="537.8" height="152" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="537.8" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Route</text>
+  <text x="245.3" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Geometry recovered</text>
+  <line x1="309" y1="0" x2="309" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="360.7" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Semantics kept</text>
+  <line x1="412.4" y1="0" x2="412.4" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="475.1" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Headless</text>
+  <line x1="181.7" y1="0" x2="181.7" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="537.8" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">PROXYGRAPHICS=1 re-export</text>
+  <text x="245.3" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">cached display only</text>
+  <text x="360.7" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no</text>
+  <text x="475.1" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no — needs the author</text>
+  <line x1="0" y1="62" x2="537.8" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Explode in the vertical product</text>
+  <text x="245.3" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">full, as primitives</text>
+  <text x="360.7" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no</text>
+  <text x="475.1" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no</text>
+  <line x1="0" y1="92" x2="537.8" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Install the object enabler</text>
+  <text x="245.3" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">full, parametric</text>
+  <text x="360.7" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes</text>
+  <text x="475.1" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no — desktop only</text>
+  <line x1="0" y1="122" x2="537.8" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">Quarantine and report</text>
+  <text x="245.3" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">none</text>
+  <text x="360.7" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">name and extent</text>
+  <text x="475.1" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes</text>
+  <text x="0" y="172" font-size="9.5" fill="currentColor" fill-opacity="0.7">A pipeline that must run unattended has exactly one honest option: count them and report.</text>
+</svg>
+<!-- /fig:proxy-recovery-routes -->
 
 The `PROXYGRAPHICS` system variable governs whether AutoCAD stores cached graphics for custom objects. If it was `0` at save time, proxies may carry no recoverable geometry after conversion. Ask the source team to set `PROXYGRAPHICS=1` and re-save, which at least preserves a visual approximation you can log and, where acceptable, use for footprint extraction.
 

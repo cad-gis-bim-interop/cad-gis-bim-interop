@@ -3,8 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="{{ site.themeColor }}">
-  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="{{ site.themeColor }}" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f1720" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+
+  <!-- Theme resolution, inline and before any paint, so a dark-mode visitor never
+       sees a flash of the light surface. A stored choice wins; otherwise follow the
+       OS. Either way an explicit data-theme is stamped, so the CSS has one rule to
+       key off and the toggle has something to flip. -->
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("theme");
+        var os = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", stored === "dark" || stored === "light" ? stored : os);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
   <meta name="format-detection" content="telephone=no">
 

@@ -47,6 +47,7 @@ The concrete costs are real: misaligned utility networks that fail topology chec
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.7"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="820" height="340" fill="var(--color-surface)"/>
   <!-- Source boxes -->
   <rect x="10" y="30" width="140" height="50" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
   <text x="80" y="50" text-anchor="middle" font-size="12" fill="currentColor" font-family="sans-serif" font-weight="600">CAD</text>
@@ -102,6 +103,47 @@ The three format families that dominate AEC and geospatial work were each design
 
 **CAD formats** emerged from drafting boards: the governing question was "how do I represent this geometry precisely enough to manufacture or construct from?" DXF and DWG answer that question with coordinate-tagged entity sequences. There is no inherent concept of a building, a road, or a parcel — only lines, arcs, polylines, and blocks. The [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) documents how group codes organise these entities and how Python parsers must reconstruct spatial relationships that exist only implicitly in the file.
 
+<!-- fig:formats-design-history -->
+<svg viewBox="-20 -20 476.2 184.1" role="img" aria-label="DXF describes drawings, IFC describes buildings, GIS formats describe located features — and what each one therefore omits" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:476px;display:block;margin:1.5rem auto;">
+  <title>What each format family was designed to answer</title>
+  <desc>The three format families compared on the question each was built to answer, what its unit of data is, and what it consequently does not carry. DXF describes drawings, IFC describes buildings, and GIS vector formats describe located features. Every interoperability problem in this section is a consequence of one of the three being asked a question it was not designed for.</desc>
+  <defs>
+    <marker id="cff1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="cff1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="476.2" height="184.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="436.2" height="122" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="436.2" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Family</text>
+  <text x="144" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Designed to answer</text>
+  <line x1="205.9" y1="0" x2="205.9" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="256.5" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Unit of data</text>
+  <line x1="307.1" y1="0" x2="307.1" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="371.6" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">What it omits</text>
+  <line x1="82.1" y1="0" x2="82.1" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="436.2" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">DXF / DWG</text>
+  <text x="144" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">what is drawn</text>
+  <text x="256.5" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">a tagged entity</text>
+  <text x="371.6" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">meaning, projection</text>
+  <line x1="0" y1="62" x2="436.2" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">IFC</text>
+  <text x="144" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">what is built</text>
+  <text x="256.5" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">a typed product</text>
+  <text x="371.6" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">cartography, tiling</text>
+  <line x1="0" y1="92" x2="436.2" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">GIS vector</text>
+  <text x="144" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">what is where</text>
+  <text x="256.5" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">a located feature</text>
+  <text x="371.6" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">assembly, parametrics</text>
+  <text x="0" y="142" font-size="9.5" fill="currentColor" fill-opacity="0.7">A mapping between two of them is always lossy in the direction of what the target omits.</text>
+</svg>
+<!-- /fig:formats-design-history -->
+
 **GIS formats** emerged from cartography and spatial analysis: the governing question was "which real-world location does this geometry represent, and what attributes describe it?" Shapefiles, GeoJSON, and GeoPackage answer with coordinate-reference-system-aware records stored alongside attribute tables. Without an explicit CRS declaration, a coordinate pair is meaningless — and the most common silent failure in CAD-to-GIS pipelines is the implicit assumption that CAD internal units map directly to a known projection.
 
 **BIM formats** emerged from object-oriented building product modelling: the governing question was "what is this element, what are its properties, and how does it relate to the building as a system?" IFC answers with an EXPRESS schema that enforces containment hierarchies, type inheritance, and property sets. A wall is not a polygon — it is an `IfcWall` entity with a material layer set, fire rating, and spatial containment within an `IfcBuildingStorey`. The [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) covers the EXPRESS inheritance tree and the Python data models that mirror it.
@@ -113,6 +155,38 @@ The Python library ecosystem that bridges these formats is mature but fragmented
 ## Pipeline Architecture
 
 A production-grade cross-format pipeline does not transform directly from source to target. The source format's native representation must be ingested by a format-specific driver, normalised into a common intermediate representation, validated against schema and topology rules, and only then serialised to the target format. Short-circuiting any of these stages is the cause of most data-loss incidents.
+
+<!-- fig:formats-canonical-hop -->
+<svg viewBox="-20 -20 609.2 117.6" role="img" aria-label="Routing every format through one canonical internal model replaces per-pair converters with one reader and one writer per format" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:609px;display:block;margin:1.5rem auto;">
+  <title>Why conversions route through one canonical model</title>
+  <desc>Direct format-to-format conversions multiply: every new format added to a pipeline needs a converter against each existing one. Routing through a single normalised internal model means each format needs only a reader and a writer, and the validation and unit rules live in one place rather than being reimplemented in every pair.</desc>
+  <defs>
+    <marker id="cff2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="cff2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="609.2" height="117.6" fill="var(--color-surface)"/>
+  <rect x="199.6" y="4" width="170" height="69.6" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="284.6" y="28.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Canonical model</text>
+  <text x="284.6" y="42" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">metres, explicit CRS</text>
+  <text x="284.6" y="55.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">typed attributes</text>
+  <rect x="0" y="0" width="129.6" height="30.8" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="64.8" y="18.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DXF reader</text>
+  <path d="M 129.6 15.4 L 177.6 15.4 L 177.6 38.8 L 199.6 38.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#cff2-a)" stroke-linejoin="round"/>
+  <rect x="0" y="46.8" width="129.6" height="30.8" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="64.8" y="65.1" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IFC reader</text>
+  <path d="M 129.6 62.2 L 177.6 62.2 L 177.6 38.8 L 199.6 38.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#cff2-a)" stroke-linejoin="round"/>
+  <rect x="439.6" y="0" width="129.6" height="30.8" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="504.4" y="18.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">GeoPackage writer</text>
+  <path d="M 369.6 38.8 L 417.6 38.8 L 417.6 15.4 L 439.6 15.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#cff2-a)" stroke-linejoin="round"/>
+  <rect x="439.6" y="46.8" width="129.6" height="30.8" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="504.4" y="65.1" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">PostGIS writer</text>
+  <path d="M 369.6 38.8 L 417.6 38.8 L 417.6 62.2 L 439.6 62.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#cff2-a)" stroke-linejoin="round"/>
+</svg>
+<!-- /fig:formats-canonical-hop -->
 
 The four stages in the diagram above map to concrete library responsibilities:
 
@@ -139,6 +213,10 @@ DWG is a compiled binary format with no public specification. Each AutoCAD major
 ### IFC4x3 Schema Mapping for Infrastructure
 
 IFC4x3 introduced the `IfcAlignment`, `IfcRoad`, `IfcRailway`, and `IfcBridge` entity families for linear infrastructure. These entities carry georeferenced positioning via `IfcMapConversion`, a built-in mechanism for aligning IFC local project coordinates to a real-world CRS — eliminating the most common cause of BIM-to-GIS misalignment when the mechanism is used correctly. The [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) section covers EXPRESS schema traversal, how `IfcOpenShell` exposes property sets and quantity sets, and the mapping rules for translating infrastructure entity attributes to GeoJSON properties or GeoPackage attribute tables. The step-by-step guide [Mapping IFC Properties to GeoJSON Attributes](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/mapping-ifc-properties-to-geojson-attributes/) provides a complete runnable pipeline from `IfcPropertySingleValue` extraction to a GeoJSON Feature Collection.
+
+### CityGML and GML Interchange
+
+Once a building leaves its design model it usually becomes a city object. [CityGML and GML Interchange](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/citygml-and-gml-interchange/) covers the level-of-detail model that governs how much generalisation the geometry has undergone, the namespaced GML primitives a parser has to walk, and the mapping rules that get an IFC building into a city model without losing its identity.
 
 ### Metadata Extraction Strategies
 
@@ -256,6 +334,44 @@ Coordinate precision mismatches and schema version drift are the two most common
 | Missing `$INSUNITS` in DXF header | File exported from non-Autodesk tool without unit declaration | Infer units from geometry bounding box order of magnitude; log assumption in audit record |
 | IFC `IfcMapConversion` not applied | Pipeline reads local IFC coordinates without applying georeferencing offset | Explicitly read `IfcMapConversion` Eastings/Northings/OrthogonalHeight; add to all extracted coordinates |
 
+### Naming the Direction of Loss
+
+Every cross-format mapping loses something, and the useful question is never whether it is lossy but *in which direction*. Writing that down before the mapping is built turns an open-ended risk into a bounded, reviewable list.
+
+Going from IFC toward a CAD or GIS representation, the loss is **semantic**. The typed product hierarchy, the relationships that connect an element to its storey and its space, the property and quantity sets, and the material assignments have no destination. What survives is geometry plus whatever was deliberately re-encoded as a layer name or an attribute column. A mapping that does not state which properties it re-encodes has decided to lose all of them.
+
+Going the other way, from CAD toward IFC, the loss is **structural**. A DXF drawing carries no information about which entities constitute a wall, so anything reconstructed on the IFC side is inferred from layer conventions and geometry, and the inference is only as reliable as the drafting standard behind it. This direction is the one that most often produces confident, wrong output.
+
+Going from either toward a GIS store, the loss is **dimensional and topological**. A three-dimensional assembly becomes a footprint, an assembly becomes a row, and the relationships between parts survive only if they were modelled as foreign keys on the way in.
+
+The practical form of this is a small table maintained next to the mapping code — source concept, target representation, and an explicit "dropped" entry where there is no target. Reviewers can then argue about the right line, which is a productive argument, instead of discovering the line in production.
+
+### Schema Versions Are Not Backwards Compatible In The Way People Assume
+
+A second recurring assumption is that a newer schema reads older files. It usually does, and that is precisely what makes the failure surprising: reading is not the problem, *mapping* is. A property that lived at one path in IFC2X3 may be reachable at a different one in IFC4, an entity that was a single type may have been split into a hierarchy, and an attribute that was optional may have become required. A mapping written against one release does not degrade gracefully against another — it returns `None`, and `None` flows through a flattener into a well-formed record with a missing field.
+
+The defence is to assert the schema on read and to key the mapping on it explicitly, rather than to write one mapping and hope:
+
+```python
+# ifcopenshell>=0.7.0
+SUPPORTED = {"IFC2X3", "IFC4", "IFC4X3"}
+
+def open_checked(path: str):
+    model = ifcopenshell.open(path)
+    schema = model.schema  # e.g. "IFC4"
+    if schema not in SUPPORTED:
+        raise ValueError(f"unmapped IFC schema {schema!r} — refusing to guess")
+    return model, schema
+```
+
+The same argument applies to DXF revisions, where the capability boundaries are documented in the [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/), and to DWG releases, where the six-byte signature is the only reliable signal and the consequences of ignoring it are set out in [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/).
+
+### Keep a Fixture Library, Not a Sample File
+
+The practical consequence of all of the above is that a format-handling pipeline cannot be tested against one representative file. It has to be tested against the *boundaries*, and the boundaries are known: the oldest DWG release still arriving from clients, a DXF with no `$INSUNITS`, a drawing whose extrusion vector is not the default, an IFC in each supported schema, a model authored in millimetres and one in metres, and a file containing proxy entities no converter can decode.
+
+Six or eight such files, committed alongside the code and small enough to live in the repository, catch more regressions than any amount of unit testing against synthesised geometry — because the defects in this domain come from what real authoring applications actually emit, not from what the specification permits. Each fixture should carry a short note recording what it is there to test, so that a future maintainer deleting a file for being "unrepresentative" understands what they are giving up.
+
 ### Tolerance Configuration
 
 Floating-point tolerance must be set explicitly for each stage. `shapely` defaults to 64-bit double precision with no snap tolerance. `ezdxf` preserves the source file's precision. `pyproj` uses the proj library's internal tolerance. Define a project-level tolerance constant and pass it consistently:
@@ -329,3 +445,4 @@ Reliable CAD, GIS, and BIM interoperability does not emerge from clever API call
 - [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — EXPRESS schema traversal, infrastructure entities, and BIM-to-GIS attribute mapping
 - [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — XDATA, property sets, provenance tracking, and JSON-LD sidecar generation
 - [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) — CRS normalization, datum shifts, and Python reprojection pipelines across formats
+- [CityGML and GML Interchange](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/citygml-and-gml-interchange/) — the city-scale schema an IFC building is generalised into, and the GML geometry a parser has to walk

@@ -69,6 +69,39 @@ Before implementing layer mapping logic, confirm your environment meets these ba
 
 Layer naming conventions differ not only across formats but across discipline standards, company BIM templates, and national CAD standards. A production mapper must handle all three simultaneously.
 
+<!-- fig:layermap-resolution-order -->
+<svg viewBox="-20 -20 507.9 216.2" role="img" aria-label="Exact match first, then ordered regex rules, then quarantine — how a CAD layer name resolves to a GIS feature class" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:508px;display:block;margin:1.5rem auto;">
+  <title>How a layer name resolves to a feature class</title>
+  <desc>A three-way branch on how a source layer name is resolved. An exact match in the rule table wins outright. Failing that, the compiled regular-expression rules are tried in declaration order and the first match wins. A name that matches neither is routed to a quarantine class rather than guessed at, so unmapped layers are counted instead of silently discarded.</desc>
+  <defs>
+    <marker id="lml-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="lml-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="507.9" height="216.2" fill="var(--color-surface)"/>
+  <polygon points="234,0 338.5,31 234,62 129.5,31" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.6"/>
+  <text x="234" y="35" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">Layer name in the rule table?</text>
+  <rect x="0" y="128" width="137.3" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="68.7" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Mapped class</text>
+  <text x="68.7" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">deterministic</text>
+  <path d="M 234 62 L 234 92 L 68.7 92 L 68.7 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#lml-a)" stroke-linejoin="round"/>
+  <text x="68.7" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">exact hit</text>
+  <rect x="165.3" y="128" width="137.3" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="234" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Ordered regex rules</text>
+  <text x="234" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">first match wins</text>
+  <path d="M 234 62 L 234 92 L 234 92 L 234 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#lml-a)" stroke-linejoin="round"/>
+  <text x="234" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">no exact hit</text>
+  <rect x="330.6" y="128" width="137.3" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="399.3" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">__UNMAPPED__</text>
+  <text x="399.3" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">counted, not dropped</text>
+  <path d="M 234 62 L 234 92 L 399.3 92 L 399.3 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#lml-a)" stroke-linejoin="round"/>
+  <text x="399.3" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">no rule matches</text>
+</svg>
+<!-- /fig:layermap-resolution-order -->
+
 ### Naming Convention Landscape
 
 | Source Format | Convention Example | Convention Standard |
@@ -89,11 +122,11 @@ The three structural challenges that map against every combination in this table
 
 A three-tier priority system handles the full space of cases:
 
-<svg viewBox="0 0 640 320" role="img" aria-label="Layer mapping rule routing tiers: exact match, pattern-based regex, and fallback" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:1.5rem auto;">
+<svg viewBox="184 0 458 286" role="img" aria-label="Layer mapping rule routing tiers: exact match, pattern-based regex, and fallback" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:1.5rem auto;">
   <title>Three-tier layer mapping rule routing architecture</title>
   <desc>Flowchart showing a normalized source layer name passing through three routing tiers in priority order: exact-match dictionary (Tier 1), compiled regex patterns (Tier 2), and fallback default route (Tier 3), with an audit log written at every decision.</desc>
   <!-- Background -->
-  <rect width="640" height="320" fill="none"/>
+  <rect x="184" y="0" width="458" height="286" fill="var(--color-surface)"/>
   <!-- Source layer box -->
   <rect x="240" y="16" width="160" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="320" y="35" text-anchor="middle" font-size="12" fill="currentColor" font-family="system-ui,sans-serif">Normalized source</text>
@@ -315,6 +348,33 @@ def write_to_shapefile(gdf: gpd.GeoDataFrame, out_path: Path) -> None:
 
 ### 1. Shapefile 10-Character Name Truncation
 
+<!-- fig:layermap-shp-truncation -->
+<svg viewBox="-20 -20 499.8 137.1" role="img" aria-label="Two distinct CAD layer names truncate to the same ten-character shapefile field name, silently colliding" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;display:block;margin:1.5rem auto;">
+  <title>How shapefile name truncation creates collisions</title>
+  <desc>Three layer names written to a shapefile. Each is cut to the ten-character limit of the dBase field name, which leaves two distinct source layers sharing a single output name. The collision is silent: the driver writes both and one set of attributes overwrites the other.</desc>
+  <defs>
+    <marker id="lml2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="lml2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="499.8" height="137.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="186.7" height="73" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">Building_Walls_Exterior</text>
+  <line x1="192.7" y1="12.9" x2="224.7" y2="12.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="232.7" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">→ Building_W</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">Building_Walls_Interior</text>
+  <line x1="192.7" y1="31.9" x2="224.7" y2="31.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="232.7" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.78">→ Building_W   ← collision</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">Building_Roof</text>
+  <line x1="192.7" y1="50.9" x2="224.7" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="232.7" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">→ Building_R</text>
+  <text x="0" y="95" font-size="9.5" fill="currentColor" fill-opacity="0.7">GeoPackage and PostGIS have no ten-character limit; shapefile output needs an explicit short-name map.</text>
+</svg>
+<!-- /fig:layermap-shp-truncation -->
+
 Shapefiles silently truncate layer/field names at 10 characters. `Building_Walls_Exterior` becomes `Building_W`, which may collide with `Building_W_Interior` producing data overwriting with no error raised. Always validate name length before writing and maintain an explicit truncation map in the rule schema.
 
 ### 2. DXF Layer 0 Inheritance
@@ -356,7 +416,37 @@ def assert_unique_priorities(rules: list[MappingRule]) -> None:
 
 DXF R2007+ files encoded in UTF-8 may contain non-ASCII layer names (e.g., `Straße`, `구조벽`). Python `str.upper()` handles these correctly, but normalization that replaces non-ASCII characters with underscores must apply consistently before lookup — otherwise the same name produces different normalized forms on different platforms. Use `unicodedata.normalize('NFC', name)` before any casing or delimiter pass.
 
-### 6. Cascading Mapping (Multi-Hop Translation)
+### 6. Layer State Is an Editorial Signal
+
+Frozen, off and locked are display flags, but drafters use them as an editorial vocabulary: a frozen layer is very often superseded work that was kept rather than deleted, and an off layer is frequently a working construction set that was never meant to be delivered. Mapping those layers as though they were live content imports rejected design into a live dataset, and filtering them out unconditionally discards content that a different office uses the same flags to mean something else entirely.
+
+Neither default is safe, so the mapping should carry the state through rather than resolve it. Record `frozen`, `off` and `locked` on every mapped feature, route the feature normally, and let a downstream filter — one that can be configured per client, per project, or per delivery — decide what to include. That way the decision is visible, reviewable and reversible, instead of being a boolean buried in an extraction routine.
+
+### 7. Rule Sets Need Their Own Regression Tests
+
+A layer mapping rule set is code, and it drifts like code: a regex added to catch one office's naming convention quietly starts matching another's, a reordering changes which rule wins a collision, and nobody notices until a feature class starts filling with the wrong geometry. The rule set is also unusually easy to test, because its input is a string and its output is a class name.
+
+Keep a fixture list of real layer names drawn from delivered files, with the class each should map to, and assert the mapping against it on every change:
+
+```python
+# pytest
+CASES = [
+    ("C-ROAD-CNTR",        "road_centreline"),
+    ("C-ROAD-CNTR-EXST",   "road_centreline"),
+    ("A-WALL-EXTR",        "building_wall"),
+    ("V-SURV-BNDY",        "survey_boundary"),
+    ("XREF$0$C-ROAD-CNTR", "road_centreline"),   # bound external reference
+    ("RANDOM-JUNK",        "__UNMAPPED__"),
+]
+
+def test_layer_rules():
+    for name, expected in CASES:
+        assert classify(name) == expected, name
+```
+
+Add a case every time an unmapped layer is investigated, whatever the outcome — including the ones that legitimately stay unmapped. The fixture then accumulates into a record of what the office's drawings actually look like, which is worth more than the rule set itself when the convention changes.
+
+### 8. Cascading Mapping (Multi-Hop Translation)
 
 Some pipelines require CAD → GIS → BIM routing across two format boundaries using two separate rule schemas. Apply schemas sequentially with an intermediate validation step between them. Never merge two schemas into one — the combined rule set becomes untestable and the priority space becomes unbounded.
 
@@ -445,3 +535,5 @@ No. Run normalization exactly once, during ingestion. The `target_layer` value w
 - [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — upstream stage that resolves coordinate reference system ambiguity before semantic routing
 - [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — harmonizes measurement units across CAD, GIS, and BIM before geometric processing
 - [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — downstream geometric alignment step that must follow semantic routing to prevent coordinate drift
+- [Normalising XREF-Prefixed Layer Names in Python](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/normalising-xref-prefixed-layer-names-in-python/) — stripping stacked external-reference prefixes before a rule table sees the name
+- [Loading Layer Mapping Rules from YAML in Python](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/loading-layer-mapping-rules-from-yaml-in-python/) — moving the rule table into reviewable configuration, validated at load time

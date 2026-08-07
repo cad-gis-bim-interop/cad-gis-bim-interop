@@ -61,13 +61,44 @@ IfcOpenShell delegates geometry resolution to the **OpenCASCADE (OCCT)** kernel,
 
 What the API does **not** do automatically:
 
+<!-- fig:wall-world-coords -->
+<svg viewBox="-20 -20 586 194.1" role="img" aria-label="Without USE_WORLD_COORDS each mesh is in its own local frame; with it the kernel composes the placement chain" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:586px;display:block;margin:1.5rem auto;">
+  <title>What the world-coordinates setting changes</title>
+  <desc>The same wall evaluated with and without world coordinates. Without the setting, each mesh comes back in the product's own local frame and the placement chain — storey, building, site — has to be composed and applied by hand for every element. With it, the kernel composes the chain and returns vertices already in the model's coordinate system, which is what any spatial union needs.</desc>
+  <defs>
+    <marker id="wal1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="wal1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="586" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="258" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="129" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Local coordinates</text>
+  <line x1="14" y1="33" x2="244" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— mesh in the product frame</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— placement chain applied by hand</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— walls stack at the origin</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— a union merges unrelated walls</text>
+  <rect x="288" y="0" width="258" height="130" rx="6" fill="currentColor" fill-opacity="0.11" stroke="currentColor" stroke-width="1.9"/>
+  <text x="417" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">USE_WORLD_COORDS</text>
+  <line x1="302" y1="33" x2="532" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="304" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— kernel composes the chain</text>
+  <text x="304" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— vertices in the model frame</text>
+  <text x="304" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— walls sit where they belong</text>
+  <text x="304" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— union means what you expect</text>
+  <text x="273" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">Everything lands at the origin without it — and a union of everything is one shape.</text>
+</svg>
+<!-- /fig:wall-world-coords -->
+
 - It does not project 3D geometry to 2D. That step belongs entirely to your code.
 - It does not guarantee topologically valid 2D polygons after projection. Vertical or near-vertical triangles collapse to degenerate lines when you drop the Z coordinate.
 - It does not distinguish between IFC2x3 `IfcWallStandardCase` and IFC4 `IfcWall` at the shape-creation level — both go through the same OCCT pipeline, but unit and precision defaults differ between schema versions.
 
 The diagram below shows the data-flow from IFC file to validated Shapely geometry.
 
-<svg viewBox="0 0 720 200" role="img" aria-label="Data-flow diagram: IFC file through IfcOpenShell geometry kernel to validated Shapely Polygon" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;font-family:inherit;">
+<svg viewBox="-12 44 744 106" role="img" aria-label="Data-flow diagram: IFC file through IfcOpenShell geometry kernel to validated Shapely Polygon" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;font-family:inherit;">
   <title>IFC wall geometry extraction pipeline</title>
   <desc>Five sequential stages: IFC File → OCCT Tessellation → Vertex/Face Arrays → 2D Projection → Shapely Polygon (validated)</desc>
   <defs>
@@ -75,6 +106,7 @@ The diagram below shows the data-flow from IFC file to validated Shapely geometr
       <polygon points="0 0, 8 3, 0 6" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="-12" y="44" width="744" height="106" fill="var(--color-surface)"/>
   <!-- Stage boxes -->
   <rect x="4"   y="60" width="116" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
   <rect x="152" y="60" width="116" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
@@ -283,6 +315,49 @@ For handling the mesh arrays themselves in more complex scenarios — including 
 ## Fallback Strategies / Troubleshooting
 
 **1. `create_shape` raises `RuntimeError: No geometry for element`**
+
+<!-- fig:wall-projection-order -->
+<svg viewBox="-45 -20 457.2 310.8" role="img" aria-label="Read triangles, project to plan, drop degenerate projections, then union into one polygon" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:457px;display:block;margin:1.5rem auto;">
+  <title>Projecting a wall mesh down to a plan polygon</title>
+  <desc>Four stages. The triangle list is read from the compiled mesh, each triangle is projected onto the horizontal plane, degenerate projections — triangles that were vertical and collapse to a line — are dropped, and what remains is unioned into one polygon. Dropping the degenerate triangles before the union is what keeps the union from failing on zero-area input.</desc>
+  <defs>
+    <marker id="wal2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="wal2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-45" y="-20" width="457.2" height="310.8" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="262" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="131" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Read triangles</text>
+  <text x="131" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">from the compiled mesh</text>
+  <circle cx="-14" cy="24.1" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="27.6" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">1</text>
+  <text x="280" y="27.6" font-size="9.5" fill="currentColor" fill-opacity="0.75">flat vertex + index arrays</text>
+  <rect x="0" y="74.2" width="262" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="131" y="94.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Project to plan</text>
+  <text x="131" y="108.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">drop Z</text>
+  <circle cx="-14" cy="98.3" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="101.8" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">2</text>
+  <text x="280" y="101.8" font-size="9.5" fill="currentColor" fill-opacity="0.75">vertical faces collapse</text>
+  <rect x="0" y="148.4" width="262" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="131" y="168.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Drop degenerates</text>
+  <text x="131" y="182.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">zero-area projections</text>
+  <circle cx="-14" cy="172.5" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="176" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">3</text>
+  <text x="280" y="176" font-size="9.5" fill="currentColor" fill-opacity="0.75">before the union, not after</text>
+  <rect x="0" y="222.6" width="262" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="131" y="242.9" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Union</text>
+  <text x="131" y="256.6" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">one wall footprint</text>
+  <circle cx="-14" cy="246.7" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="250.2" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">4</text>
+  <text x="280" y="250.2" font-size="9.5" fill="currentColor" fill-opacity="0.75">the expensive stage</text>
+  <line x1="131" y1="48.2" x2="131" y2="74.2" stroke="currentColor" stroke-width="1.4" marker-end="url(#wal2-a)"/>
+  <line x1="131" y1="122.4" x2="131" y2="148.4" stroke="currentColor" stroke-width="1.4" marker-end="url(#wal2-a)"/>
+  <line x1="131" y1="196.6" x2="131" y2="222.6" stroke="currentColor" stroke-width="1.4" marker-end="url(#wal2-a)"/>
+</svg>
+<!-- /fig:wall-projection-order -->
 
 The wall entity has no body representation — common in early-stage Revit exports where walls exist as schedule objects without 3D geometry. Filter before processing:
 

@@ -70,18 +70,18 @@ GeoJSON's `properties` object must be a flat JSON object — no nested dicts, no
 
 The diagram below shows the relationship traversal path from an `IfcElement` to a serialized GeoJSON `Feature`:
 
-<svg viewBox="0 0 720 340" role="img" aria-label="Data flow from IfcElement through property-set relationships to a GeoJSON Feature" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:1.5rem auto;">
+<svg viewBox="4 24 717 257" role="img" aria-label="Data flow from IfcElement through property-set relationships to a GeoJSON Feature" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:1.5rem auto;">
   <title>IFC to GeoJSON property mapping data flow</title>
   <desc>Diagram showing how an IfcElement's IsDefinedBy relationships connect to IfcPropertySet and IfcElementQuantity nodes, whose values are normalized and assembled into a GeoJSON Feature properties object.</desc>
   <!-- Background -->
-  <rect width="720" height="340" rx="8" fill="none"/>
+  <rect x="4" y="24" width="717" height="257" fill="var(--color-surface)"/>
   <!-- IfcElement box -->
   <rect x="20" y="130" width="140" height="50" rx="6" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="1.5"/>
   <text x="90" y="151" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">IfcElement</text>
   <text x="90" y="168" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">(GlobalId, Name, …)</text>
   <!-- Arrow: IfcElement → IsDefinedBy -->
   <line x1="160" y1="155" x2="200" y2="155" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-  <text x="180" y="148" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.65">IsDefinedBy</text>
+  <text x="180" y="123" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.65">IsDefinedBy</text>
   <!-- IfcRelDefinesByProperties box -->
   <rect x="200" y="130" width="160" height="50" rx="6" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="1.5"/>
   <text x="280" y="151" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">IfcRelDefines</text>
@@ -113,7 +113,7 @@ The diagram below shows the relationship traversal path from an `IfcElement` to 
   <text x="482" y="251" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">/ Area / Volume / Count</text>
   <!-- Normalize arrow -->
   <line x1="560" y1="155" x2="600" y2="155" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowhead)"/>
-  <text x="580" y="148" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.65">normalize</text>
+  <text x="575" y="108" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.65">normalize</text>
   <!-- GeoJSON Feature box -->
   <rect x="600" y="115" width="105" height="80" rx="6" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="2"/>
   <text x="652" y="140" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">GeoJSON</text>
@@ -303,6 +303,37 @@ def build_feature_collection(
 # )
 ```
 
+<!-- fig:ifc-geojson-flatten -->
+<svg viewBox="-20 -20 590 194.1" role="img" aria-label="Bare property names let two property sets collide silently; prefixing each key with its property set keeps both" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:590px;display:block;margin:1.5rem auto;">
+  <title>Why property keys are prefixed with their property set</title>
+  <desc>Two flattening strategies for the same element. Writing bare property names lets two property sets that both define a fire rating overwrite one another, and which one survives depends on iteration order. Prefixing each key with its parent property set name keeps both, and makes the origin of every attribute visible in the GeoJSON.</desc>
+  <defs>
+    <marker id="g2j1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="g2j1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="590" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="260" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="130" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Bare property names</text>
+  <line x1="14" y1="33" x2="246" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— FireRating from two psets</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— last write wins</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— result depends on iteration order</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— origin of the value is lost</text>
+  <rect x="290" y="0" width="260" height="130" rx="6" fill="currentColor" fill-opacity="0.11" stroke="currentColor" stroke-width="1.9"/>
+  <text x="420" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Prefixed with the pset</text>
+  <line x1="304" y1="33" x2="536" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="306" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— WallAssembly__FireRating</text>
+  <text x="306" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— FireProtection__FireRating</text>
+  <text x="306" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— both survive</text>
+  <text x="306" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— origin is readable in the output</text>
+  <text x="275" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">GeoJSON properties must be flat — flattening is where BIM data quietly loses records.</text>
+</svg>
+<!-- /fig:ifc-geojson-flatten -->
+
 **Key implementation notes:**
 
 - `normalize_ifc_value` recurses on `.wrappedValue` to handle multi-level EXPRESS nesting (e.g., `IfcMeasureWithUnit` wrapping `IfcReal`). Never hard-code a list of IFC type names — the recursive check is format-version agnostic.
@@ -330,6 +361,35 @@ def build_feature_collection(
 ## Fallback Strategies and Troubleshooting
 
 ### 1. `IsDefinedBy` is empty or returns no `IfcRelDefinesByProperties` entries
+
+<!-- fig:ifc-express-unwrap -->
+<svg viewBox="-20 -33.5 462 101.7" role="img" aria-label="An EXPRESS wrapper is unwrapped recursively to a Python primitive before it can be serialised into GeoJSON" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:462px;display:block;margin:1.5rem auto;">
+  <title>Unwrapping an EXPRESS typed value to a JSON primitive</title>
+  <desc>Three stages. A nominal value arrives as an EXPRESS wrapper naming its measure type. Testing for a wrapped value and unwrapping recursively reaches the underlying Python primitive without hard-coding every IFC type name. The primitive is what GeoJSON can serialise; the wrapper is not.</desc>
+  <defs>
+    <marker id="g2j2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="g2j2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="462" height="101.7" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="116.8" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="58.4" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IfcLabel(&quot;EI60&quot;)</text>
+  <text x="58.4" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">EXPRESS wrapper</text>
+  <rect x="150.8" y="0" width="127.6" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="214.6" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Recursive unwrap</text>
+  <text x="214.6" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">no type table needed</text>
+  <rect x="312.4" y="0" width="109.6" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="367.2" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">&quot;EI60&quot;</text>
+  <text x="367.2" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">JSON-serialisable</text>
+  <line x1="116.8" y1="24.1" x2="150.8" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#g2j2-a)"/>
+  <text x="133.8" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">wrappedValue</text>
+  <line x1="278.4" y1="24.1" x2="312.4" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#g2j2-a)"/>
+  <text x="295.4" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">primitive</text>
+</svg>
+<!-- /fig:ifc-express-unwrap -->
 
 This occurs when the IFC file stores type-level properties on `IfcTypeObject` rather than on instance elements. Use `ifcopenshell.util.element.get_psets(element, psets_only=False)` as a drop-in replacement — it merges instance and type-level property sets automatically:
 

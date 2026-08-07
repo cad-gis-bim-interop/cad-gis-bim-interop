@@ -84,6 +84,50 @@ To extract text with `ezdxf`, query both `TEXT` and `MTEXT` entities, read the s
 
 `MTEXT` is richer and trickier. Its content is a single string that carries inline formatting: `\P` marks a paragraph break, `\f<font>;` switches font, `{ }` groups a formatted run, and sequences like `\H2x;` or `\C1;` change height and colour mid-string. Reading `entity.text` gives you this raw markup verbatim — useful only if you intend to preserve formatting. For a clean attribute value you call `entity.plain_text()`, which strips the control codes and returns readable text with paragraph breaks converted to newlines. `MTEXT` also stores its insertion point in `dxf.insert`, but its height lives in `dxf.char_height` (not `dxf.height`), and its anchor corner is `dxf.attachment_point` (an integer 1–9 mapping top-left through bottom-right).
 
+<!-- fig:text-two-entities -->
+<svg viewBox="-20 -20 408.5 244.1" role="img" aria-label="TEXT and MTEXT differ in where the string lives, formatting, insertion point and the accessor an extractor must call" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>TEXT and MTEXT are two different storage models</title>
+  <desc>The two DXF text entities compared on where the string lives, what formatting they may carry, how the insertion point relates to the visible text, and what an extractor must call. They are not variants of one entity: a query for one silently returns none of the other, which is the single most common reason an annotation harvest comes back half empty.</desc>
+  <defs>
+    <marker id="txt1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="txt1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="408.5" height="244.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="368.5" height="182" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="368.5" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Aspect</text>
+  <text x="175.5" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">TEXT</text>
+  <line x1="237.3" y1="0" x2="237.3" y2="182" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="302.9" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">MTEXT</text>
+  <line x1="113.6" y1="0" x2="113.6" y2="182" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="368.5" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">String lives in</text>
+  <text x="175.5" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">dxf.text</text>
+  <text x="302.9" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">text, with inline codes</text>
+  <line x1="0" y1="62" x2="368.5" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Formatting codes</text>
+  <text x="175.5" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">none</text>
+  <text x="302.9" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">\\P, \\f, colour, stacking</text>
+  <line x1="0" y1="92" x2="368.5" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Insertion point</text>
+  <text x="175.5" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">dxf.insert + alignment</text>
+  <text x="302.9" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">dxf.insert + attachment</text>
+  <line x1="0" y1="122" x2="368.5" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">Clean string via</text>
+  <text x="175.5" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">dxf.text directly</text>
+  <text x="302.9" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">plain_text()</text>
+  <line x1="0" y1="152" x2="368.5" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="170.5" font-size="10.5" font-weight="600" fill="currentColor">Multi-line</text>
+  <text x="175.5" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">one line per entity</text>
+  <text x="302.9" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">one entity, many lines</text>
+  <text x="0" y="202" font-size="9.5" fill="currentColor" fill-opacity="0.7">Query both types — a harvest that queries one comes back looking merely sparse.</text>
+</svg>
+<!-- /fig:text-two-entities -->
+
 <svg viewBox="0 0 700 250" role="img" aria-label="TEXT entities read dxf.text and dxf.height directly, while MTEXT entities are cleaned with plain_text and read char_height, both merging into positioned label records" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;display:block;margin:1.5rem auto;">
   <title>TEXT and MTEXT Extraction to Label Records</title>
   <desc>Diagram showing two branches. TEXT entities provide dxf.text, dxf.height and dxf.rotation directly. MTEXT entities are passed through plain_text to strip formatting codes and read dxf.char_height. Both branches merge into a positioned label record with cleaned string, height and rotation.</desc>
@@ -92,6 +136,7 @@ To extract text with `ezdxf`, query both `TEXT` and `MTEXT` entities, read the s
       <polygon points="0 0, 8 3, 0 6" fill="currentColor" opacity="0.7"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="700" height="250" fill="var(--color-surface)"/>
   <rect x="30" y="24" width="180" height="60" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="120" y="46" text-anchor="middle" font-size="12" fill="currentColor">TEXT</text>
   <text x="120" y="64" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">dxf.text, dxf.height</text>
@@ -214,6 +259,36 @@ For the group-code anatomy of a `TEXT` entity (`1` for the string, `10`/`20` for
 ## Fallback Strategies
 
 **1. MTEXT formatting artifacts after cleanup**
+
+<!-- fig:text-mtext-codes -->
+<svg viewBox="-20 -20 502.1 156.1" role="img" aria-label="Raw MTEXT carries inline formatting codes for font, paragraph breaks and stacking that must be stripped before use" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:502px;display:block;margin:1.5rem auto;">
+  <title>Inline formatting codes inside an MTEXT string</title>
+  <desc>One raw MTEXT string with its inline control codes, and what each contributes. The codes are formatting rather than content, so a value read straight from the raw string carries markup into whatever consumes it. Reading through the plain-text accessor strips the codes and resolves the line breaks that the paragraph marker encodes.</desc>
+  <defs>
+    <marker id="txt2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="txt2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="502.1" height="156.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="238.3" height="92" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">{\\fArial|b1;MANHOLE}\\PIL 34.21</text>
+  <line x1="244.3" y1="13" x2="276.3" y2="13" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="284.3" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">the raw stored string</text>
+  <text x="14" y="35" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">{\\fArial|b1;  }</text>
+  <line x1="244.3" y1="32" x2="276.3" y2="32" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="284.3" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.78">font and bold — formatting, not content</text>
+  <text x="14" y="54" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">\\P</text>
+  <line x1="244.3" y1="51" x2="276.3" y2="51" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="284.3" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">paragraph break, not a newline character</text>
+  <text x="14" y="73" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">MANHOLE / IL 34.21</text>
+  <line x1="244.3" y1="70" x2="276.3" y2="70" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="284.3" y="73" font-size="9.5" fill="currentColor" fill-opacity="0.78">what plain_text() returns</text>
+  <text x="0" y="114" font-size="9.5" fill="currentColor" fill-opacity="0.7">Reading dxf.text on an MTEXT hands the markup straight to your database.</text>
+</svg>
+<!-- /fig:text-mtext-codes -->
 
 `plain_text()` handles the common codes, but drawings authored in specialised tools sometimes carry stacked fractions (`\S1/2;`), field codes, or vendor extensions that leave residual markers. After cleaning, run a lightweight sanitiser that collapses runs of whitespace and drops any remaining control characters so an odd fraction does not poison a label:
 

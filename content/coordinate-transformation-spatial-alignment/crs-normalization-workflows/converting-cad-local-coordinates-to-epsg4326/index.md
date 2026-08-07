@@ -59,6 +59,42 @@ CAD files (DWG and DXF) have no native concept of a coordinate reference system.
 
 ### Stage 1 — Similarity Transform (CAD grid → projected CRS)
 
+<!-- fig:local-to-4326-stages -->
+<svg viewBox="-45 -20 474.2 236.6" role="img" aria-label="Fitting an affine from control points, applying it, then reprojecting with pyproj — the three stages that take CAD site coordinates to WGS84" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:474px;display:block;margin:1.5rem auto;">
+  <title>The two-stage route from a CAD site grid to EPSG:4326</title>
+  <desc>Three stages. First a least-squares fit of surveyed control points solves the affine that maps the arbitrary CAD site grid onto a known projected CRS. Second that affine is applied to every drawing coordinate. Third a pyproj Transformer reprojects the projected coordinates to geographic WGS84. Only the third stage is a coordinate reference system operation; the first two are pure linear algebra.</desc>
+  <defs>
+    <marker id="e43-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="e43-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-45" y="-20" width="474.2" height="236.6" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="268" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="134" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Fit the site affine</text>
+  <text x="134" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">from ≥3 control points</text>
+  <circle cx="-14" cy="24.1" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="27.6" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">1</text>
+  <text x="286" y="27.6" font-size="9.5" fill="currentColor" fill-opacity="0.75">least squares, once per site</text>
+  <rect x="0" y="74.2" width="268" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="134" y="94.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Apply to every vertex</text>
+  <text x="134" y="108.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">site grid → projected CRS</text>
+  <circle cx="-14" cy="98.3" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="101.8" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">2</text>
+  <text x="286" y="101.8" font-size="9.5" fill="currentColor" fill-opacity="0.75">vectorised, no CRS involved</text>
+  <rect x="0" y="148.4" width="268" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="134" y="168.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Reproject to EPSG:4326</text>
+  <text x="134" y="182.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">pyproj Transformer</text>
+  <circle cx="-14" cy="172.5" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="176" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">3</text>
+  <text x="286" y="176" font-size="9.5" fill="currentColor" fill-opacity="0.75">always_xy=True</text>
+  <line x1="134" y1="48.2" x2="134" y2="74.2" stroke="currentColor" stroke-width="1.4" marker-end="url(#e43-a)"/>
+  <line x1="134" y1="122.4" x2="134" y2="148.4" stroke="currentColor" stroke-width="1.4" marker-end="url(#e43-a)"/>
+</svg>
+<!-- /fig:local-to-4326-stages -->
+
 A 2D similarity transform has four degrees of freedom: uniform scale, rotation angle, and two translation components. It preserves shape and relative distances, making it the correct model for survey-grade CAD registration when no shear or independent-axis distortion exists. The transform is written as:
 
 $$
@@ -73,7 +109,7 @@ Once coordinates live in a known projected CRS such as UTM or State Plane, `pypr
 
 The diagram below illustrates the complete data flow:
 
-<svg viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two-stage CAD to EPSG:4326 pipeline diagram" style="width:100%;max-width:760px;display:block;margin:1.5rem auto">
+<svg viewBox="-6 44 772 144" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two-stage CAD to EPSG:4326 pipeline diagram" style="width:100%;max-width:760px;display:block;margin:1.5rem auto">
   <title>Two-stage CAD to EPSG:4326 pipeline</title>
   <desc>Data flows from CAD local coordinates through a similarity transform into a regional projected CRS, then through a pyproj map projection into WGS84 EPSG:4326 geographic coordinates.</desc>
   <defs>
@@ -81,6 +117,7 @@ The diagram below illustrates the complete data flow:
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="-6" y="44" width="772" height="144" fill="var(--color-surface)"/>
   <!-- Box 1: CAD local coords -->
   <rect x="10" y="60" width="160" height="80" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="90" y="96" text-anchor="middle" font-size="13" fill="currentColor" font-family="sans-serif">CAD Local Grid</text>
@@ -307,6 +344,42 @@ if __name__ == "__main__":
 ## Fallback Strategies and Troubleshooting
 
 **1. Collinear control points — transform becomes degenerate**
+
+<!-- fig:local-to-4326-affine -->
+<svg viewBox="-48 -20.8 498.1 300.9" role="img" aria-label="The same site boundary on the CAD grid and after the fitted affine places it on the projected CRS, congruent but rotated and translated" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:498px;display:block;margin:1.5rem auto;">
+  <title>A site boundary before and after the fitted affine</title>
+  <desc>Two outlines of the same rectangular site boundary. The lighter outline is the drawing as authored on the arbitrary CAD grid with its origin at zero. The heavier outline is the same boundary after the fitted affine applies the survey scale factor, the 1.9 degree grid bearing and the translation onto the projected CRS. The shapes are congruent; only their placement and orientation differ.</desc>
+  <defs>
+    <marker id="e44-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="e44-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-48" y="-20.8" width="498.1" height="300.9" fill="var(--color-surface)"/>
+  <rect x="34" y="12" width="350" height="204" rx="4" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="34" y1="216" x2="384" y2="216" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5"/>
+  <line x1="34" y1="12" x2="34" y2="216" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5"/>
+  <text x="209" y="238" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.7">Easting (m, offset from site origin)</text>
+  <text x="26" y="114" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.7">Northing (m)</text>
+  <polyline points="34,216 306.8,216 306.8,49.3 34,49.3 34,216" fill="none" stroke="currentColor" stroke-width="1.4" stroke-opacity="0.6"/>
+  <circle cx="34" cy="216" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="306.8" cy="216" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="306.8" cy="49.3" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="34" cy="49.3" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="34" cy="216" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <text x="299.8" y="232" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.85">site grid</text>
+  <polyline points="111.3,191 384,182.7 378,16 105.3,24.3 111.3,191" fill="none" stroke="currentColor" stroke-width="2" stroke-opacity="0.95"/>
+  <circle cx="111.3" cy="191" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="384" cy="182.7" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="378" cy="16" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="105.3" cy="24.3" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="111.3" cy="191" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <text x="371" y="6" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.85">projected</text>
+  <text x="34" y="258" font-size="9.5" fill="currentColor" fill-opacity="0.7">Scale 1.0004, bearing 1.9°, translation (34 m, 12 m) — solved once, applied to every vertex.</text>
+</svg>
+<!-- /fig:local-to-4326-affine -->
 
 If all control points lie on a single straight line, the SVD decomposition cannot distinguish rotation from reflection and the recovered scale is unreliable. The symptom is a geometrically plausible-looking RMSE (because residuals along the line are small) combined with large positional errors perpendicular to it. Fix: add at least one control point well off the primary axis — ideally near a corner of the site perimeter.
 

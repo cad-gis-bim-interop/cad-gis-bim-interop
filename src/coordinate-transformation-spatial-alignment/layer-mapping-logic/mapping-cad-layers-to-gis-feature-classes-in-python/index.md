@@ -82,6 +82,39 @@ CAD drawings organise geometry by **layer name** — often terse, coded strings 
 
 CAD layer naming follows conventions like the AIA or the US National CAD Standard, where a discipline prefix, a major group, and modifiers are concatenated: `A-WALL-FULL`, `C-ROAD-CNTR`, `V-SURV-BNDY`. These strings encode intent, but they are strings — a GIS target needs a named feature class (`building_walls`, `road_centrelines`, `survey_boundaries`) with a defined geometry type and attribute schema.
 
+<!-- fig:layer-name-anatomy -->
+<svg viewBox="-20 -20 405.8 175.1" role="img" aria-label="Discipline, major group, minor group and status — the fields that make up a National CAD Standard layer name" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>The parts of a National CAD Standard layer name</title>
+  <desc>A layer name broken into the fields the standard defines. A single-character discipline designator, a four-character major group naming the building system, an optional minor group refining it, and an optional status field. Mapping rules key on the first two fields, which is why a regular expression anchored to the prefix survives drafting variations in the tail.</desc>
+  <defs>
+    <marker id="l2f-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="l2f-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="405.8" height="175.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="138.4" height="111" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">C-ROAD-CNTR-EXST</text>
+  <line x1="144.4" y1="12.9" x2="176.4" y2="12.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="184.4" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">the full layer name</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">C</text>
+  <line x1="144.4" y1="31.9" x2="176.4" y2="31.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="184.4" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.78">discipline: Civil</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">  ROAD</text>
+  <line x1="144.4" y1="50.9" x2="176.4" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="184.4" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">major group: roadway</text>
+  <text x="14" y="73" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">       CNTR</text>
+  <line x1="144.4" y1="69.9" x2="176.4" y2="69.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="184.4" y="73" font-size="9.5" fill="currentColor" fill-opacity="0.78">minor group: centreline</text>
+  <text x="14" y="92" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">            EXST</text>
+  <line x1="144.4" y1="88.9" x2="176.4" y2="88.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="184.4" y="92" font-size="9.5" fill="currentColor" fill-opacity="0.78">status: existing</text>
+  <text x="0" y="133" font-size="9.5" fill="currentColor" fill-opacity="0.7">Rules match the discipline and major group; the tail varies far more between offices.</text>
+</svg>
+<!-- /fig:layer-name-anatomy -->
+
 A single match type is never enough. Some layers map one-to-one and are best handled by an **exact** rule. Families of layers with a shared stem (`A-WALL`, `A-WALL-FULL`, `A-WALL-PRHT`) are captured by a **regex** rule. Broad discipline buckets (everything starting `C-`) are handled by a **prefix** rule. The rule engine evaluates these in priority order — exact, then regex, then prefix — so specific rules win over general ones, and only a layer that matches nothing reaches the default bucket.
 
 `ezdxf` supplies the raw material: each entity exposes its layer via `entity.dxf.layer`, and the layer table (`doc.layers`) carries per-layer flags for frozen and off states. The rule engine never mutates geometry; it only classifies. Grouping the classified entities by their resolved feature class, then constructing a `geopandas` `GeoDataFrame` per group, yields GIS-ready outputs with consistent schemas.
@@ -94,6 +127,7 @@ A single match type is never enough. Some layers map one-to-one and are best han
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.75"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="700" height="350" fill="var(--color-surface)"/>
   <!-- Input -->
   <rect x="30" y="18" width="220" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="140" y="45" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">CAD entities grouped by layer</text>
@@ -287,6 +321,40 @@ if __name__ == "__main__":
 ## Fallback Strategies
 
 **1. Case sensitivity.** AutoCAD layer names are case-insensitive but stored with mixed case. Uppercase both layer names and rule keys, and compile regex with `re.IGNORECASE`, so `A-WALL`, `A-Wall`, and `a-wall` resolve identically. The classifier above does this centrally; never compare raw layer strings.
+
+<!-- fig:layer-class-flow -->
+<svg viewBox="-20 -33.5 589.6 101.7" role="img" aria-label="Entity, uppercase layer name, compiled rule match, feature class — the four stages of classifying DXF geometry for GIS" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:590px;display:block;margin:1.5rem auto;">
+  <title>From a DXF entity to a classified GIS feature</title>
+  <desc>Four stages. An entity is read from modelspace, its layer name is normalised to upper case, the compiled rule set classifies it, and the classified geometry is written to the feature class the rule names. Normalising the case before matching is what makes the rule table case-insensitive without compiling every rule twice.</desc>
+  <defs>
+    <marker id="l2f2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="l2f2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="589.6" height="101.7" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="88.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="44.1" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DXF entity</text>
+  <text x="44.1" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">msp.query()</text>
+  <rect x="122.2" y="0" width="124.6" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="184.5" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Normalised name</text>
+  <text x="184.5" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">upper case</text>
+  <rect x="280.8" y="0" width="107.7" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="334.6" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Classification</text>
+  <text x="334.6" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">exact, then regex</text>
+  <rect x="422.5" y="0" width="127.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="486.1" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Feature class</text>
+  <text x="486.1" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">geometry + attributes</text>
+  <line x1="88.2" y1="24.1" x2="122.2" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#l2f2-a)"/>
+  <text x="105.2" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">dxf.layer</text>
+  <line x1="246.8" y1="24.1" x2="280.8" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#l2f2-a)"/>
+  <text x="263.8" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">rule set</text>
+  <line x1="388.5" y1="24.1" x2="422.5" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#l2f2-a)"/>
+  <text x="405.5" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">write</text>
+</svg>
+<!-- /fig:layer-class-flow -->
 
 **2. Layer name collisions and merges.** When two distinct layers must become one feature class, map both to the same target — the engine groups by feature class, so the merge is automatic. Retain `source_layer` on every feature so the original layer is recoverable after the merge for provenance and QA.
 

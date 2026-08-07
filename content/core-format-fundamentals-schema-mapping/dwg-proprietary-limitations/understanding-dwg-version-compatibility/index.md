@@ -62,7 +62,34 @@ Every DWG file stores a 6-byte ASCII version string starting at file offset `0x0
 
 Because the DWG specification is proprietary, reverse-engineered parsers — including the Open Design Alliance (ODA) libraries — sometimes fail silently on unsupported codes rather than raising exceptions. This means the failure mode you must guard against is not a crash but a silently truncated geometry set that passes downstream validation while missing entire layer groups or 3D solids. The [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) layer in your pipeline is the right place to gate files by version before any geometry or attribute extraction runs.
 
-<svg viewBox="0 0 760 320" role="img" aria-label="DWG version routing pipeline: header inspection, version lookup, converter routing, and schema normalisation stages" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:760px;display:block;margin:1.5rem auto;">
+<!-- fig:dwg-header-bytes -->
+<svg viewBox="-20 -20 413.4 137.1" role="img" aria-label="The first six ASCII bytes of a DWG file carry the version code, and everything after them is schema-dependent" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>The six bytes at offset zero</title>
+  <desc>The opening bytes of a DWG file. The first six ASCII characters are the version code; the bytes that follow are already schema-dependent, which is why the code has to be read before anything else is interpreted. Reading six bytes costs one seek and settles which parser, converter target and fallback path apply.</desc>
+  <defs>
+    <marker id="ver1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ver1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="413.4" height="137.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="186.7" height="73" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">0x00  41 43 31 30 33 32</text>
+  <line x1="192.7" y1="12.9" x2="224.7" y2="12.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="232.7" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">six ASCII bytes</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">       A  C  1  0  3  2</text>
+  <line x1="192.7" y1="31.9" x2="224.7" y2="31.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="232.7" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.78">&quot;AC1032&quot; → R2018</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.55">0x06  00 00 00 00 …</text>
+  <line x1="192.7" y1="50.9" x2="224.7" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="232.7" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">schema-dependent from here on</text>
+  <text x="0" y="95" font-size="9.5" fill="currentColor" fill-opacity="0.7">One seek, six bytes: enough to route the file without opening a converter.</text>
+</svg>
+<!-- /fig:dwg-header-bytes -->
+
+<svg viewBox="4 94 750 153" role="img" aria-label="DWG version routing pipeline: header inspection, version lookup, converter routing, and schema normalisation stages" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:760px;display:block;margin:1.5rem auto;">
   <title>DWG Version Routing Pipeline</title>
   <desc>Four-stage pipeline diagram showing: 1) Read 6-byte header from DWG file, 2) Lookup ACAD code in version registry, 3) Route to ODA converter with target version, 4) Normalised DXF output for GIS/BIM ingestion.</desc>
   <defs>
@@ -70,6 +97,7 @@ Because the DWG specification is proprietary, reverse-engineered parsers — inc
       <polygon points="0 0, 8 3, 0 6" fill="currentColor" opacity="0.7"/>
     </marker>
   </defs>
+  <rect x="4" y="94" width="750" height="153" fill="var(--color-surface)"/>
   <!-- Stage boxes -->
   <!-- Stage 1 -->
   <rect x="20" y="110" width="140" height="70" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
@@ -326,6 +354,41 @@ Key implementation notes:
 
 **1. `FileNotFoundError: odafileconverter`**
 The ODA binary is not on `$PATH`. On Linux, install the `.run` bundle from the Open Design Alliance and add the install directory to `~/.bashrc`. On Docker-based pipelines, bake the binary into the image and verify with `which odafileconverter` at container startup.
+
+<!-- fig:dwg-convert-sequence -->
+<svg viewBox="-20 -20 558 286" role="img" aria-label="Read the signature, resolve an export target, run the converter under a timeout, then verify by opening the DXF rather than trusting the exit code" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:558px;display:block;margin:1.5rem auto;">
+  <title>The detect, convert, verify loop</title>
+  <desc>A call sequence. The pipeline reads the signature itself, asks the registry for an export target, invokes the ODA File Converter under a timeout, and then verifies the produced DXF by opening it rather than trusting the converter exit code. A converter that exits zero having written nothing usable is a routine failure mode.</desc>
+  <defs>
+    <marker id="ver2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ver2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="558" height="286" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="158" height="34" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.4"/>
+  <text x="79" y="21" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">pipeline</text>
+  <line x1="79" y1="34" x2="79" y2="246" stroke="currentColor" stroke-width="1" stroke-opacity="0.28" stroke-dasharray="4 4"/>
+  <rect x="180" y="0" width="158" height="34" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.4"/>
+  <text x="259" y="21" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">ODA converter</text>
+  <line x1="259" y1="34" x2="259" y2="246" stroke="currentColor" stroke-width="1" stroke-opacity="0.28" stroke-dasharray="4 4"/>
+  <rect x="360" y="0" width="158" height="34" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.4"/>
+  <text x="439" y="21" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">ezdxf</text>
+  <line x1="439" y1="34" x2="439" y2="246" stroke="currentColor" stroke-width="1" stroke-opacity="0.28" stroke-dasharray="4 4"/>
+  <path d="M 79 52 L 105 52 L 105 66 L 82 66" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ver2-a)"/>
+  <text x="113" y="62" font-size="9.5" fill="currentColor" fill-opacity="0.8">read 6 bytes at 0x00</text>
+  <line x1="79" y1="100" x2="259" y2="100" stroke="currentColor" stroke-width="1.3" marker-end="url(#ver2-a)"/>
+  <text x="169" y="93" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">convert to target release</text>
+  <line x1="259" y1="140" x2="79" y2="140" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#ver2-o)"/>
+  <text x="169" y="133" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">exit code + DXF on disk</text>
+  <line x1="79" y1="180" x2="439" y2="180" stroke="currentColor" stroke-width="1.3" marker-end="url(#ver2-a)"/>
+  <text x="259" y="173" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">readfile() the output</text>
+  <line x1="439" y1="220" x2="79" y2="220" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#ver2-o)"/>
+  <text x="259" y="213" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">entity counts</text>
+</svg>
+<!-- /fig:dwg-convert-sequence -->
 
 **2. Unrecognised ACAD code in the registry**
 If `read_dwg_version` returns a header not in `VERSION_MAP` (e.g. a future `AC1035`), the pipeline logs a warning and attempts `AC1032` as the conversion target. If ODA also rejects that code, the only option is a read-only metadata pass: log the raw header bytes, the file size, and any layer names extractable from the ASCII sections of the DWG header, then quarantine the file for manual review.

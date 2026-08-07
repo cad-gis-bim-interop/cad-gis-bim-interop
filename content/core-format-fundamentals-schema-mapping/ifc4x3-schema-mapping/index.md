@@ -141,7 +141,7 @@ This guide delivers a production-tested Python workflow: header validation, cont
   <title>IFC4x3 Schema Mapping Pipeline</title>
   <desc>Data-flow diagram showing the five stages of an IFC4x3 schema mapping pipeline: STEP file ingestion and header validation, spatial containment traversal, property and quantity set extraction, CRS resolution and geometry transformation, and final GIS export to GeoJSON or Parquet.</desc>
   <!-- Background -->
-  <rect width="760" height="340" rx="8" fill="none"/>
+  <rect x="0" y="0" width="760" height="340" fill="var(--color-surface)"/>
   <!-- Stage boxes -->
   <!-- Stage 1 -->
   <rect x="10" y="130" width="120" height="80" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -223,6 +223,39 @@ If `ifcopenshell` is not on PyPI for your platform, install from the [official c
 ## Architectural Overview
 
 IFC4x3 ships as an EXPRESS schema describing a directed acyclic object graph encoded as a STEP Part 21 file. Every entity instance has a numeric ID (`#12345`), a type name, and positional attributes. Relationships between entities — containment, property attachment, geometry assignment — are expressed through inverse attributes and explicit `IfcRel*` instances rather than foreign keys or embedded pointers.
+
+<!-- fig:ifc-step-anatomy -->
+<svg viewBox="-20 -20 383.1 175.1" role="img" aria-label="A STEP line carries an instance id, an upper-case entity type and positional attributes with hash references to other instances" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>An IFC entity instance as it appears in a STEP file</title>
+  <desc>One line of a STEP Part 21 file. A numeric instance identifier, the entity type in upper case, and a positional attribute list in which hash references point at other instances. Because the attributes are positional rather than named, the schema version decides what each slot means — which is why the file header must be checked before the model is interpreted.</desc>
+  <defs>
+    <marker id="ifc1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ifc1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="383.1" height="175.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="166" height="111" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">#412= IFCWALL(</text>
+  <line x1="172" y1="12.9" x2="204" y2="12.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="212" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">instance id and entity type</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">  '3vB2YO$MX4xQ...',</text>
+  <line x1="172" y1="31.9" x2="204" y2="31.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="212" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.78">GlobalId — the stable key</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">  #7,</text>
+  <line x1="172" y1="50.9" x2="204" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="212" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">reference to the owner history</text>
+  <text x="14" y="73" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">  'Basic Wall:Ext',</text>
+  <line x1="172" y1="69.9" x2="204" y2="69.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="212" y="73" font-size="9.5" fill="currentColor" fill-opacity="0.78">Name</text>
+  <text x="14" y="92" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">  #398, #401);</text>
+  <line x1="172" y1="88.9" x2="204" y2="88.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="212" y="92" font-size="9.5" fill="currentColor" fill-opacity="0.78">placement and representation</text>
+  <text x="0" y="133" font-size="9.5" fill="currentColor" fill-opacity="0.7">Attributes are positional — the declared schema decides what slot four means.</text>
+</svg>
+<!-- /fig:ifc-step-anatomy -->
 
 **What changes from IFC4 to IFC4x3**
 
@@ -495,6 +528,40 @@ For detailed attribute-to-feature mapping logic — including how `IfcPropertyTa
 
 **1. `IfcAlignment` has no solid geometry**
 
+<!-- fig:ifc-alignment-model -->
+<svg viewBox="-20 -33.5 612.6 101.7" role="img" aria-label="IfcAlignment carries horizontal and vertical business logic rather than a solid, so geometry appears only where products are placed along it" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:613px;display:block;margin:1.5rem auto;">
+  <title>Why an alignment has no solid to extract</title>
+  <desc>The chain that makes IfcAlignment different from a building element. The alignment carries horizontal and vertical business logic — curves, transitions and grades — rather than a solid. Geometry only appears where a product is placed along it. A pipeline that queries alignments for meshes finds nothing; it has to evaluate the referent curve instead.</desc>
+  <defs>
+    <marker id="ifc2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ifc2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="612.6" height="101.7" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="98.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="49.1" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IfcAlignment</text>
+  <text x="49.1" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">business logic</text>
+  <rect x="132.1" y="0" width="139.7" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="202" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Horizontal + vertical</text>
+  <text x="202" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">curves and grades</text>
+  <rect x="305.9" y="0" width="112.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="362" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Referent curve</text>
+  <text x="362" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">a linear placement</text>
+  <rect x="452" y="0" width="120.5" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="512.3" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Placed elements</text>
+  <text x="512.3" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">the only solids</text>
+  <line x1="98.1" y1="24.1" x2="132.1" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#ifc2-a)"/>
+  <text x="115.1" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">composed of</text>
+  <line x1="271.9" y1="24.1" x2="305.9" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#ifc2-a)"/>
+  <text x="288.9" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">evaluated</text>
+  <line x1="418" y1="24.1" x2="452" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#ifc2-a)"/>
+  <text x="435" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">products along it</text>
+</svg>
+<!-- /fig:ifc-alignment-model -->
+
 `ifcopenshell.geom.create_shape()` silently skips `IfcAlignment` because the entity carries a curve representation (`IfcGradientCurve`, `IfcCompositeCurve`), not a solid. Access geometry via `model.by_type("IfcAlignmentSegment")` and extract the `Representation` attribute directly. Wrap in a `try/except RuntimeError` because some authoring tools omit the representation on degenerate zero-length segments.
 
 **2. Duplicate GUID across file splits**
@@ -668,3 +735,4 @@ No. `IfcProjectedCRS` is optional and is attached via `HasCoordinateOperation` o
 - [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — how group code taxonomy differs from EXPRESS schema inheritance
 - [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — pyproj-based reprojection patterns for local-to-EPSG coordinate transforms
 - [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) — geometry extraction and mesh conversion using the ifcopenshell Python API
+- [Extracting IfcAlignment Geometry with ifcopenshell](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/extracting-ifcalignment-geometry-with-ifcopenshell/) — sampling the horizontal and vertical business logic that has no solid to compile

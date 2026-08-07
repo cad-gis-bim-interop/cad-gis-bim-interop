@@ -61,6 +61,56 @@ A 3D similarity transform (also called a Helmert-like 3-parameter + rotation + s
 f(R, s, t) = Σ ‖ s·R·pᵢ + t − qᵢ ‖²
 ```
 
+<!-- fig:bimgis-svd-solve -->
+<svg viewBox="-45 -20 466.5 385" role="img" aria-label="Centre, cross-covariance, SVD, determinant check, then scale and translation — the five steps of an SVD similarity solve" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:467px;display:block;margin:1.5rem auto;">
+  <title>Solving a similarity transform with a singular value decomposition</title>
+  <desc>Five steps. Both point sets are centred on their centroids, their cross-covariance matrix is formed, a singular value decomposition of that matrix yields the rotation, a determinant check flips the last singular vector when the naive product is a reflection rather than a rotation, and scale and translation follow from the centred variances and the centroids.</desc>
+  <defs>
+    <marker id="svd-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="svd-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-45" y="-20" width="466.5" height="385" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="264" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="132" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Centre both sets</text>
+  <text x="132" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">subtract each centroid</text>
+  <circle cx="-14" cy="24.1" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="27.6" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">1</text>
+  <text x="282" y="27.6" font-size="9.5" fill="currentColor" fill-opacity="0.75">removes translation</text>
+  <rect x="0" y="74.2" width="264" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="132" y="94.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Form H = Aᵀ B</text>
+  <text x="132" y="108.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">cross-covariance</text>
+  <circle cx="-14" cy="98.3" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="101.8" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">2</text>
+  <text x="282" y="101.8" font-size="9.5" fill="currentColor" fill-opacity="0.75">3×3 for 3D control points</text>
+  <rect x="0" y="148.4" width="264" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="132" y="168.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Decompose H = U Σ Vᵀ</text>
+  <text x="132" y="182.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">numpy.linalg.svd</text>
+  <circle cx="-14" cy="172.5" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="176" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">3</text>
+  <text x="282" y="176" font-size="9.5" fill="currentColor" fill-opacity="0.75">Σ also reports conditioning</text>
+  <rect x="0" y="222.6" width="264" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="132" y="242.9" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Guard det(R) = +1</text>
+  <text x="132" y="256.6" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">flip the last column of V</text>
+  <circle cx="-14" cy="246.7" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="250.2" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">4</text>
+  <text x="282" y="250.2" font-size="9.5" fill="currentColor" fill-opacity="0.75">a reflection is not a rotation</text>
+  <rect x="0" y="296.8" width="264" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="132" y="317.1" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Recover s and t</text>
+  <text x="132" y="330.8" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">from variance and centroids</text>
+  <circle cx="-14" cy="320.9" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="324.4" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">5</text>
+  <text x="282" y="324.4" font-size="9.5" fill="currentColor" fill-opacity="0.75">uniform scale only</text>
+  <line x1="132" y1="48.2" x2="132" y2="74.2" stroke="currentColor" stroke-width="1.4" marker-end="url(#svd-a)"/>
+  <line x1="132" y1="122.4" x2="132" y2="148.4" stroke="currentColor" stroke-width="1.4" marker-end="url(#svd-a)"/>
+  <line x1="132" y1="196.6" x2="132" y2="222.6" stroke="currentColor" stroke-width="1.4" marker-end="url(#svd-a)"/>
+  <line x1="132" y1="270.8" x2="132" y2="296.8" stroke="currentColor" stroke-width="1.4" marker-end="url(#svd-a)"/>
+</svg>
+<!-- /fig:bimgis-svd-solve -->
+
 NumPy's `linalg.svd` provides a closed-form solution. The algorithm:
 
 1. Centres both point clouds on their centroids to decouple translation from rotation.
@@ -73,7 +123,7 @@ The algorithm does **not** recover non-uniform scaling (different *x*/*y*/*z* st
 
 The SVG below shows the data-flow from raw BIM export through to a georeferenced output file.
 
-<svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BIM-to-GIS alignment pipeline: extract control points, normalise units, harmonise CRS, compute SVD transform, apply and validate, export with metadata" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
+<svg viewBox="-12 44 744 99" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BIM-to-GIS alignment pipeline: extract control points, normalise units, harmonise CRS, compute SVD transform, apply and validate, export with metadata" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>BIM-to-GIS Alignment Pipeline</title>
   <desc>Six sequential stages: extract control points, normalise units to metres, harmonise CRS with pyproj, compute SVD similarity transform, validate RMSE, then export with IfcMapConversion or GeoPackage metadata.</desc>
   <defs>
@@ -81,6 +131,7 @@ The SVG below shows the data-flow from raw BIM export through to a georeferenced
       <path d="M0,0 L0,6 L8,3 Z" fill="currentColor" opacity="0.55"/>
     </marker>
   </defs>
+  <rect x="-12" y="44" width="744" height="99" fill="var(--color-surface)"/>
   <!-- Stage boxes -->
   <g font-family="system-ui,sans-serif" font-size="11" text-anchor="middle" fill="currentColor">
     <!-- Box 1 -->
@@ -361,6 +412,42 @@ Key implementation notes:
 ## Fallback Strategies / Troubleshooting
 
 **1. RMSE above 0.10 m — outlier control point**
+
+<!-- fig:bimgis-three-mismatches -->
+<svg viewBox="-20 -20 637.6 144.4" role="img" aria-label="Unit mismatch, local origin offset and north rotation are resolved together by one similarity transform" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:638px;display:block;margin:1.5rem auto;">
+  <title>The three mismatches a BIM-to-GIS alignment has to resolve</title>
+  <desc>A BIM model and a GIS survey disagree in three independent ways at once: the model is authored in millimetres while the survey is in metres, the model sits on a local origin near zero while the survey carries full projected coordinates, and the model is drafted to project north while the survey is on grid north. A single similarity transform resolves all three, which is why solving them separately produces compounding residuals.</desc>
+  <defs>
+    <marker id="bg2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="bg2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="637.6" height="144.4" fill="var(--color-surface)"/>
+  <rect x="213.8" y="17.4" width="170" height="69.6" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="298.8" y="41.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">One similarity</text>
+  <text x="298.8" y="55.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">transform</text>
+  <text x="298.8" y="68.8" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">s, R, t solved together</text>
+  <rect x="0" y="0" width="143.8" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="71.9" y="18.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Unit mismatch</text>
+  <text x="71.9" y="32" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">mm authored, m surveyed</text>
+  <path d="M 143.8 22.1 L 191.8 22.1 L 191.8 52.2 L 213.8 52.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#bg2-a)" stroke-linejoin="round"/>
+  <rect x="0" y="60.2" width="143.8" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="71.9" y="78.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Local origin</text>
+  <text x="71.9" y="92.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">near zero vs full easting</text>
+  <path d="M 143.8 82.3 L 191.8 82.3 L 191.8 52.2 L 213.8 52.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#bg2-a)" stroke-linejoin="round"/>
+  <rect x="453.8" y="0" width="143.8" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="525.7" y="18.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">North rotation</text>
+  <text x="525.7" y="32" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">project vs grid north</text>
+  <path d="M 383.8 52.2 L 431.8 52.2 L 431.8 22.1 L 453.8 22.1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#bg2-a)" stroke-linejoin="round"/>
+  <rect x="453.8" y="60.2" width="143.8" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="525.7" y="78.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Residual check</text>
+  <text x="525.7" y="92.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">RMSE on check points</text>
+  <path d="M 383.8 52.2 L 431.8 52.2 L 431.8 82.3 L 453.8 82.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#bg2-a)" stroke-linejoin="round"/>
+</svg>
+<!-- /fig:bimgis-three-mismatches -->
 
 Compute per-point residuals and identify which tie point drives the error:
 

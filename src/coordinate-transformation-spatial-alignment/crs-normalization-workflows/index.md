@@ -157,7 +157,50 @@ Misconfigured `PROJ_LIB` or `PROJ_DATA` environment variables cause silent fallb
 
 The normalization pipeline follows four deterministic stages: detection, validation, transformation, and verification. Each stage is isolated so that failures surface early with actionable context rather than propagating as corrupted geometry.
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 200" role="img" aria-label="CRS normalization pipeline: four stages from raw spatial input to validated normalized output" style="max-width:100%;height:auto;display:block;margin:1.5rem 0;">
+<!-- fig:crsnorm-stage-isolation -->
+<svg viewBox="-45 -20 486.9 310.8" role="img" aria-label="Detection, validation, transformation and verification — the four isolated stages of a CRS normalization pipeline and what each one owns" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:487px;display:block;margin:1.5rem auto;">
+  <title>The four isolated stages of CRS normalization</title>
+  <desc>Four stages run in order: detection reads whatever CRS metadata the source carries, validation rejects or flags what detection could not establish, transformation applies a single cached coordinate operation, and verification measures residuals against independent control points. Each stage is isolated so a failure is attributable to one of them rather than to the pipeline as a whole.</desc>
+  <defs>
+    <marker id="crn-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="crn-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-45" y="-20" width="486.9" height="310.8" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="250" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="125" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Detect</text>
+  <text x="125" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">read declared CRS</text>
+  <circle cx="-14" cy="24.1" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="27.6" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">1</text>
+  <text x="268" y="27.6" font-size="9.5" fill="currentColor" fill-opacity="0.75">.prj, EPSG code, IfcMapConversion</text>
+  <rect x="0" y="74.2" width="250" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="125" y="94.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Validate</text>
+  <text x="125" y="108.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">reject the unknowable</text>
+  <circle cx="-14" cy="98.3" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="101.8" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">2</text>
+  <text x="268" y="101.8" font-size="9.5" fill="currentColor" fill-opacity="0.75">no silent default CRS</text>
+  <rect x="0" y="148.4" width="250" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="125" y="168.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Transform</text>
+  <text x="125" y="182.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">one cached operation</text>
+  <circle cx="-14" cy="172.5" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="176" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">3</text>
+  <text x="268" y="176" font-size="9.5" fill="currentColor" fill-opacity="0.75">Transformer built once</text>
+  <rect x="0" y="222.6" width="250" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="125" y="242.9" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Verify</text>
+  <text x="125" y="256.6" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">residuals on control points</text>
+  <circle cx="-14" cy="246.7" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="250.2" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">4</text>
+  <text x="268" y="250.2" font-size="9.5" fill="currentColor" fill-opacity="0.75">fail the run, not the record</text>
+  <line x1="125" y1="48.2" x2="125" y2="74.2" stroke="currentColor" stroke-width="1.4" marker-end="url(#crn-a)"/>
+  <line x1="125" y1="122.4" x2="125" y2="148.4" stroke="currentColor" stroke-width="1.4" marker-end="url(#crn-a)"/>
+  <line x1="125" y1="196.6" x2="125" y2="222.6" stroke="currentColor" stroke-width="1.4" marker-end="url(#crn-a)"/>
+</svg>
+<!-- /fig:crsnorm-stage-isolation -->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 26 772 130" role="img" aria-label="CRS normalization pipeline: four stages from raw spatial input to validated normalized output" style="max-width:100%;height:auto;display:block;margin:1.5rem 0;">
   <title>CRS Normalization Pipeline</title>
   <desc>Four-stage pipeline diagram: (1) Ingest &amp; Detect reads GIS, CAD, and BIM sources; (2) Validate &amp; Resolve checks EPSG registry and applies fallbacks; (3) Transform applies pyproj datum shift and axis alignment; (4) Verify &amp; Export checks bounds and topology before writing GeoPackage output.</desc>
   <!-- Stage boxes -->
@@ -174,6 +217,7 @@ The normalization pipeline follows four deterministic stages: detection, validat
       <polygon points="0 0, 7 3.5, 0 7" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="-6" y="26" width="772" height="130" fill="var(--color-surface)"/>
   <!-- Stage labels -->
   <text x="87" y="90" text-anchor="middle" font-size="12" fill="currentColor" font-weight="600">Ingest &amp; Detect</text>
   <text x="87" y="108" text-anchor="middle" font-size="11" fill="currentColor">GIS · CAD · BIM</text>
@@ -375,6 +419,37 @@ def verify_and_export(
 
 ### Axis-order inversion with EPSG:4326
 
+<!-- fig:crsnorm-axis-order -->
+<svg viewBox="-20 -20 570 194.1" role="img" aria-label="Without always_xy pyproj returns latitude then longitude for EPSG:4326; with always_xy it returns longitude then latitude, matching geometry libraries" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:570px;display:block;margin:1.5rem auto;">
+  <title>What always_xy changes about EPSG:4326 axis order</title>
+  <desc>Two panels. Without always_xy, pyproj honours the authority axis order, so EPSG:4326 yields latitude then longitude and a coordinate array built as x then y is silently transposed. With always_xy set to true the transformer returns longitude then latitude, matching the ordering every geometry library and GeoJSON expects.</desc>
+  <defs>
+    <marker id="crn2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="crn2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="570" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="125" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">always_xy=False (default)</text>
+  <line x1="14" y1="33" x2="236" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— EPSG:4326 → (lat, lon)</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— authority axis order honoured</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— x/y arrays silently transposed</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— points land in the wrong hemisphere</text>
+  <rect x="280" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.11" stroke="currentColor" stroke-width="1.9"/>
+  <text x="405" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">always_xy=True</text>
+  <line x1="294" y1="33" x2="516" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="296" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— EPSG:4326 → (lon, lat)</text>
+  <text x="296" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— matches GeoJSON and Shapely</text>
+  <text x="296" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— x stays x for every CRS pair</text>
+  <text x="296" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— the only safe default in a pipeline</text>
+  <text x="265" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">A transposed pair is a valid coordinate somewhere else — nothing raises.</text>
+</svg>
+<!-- /fig:crsnorm-axis-order -->
+
 `pyproj` respects the official CRS axis order, which for EPSG:4326 is (latitude, longitude) — the opposite of what most geometry arrays expect. Without `always_xy=True`, you silently swap X and Y coordinates across the entire dataset. Always set `always_xy=True` on `Transformer.from_crs()` and verify with a known control point before processing a full dataset.
 
 ### Grid file unavailability in isolated environments
@@ -529,3 +604,4 @@ Both preserve CRS metadata natively. GeoPackage (SQLite-backed) suits downstream
 - [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — aligning geometry orientation after CRS normalization
 - [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — matching semantic attributes to normalized spatial features
 - [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) — understanding the source format structure before CRS extraction
+- [Selecting a Datum Transformation Pipeline with pyproj](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/selecting-a-datum-transformation-pipeline-with-pyproj/) — choosing between the several operations PROJ offers rather than inheriting whichever the machine can run

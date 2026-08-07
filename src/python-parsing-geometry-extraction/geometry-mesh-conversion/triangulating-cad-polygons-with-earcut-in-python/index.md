@@ -84,9 +84,40 @@ Ear-clipping repeatedly removes "ears" — triangles formed by three consecutive
 
 Critically, earcut identifies holes by position in `ring_end_indices`, not by winding direction. Winding still matters for the *output*: the triangle vertex order it emits follows the input, so an exterior ring wound clockwise yields inward-facing normals. For meshes destined for a renderer that back-face culls, normalize orientation first — exterior counter-clockwise, holes clockwise.
 
+<!-- fig:earcut-input-layout -->
+<svg viewBox="-20 -20 448.1 175.1" role="img" aria-label="Earcut takes one flat coordinate array plus hole start indices counted in vertices, not array elements" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:448px;display:block;margin:1.5rem auto;">
+  <title>How rings and holes are flattened into earcut input</title>
+  <desc>The input layout the algorithm expects. All rings are concatenated into one flat coordinate array, and a separate list of hole indices marks the position at which each interior ring begins. The indices are in vertices, not in array elements, which is the off-by-two that produces a triangulation whose holes are in the wrong place.</desc>
+  <defs>
+    <marker id="ear1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ear1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="448.1" height="175.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="228.1" height="111" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">vertices  [x0,y0, x1,y1, … ]</text>
+  <line x1="234.1" y1="12.9" x2="266.1" y2="12.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="274.1" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">every ring, concatenated</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">exterior  vertices 0 … 5</text>
+  <line x1="234.1" y1="31.9" x2="266.1" y2="31.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="274.1" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.78">always first</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">hole 1    starts at vertex 6</text>
+  <line x1="234.1" y1="50.9" x2="266.1" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="274.1" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">index in VERTICES, not floats</text>
+  <text x="14" y="73" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">hole 2    starts at vertex 10</text>
+  <text x="14" y="92" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">hole_idx  [6, 10]</text>
+  <line x1="234.1" y1="88.9" x2="266.1" y2="88.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="274.1" y="92" font-size="9.5" fill="currentColor" fill-opacity="0.78">passed alongside the flat array</text>
+  <text x="0" y="133" font-size="9.5" fill="currentColor" fill-opacity="0.7">Counting the index in array elements rather than vertices puts every hole in the wrong ring.</text>
+</svg>
+<!-- /fig:earcut-input-layout -->
+
 The diagram below shows the flattening step that most implementations get wrong: rings are concatenated head-to-tail into one buffer, and only the boundary offsets are handed to earcut.
 
-<svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Earcut input assembly: an outer ring and hole ring are flattened into one vertex array with ring end indices, passed to triangulate_float64, and reshaped into a triangle index list" style="width:100%;max-width:700px;display:block;margin:1.5rem auto;">
+<svg viewBox="-2 -3 704 251" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Earcut input assembly: an outer ring and hole ring are flattened into one vertex array with ring end indices, passed to triangulate_float64, and reshaped into a triangle index list" style="width:100%;max-width:700px;display:block;margin:1.5rem auto;">
   <title>Assembling Earcut Input from CAD Rings</title>
   <desc>An outer boundary ring and an interior hole ring are validated by Shapely, concatenated into a single float64 vertex array with cumulative ring end indices, passed to triangulate_float64, and reshaped into an N by 3 triangle index list.</desc>
   <defs>
@@ -94,6 +125,7 @@ The diagram below shows the flattening step that most implementations get wrong:
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="-2" y="-3" width="704" height="251" fill="var(--color-surface)"/>
   <!-- Stage 1: rings -->
   <rect x="14" y="30" width="180" height="120" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="104" y="24" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.7">CAD face rings</text>
@@ -244,6 +276,39 @@ For the algorithm's guarantees and limits, see the [Mapbox earcut reference](htt
 ## Fallback Strategies
 
 Earcut failures in production trace to four recurring ring defects. Handle them in this order.
+
+<!-- fig:earcut-ring-defects -->
+<svg viewBox="-20 -20 510.7 216.2" role="img" aria-label="Validate and repair a ring before triangulating — earcut returns a wrong result rather than an error on invalid input" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:511px;display:block;margin:1.5rem auto;">
+  <title>Repairing a ring before triangulating it</title>
+  <desc>A branch taken before the algorithm is called at all. A ring that is valid triangulates directly. A ring that is self-intersecting, has the wrong winding or repeats its closing coordinate is repaired first — the algorithm assumes simple, correctly wound input and returns a plausible but wrong triangulation rather than an error when that assumption fails.</desc>
+  <defs>
+    <marker id="ear2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ear2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="510.7" height="216.2" fill="var(--color-surface)"/>
+  <polygon points="235.4,0 366.2,31 235.4,62 104.5,31" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.6"/>
+  <text x="235.4" y="35" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">Is the ring simple and correctly wound?</text>
+  <rect x="0" y="128" width="138.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="69.1" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Triangulate</text>
+  <text x="69.1" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">directly</text>
+  <path d="M 235.4 62 L 235.4 92 L 69.1 92 L 69.1 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#ear2-a)" stroke-linejoin="round"/>
+  <text x="69.1" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">valid</text>
+  <rect x="166.2" y="128" width="138.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="235.4" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">make_valid</text>
+  <text x="235.4" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">may split the ring</text>
+  <path d="M 235.4 62 L 235.4 92 L 235.4 92 L 235.4 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#ear2-a)" stroke-linejoin="round"/>
+  <text x="235.4" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">self-intersecting</text>
+  <rect x="332.5" y="128" width="138.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="401.6" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Reverse</text>
+  <text x="401.6" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">exterior CCW, holes CW</text>
+  <path d="M 235.4 62 L 235.4 92 L 401.6 92 L 401.6 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#ear2-a)" stroke-linejoin="round"/>
+  <text x="401.6" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">wrong winding</text>
+</svg>
+<!-- /fig:earcut-ring-defects -->
 
 **1. Invalid or self-touching exterior rings.** A ring that touches itself at a single vertex (a "pinch") is invalid, and earcut will emit overlapping triangles. Detect with `polygon.is_valid` and repair with `make_valid()`. Because `make_valid` can split a pinched ring into a `MultiPolygon`, keep the largest component (as `_largest_polygon` does) or triangulate each part separately when both carry real area.
 

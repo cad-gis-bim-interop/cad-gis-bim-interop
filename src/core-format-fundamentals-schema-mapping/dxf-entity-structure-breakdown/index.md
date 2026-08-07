@@ -111,6 +111,48 @@ Getting the entity structure wrong has measurable costs: OCS-to-WCS transformati
 
 DXF is organized into six strictly ordered sections. Every drawing object is serialized as a flat sequence of group code / value pairs; the integer code determines both the data type and the semantic role of the following value. The canonical section order is:
 
+<!-- fig:dxf-sections -->
+<svg viewBox="-20 -20 652.6 366" role="img" aria-label="HEADER, CLASSES, TABLES, BLOCKS, ENTITIES and OBJECTS — the ordered sections of a DXF file and what each holds" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:653px;display:block;margin:1.5rem auto;">
+  <title>The ordered sections of a DXF file</title>
+  <desc>The six sections of a DXF file in the order they appear. Everything before ENTITIES is definitional — drawing settings, symbol tables and block definitions — and every one of them changes how the entities that follow are interpreted. Reading in file order therefore costs nothing extra and means no entity is interpreted before the definitions it depends on.</desc>
+  <defs>
+    <marker id="dxf1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="dxf1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="652.6" height="366" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="21" font-size="11.5" font-weight="600" fill="currentColor">HEADER</text>
+  <text x="16" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.72">drawing-wide settings</text>
+  <text x="524" y="26.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">$INSUNITS, $EXTMIN</text>
+  <rect x="0" y="56" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="77" font-size="11.5" font-weight="600" fill="currentColor">CLASSES</text>
+  <text x="16" y="91" font-size="9.5" fill="currentColor" fill-opacity="0.72">application-defined class records</text>
+  <text x="524" y="82.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">proxy classes</text>
+  <rect x="0" y="112" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="133" font-size="11.5" font-weight="600" fill="currentColor">TABLES</text>
+  <text x="16" y="147" font-size="9.5" fill="currentColor" fill-opacity="0.72">symbol tables entities refer to</text>
+  <text x="524" y="138.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">LAYER, LTYPE, STYLE</text>
+  <rect x="0" y="168" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="189" font-size="11.5" font-weight="600" fill="currentColor">BLOCKS</text>
+  <text x="16" y="203" font-size="9.5" fill="currentColor" fill-opacity="0.72">reusable geometry definitions</text>
+  <text x="524" y="194.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">INSERT targets</text>
+  <rect x="0" y="224" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2"/>
+  <text x="16" y="245" font-size="11.5" font-weight="600" fill="currentColor">ENTITIES</text>
+  <text x="16" y="259" font-size="9.5" fill="currentColor" fill-opacity="0.72">modelspace and paperspace geometry</text>
+  <text x="524" y="250.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">the drawing</text>
+  <rect x="0" y="280" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="301" font-size="11.5" font-weight="600" fill="currentColor">OBJECTS</text>
+  <text x="16" y="315" font-size="9.5" fill="currentColor" fill-opacity="0.72">non-graphical dictionaries</text>
+  <text x="524" y="306.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">XRecords, groups</text>
+  <line x1="566" y1="2" x2="566" y2="324" stroke="currentColor" stroke-width="1.4" stroke-opacity="0.6" marker-end="url(#dxf1-a)"/>
+  <text x="574" y="163" font-size="9.5" fill="currentColor" fill-opacity="0.7">file order</text>
+</svg>
+<!-- /fig:dxf-sections -->
+
 1. **HEADER** — global drawing variables (`$INSUNITS`, `$EXTMIN`, `$EXTMAX`, `$HANDSEED`, `$ACADVER`)
 2. **CLASSES** — custom object class definitions (rarely present in standard CAD exports)
 3. **TABLES** — symbol tables for reusable definitions (`LAYER`, `LTYPE`, `STYLE`, `DIMSTYLE`, `UCS`, `BLOCK_RECORD`, `VIEWPORT`)
@@ -130,6 +172,7 @@ The diagram below shows how the six sections relate and where parsing branches o
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="720" height="400" fill="var(--color-surface)"/>
   <!-- Section boxes — left column -->
   <rect x="20" y="20" width="140" height="38" rx="5" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
   <text x="90" y="44" text-anchor="middle" font-size="13" fill="currentColor" font-weight="600">HEADER</text>
@@ -358,6 +401,58 @@ Key HEADER variables for pipeline automation:
 
 ### 1. $INSUNITS=2 Is Feet, Not Inches
 
+<!-- fig:dxf-code-ranges -->
+<svg viewBox="-20 -20 366.4 304.1" role="img" aria-label="DXF group code ranges and the value type each implies, including the 10/20/30 split of a single point" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>What a group code number tells you about its value</title>
+  <desc>The group code ranges and the value type each one implies. The number is not arbitrary: it declares the type, so a parser can decode a tag it has never met. Point coordinates in particular are split across three ranges — the X, Y and Z of one point are codes 10, 20 and 30 rather than three values under a single code.</desc>
+  <defs>
+    <marker id="dxf2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="dxf2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="366.4" height="304.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="309.1" height="242" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="309.1" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Code range</text>
+  <text x="123.7" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Value type</text>
+  <line x1="166" y1="0" x2="166" y2="242" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="237.5" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Typical use</text>
+  <line x1="81.4" y1="0" x2="81.4" y2="242" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="309.1" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">0–9</text>
+  <text x="123.7" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">string</text>
+  <text x="237.5" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">entity type, layer, handle</text>
+  <line x1="0" y1="62" x2="309.1" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">10–19</text>
+  <text x="123.7" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">double (X)</text>
+  <text x="237.5" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">first point of an entity</text>
+  <line x1="0" y1="92" x2="309.1" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">20–29</text>
+  <text x="123.7" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">double (Y)</text>
+  <text x="237.5" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">the Y of that same point</text>
+  <line x1="0" y1="122" x2="309.1" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">30–39</text>
+  <text x="123.7" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">double (Z)</text>
+  <text x="237.5" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">the Z of that same point</text>
+  <line x1="0" y1="152" x2="309.1" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="170.5" font-size="10.5" font-weight="600" fill="currentColor">40–59</text>
+  <text x="123.7" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">double</text>
+  <text x="237.5" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">radius, width, scale, angle</text>
+  <line x1="0" y1="182" x2="309.1" y2="182" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="200.5" font-size="10.5" font-weight="600" fill="currentColor">70–79</text>
+  <text x="123.7" y="200.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">16-bit integer</text>
+  <text x="237.5" y="200.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">flags and counts</text>
+  <line x1="0" y1="212" x2="309.1" y2="212" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="230.5" font-size="10.5" font-weight="600" fill="currentColor">210–239</text>
+  <text x="123.7" y="230.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">double</text>
+  <text x="237.5" y="230.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">extrusion vector (OCS)</text>
+  <text x="0" y="262" font-size="9.5" fill="currentColor" fill-opacity="0.7">One point is three tags — reading only code 10 silently flattens the drawing.</text>
+</svg>
+<!-- /fig:dxf-code-ranges -->
+
 `$INSUNITS=1` is inches; `$INSUNITS=2` is feet. The off-by-one numbering catches teams that skim the spec. Always use a lookup table keyed on the integer value rather than comparing against assumed strings.
 
 ```python
@@ -572,3 +667,4 @@ No. `ezdxf` exposes the raw ACIS or ShapeManager SAT/SAB blob embedded in the `3
 - [DWG Proprietary Limitations & Binary Format Constraints](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — why DXF remains the preferred interchange medium over DWG for Python automation
 - [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — aligning DXF geometry with IFC property sets for BIM pipeline integration
 - [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) — comprehensive API coverage for Python-driven CAD geometry extraction
+- [Resolving Nested Block References with ezdxf](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/resolving-nested-block-references-with-ezdxf/) — flattening stacked INSERT placements into world coordinates without recursing forever

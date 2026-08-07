@@ -30,7 +30,7 @@ A deep, engineer-focused reference for shipping reliable **CAD ↔ GIS ↔ BIM**
 pipelines in Python. Every page is written for AEC tech engineers, GIS/CAD integrators,
 and infrastructure platform teams who need production behaviour — not toy examples:
 runnable scripts with pinned library versions, named failure modes, compatibility
-matrices, and hand-authored diagrams.
+matrices, and hand-authored diagrams — in a light and a dark theme.
 
 It covers DXF/DWG parsing, IFC integration, coordinate transformation, attribute
 mapping, batch conversion, quality control, and automation — the unglamorous
@@ -39,10 +39,10 @@ model or lands every asset in the right place.
 
 ## Explore the site
 
-- **[Python Parsing &amp; Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/)** — `ezdxf`, `ifcopenshell`, pyDWG, and mesh conversion: ingesting design files into clean, queryable geometric primitives.
-- **[Coordinate Transformation &amp; Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/)** — CRS normalization, unit conversion, layer mapping, and scale/rotation synchronization for survey-grade alignment.
-- **[Core Format Fundamentals &amp; Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/)** — DXF entity structure, DWG limitations, IFC4x3 schema mapping, and metadata extraction.
-- **[Interoperability Decision Guides](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/)** — choosing between `ezdxf`, pyDWG, and ODA; DXF vs IFC for GIS ingestion; GeoPackage vs PostGIS for CAD output.
+- **[Python Parsing &amp; Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/)** — `ezdxf`, `ifcopenshell`, pyDWG, mesh conversion, point clouds, and Revit export paths: ingesting design and survey data into clean, queryable geometric primitives.
+- **[Coordinate Transformation &amp; Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/)** — CRS normalization, unit conversion, vertical datums, layer mapping, and scale/rotation synchronization for survey-grade alignment.
+- **[Core Format Fundamentals &amp; Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/)** — DXF entity structure, DWG limitations, IFC4x3 schema mapping, CityGML interchange, and metadata extraction.
+- **[Interoperability Decision Guides](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/)** — choosing between `ezdxf`, pyDWG, and ODA; DXF vs IFC for GIS ingestion; GeoPackage vs PostGIS for CAD output; Shapely vs trimesh vs OpenCASCADE for the geometry in between.
 
 ## Built with
 

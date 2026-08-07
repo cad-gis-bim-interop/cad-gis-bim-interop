@@ -135,7 +135,7 @@ pip install "trimesh>=4.0.0" "numpy>=1.24.0" "shapely>=2.0.0" \
 
 The mesh conversion process follows a deterministic five-stage sequence. Deviating from this order introduces non-manifold edges, inverted normals, or topology collapse during batch processing.
 
-<svg viewBox="0 0 680 200" role="img" aria-label="Geometry mesh conversion pipeline: five stages from source ingestion to validated export" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px;display:block;margin:1.5rem auto;">
+<svg viewBox="-12 25 700 107" role="img" aria-label="Geometry mesh conversion pipeline: five stages from source ingestion to validated export" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px;display:block;margin:1.5rem auto;">
   <title>Geometry Mesh Conversion Pipeline</title>
   <desc>Five-stage pipeline diagram showing: Source Ingestion, Coordinate Normalization, Triangulation and Repair, Attribute Mapping, and Validation and Export, connected by directional arrows.</desc>
   <defs>
@@ -143,6 +143,7 @@ The mesh conversion process follows a deterministic five-stage sequence. Deviati
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="-12" y="25" width="700" height="107" fill="var(--color-surface)"/>
   <!-- Stage boxes -->
   <rect x="4" y="60" width="112" height="56" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="60" y="83" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Source</text>
@@ -314,6 +315,7 @@ For assemblies with logical branches (e.g. IFC boolean results vs. simple extrus
 <svg viewBox="0 0 560 260" role="img" aria-label="Decision tree for triangulation strategy: IFC boolean result uses OpenCASCADE kernel; LWPOLYLINE with bulge uses arc-tessellation; planar polygon uses Shapely triangulate; 3DFACE converts directly to triangle faces." xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;display:block;margin:1.5rem auto;">
   <title>Triangulation Strategy Decision Tree</title>
   <desc>Decision tree showing three paths from source entity type to triangulation method: IFC IfcBooleanResult goes to OpenCASCADE kernel via ifcopenshell.geom; DXF LWPOLYLINE with bulge arc goes to arc tessellation then Shapely; DXF LWPOLYLINE or planar polygon goes to Shapely triangulate_polygon; DXF 3DFACE converts directly to trimesh faces.</desc>
+  <rect x="0" y="0" width="560" height="260" fill="var(--color-surface)"/>
   <!-- Root -->
   <rect x="180" y="8" width="200" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="280" y="26" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Source Entity Type</text>
@@ -480,6 +482,46 @@ GIS geometry in real-world EPSG:4326 coordinates (e.g. longitude 13.4°, latitud
 ## Validation and Testing
 
 A testable mesh conversion pipeline validates geometry at every stage boundary, not just at export. The following test function covers the critical invariants:
+
+<!-- fig:mesh-watertight-checks -->
+<svg viewBox="-20 -20 430.5 214.1" role="img" aria-label="Watertightness, winding, volume sign and coordinate range — the mesh assertions and what each failure implicates" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:431px;display:block;margin:1.5rem auto;">
+  <title>The four mesh properties worth asserting at a stage boundary</title>
+  <desc>Each property, what its failure means about the stage before it, and the assertion that catches it. Checking at the boundary rather than only at export is what makes a defect attributable: a mesh that is not watertight after welding is a tolerance problem, whereas the same symptom after triangulation is a winding problem.</desc>
+  <defs>
+    <marker id="gmc1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="gmc1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="430.5" height="214.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="377.1" height="152" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="377.1" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Property</text>
+  <text x="185.8" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Failure implicates</text>
+  <line x1="251.4" y1="0" x2="251.4" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="314.3" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Assertion</text>
+  <line x1="120.1" y1="0" x2="120.1" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="377.1" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">Watertight</text>
+  <text x="185.8" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">weld tolerance too tight</text>
+  <text x="314.3" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">is_watertight</text>
+  <line x1="0" y1="62" x2="377.1" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Consistent winding</text>
+  <text x="185.8" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">triangulation order</text>
+  <text x="314.3" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">is_winding_consistent</text>
+  <line x1="0" y1="92" x2="377.1" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Positive volume</text>
+  <text x="185.8" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">inverted normals</text>
+  <text x="314.3" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">volume &gt; 0</text>
+  <line x1="0" y1="122" x2="377.1" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">Coordinate range</text>
+  <text x="185.8" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no local origin shift</text>
+  <text x="314.3" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">bounds within ±10 000</text>
+  <text x="0" y="172" font-size="9.5" fill="currentColor" fill-opacity="0.7">The same symptom means different things at different stages — assert at each boundary.</text>
+</svg>
+<!-- /fig:mesh-watertight-checks -->
 
 ```python
 # trimesh>=4.0.0, pytest>=7.0

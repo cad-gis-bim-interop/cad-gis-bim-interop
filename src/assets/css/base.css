@@ -17,8 +17,8 @@ body {
   line-height: var(--lh-normal);
   color: var(--color-text);
   background:
-    radial-gradient(1100px 600px at 8% -10%, rgba(13, 148, 136, 0.06), transparent 60%),
-    radial-gradient(900px 500px at 92% 0%, rgba(194, 65, 12, 0.05), transparent 60%),
+    radial-gradient(1100px 600px at 8% -10%, var(--color-glow-highlight), transparent 60%),
+    radial-gradient(900px 500px at 92% 0%, var(--color-glow-accent), transparent 60%),
     var(--color-surface);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

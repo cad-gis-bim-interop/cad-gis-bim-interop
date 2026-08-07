@@ -79,9 +79,42 @@ A naive benchmark wraps `ezdxf.readfile()` in a timer and reports the result. Th
 
 The diagram below contrasts a cold run, where disk I/O dominates the timed region, with a warm run, where the same file is served from the page cache and the timed region reflects parsing. The warm-run parse segment is the number you compare across code changes.
 
+<!-- fig:bench-what-a-timer-catches -->
+<svg viewBox="-20 -20 560 254" role="img" aria-label="Import, cold file read, parse and object allocation all fall inside a naive timer, but only the last two are parsing throughput" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;display:block;margin:1.5rem auto;">
+  <title>What a naive timer around readfile actually measures</title>
+  <desc>Four costs that fall inside a timer wrapped around the first readfile call. Interpreter import of the library, the operating system reading the file from cold storage, the parse itself, and the allocation of the entity objects. Only the last two belong to parsing throughput; the first two are one-off and dominate a single cold measurement.</desc>
+  <defs>
+    <marker id="bch1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="bch1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="560" height="254" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="520" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="21" font-size="11.5" font-weight="600" fill="currentColor">Library import</text>
+  <text x="16" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.72">once per process, not per file</text>
+  <text x="504" y="26.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">exclude</text>
+  <rect x="0" y="56" width="520" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="77" font-size="11.5" font-weight="600" fill="currentColor">Cold page-cache read</text>
+  <text x="16" y="91" font-size="9.5" fill="currentColor" fill-opacity="0.72">disk, not CPU — varies with the machine</text>
+  <text x="504" y="82.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">exclude</text>
+  <rect x="0" y="112" width="520" height="46" rx="6" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2"/>
+  <text x="16" y="133" font-size="11.5" font-weight="600" fill="currentColor">Tag parse</text>
+  <text x="16" y="147" font-size="9.5" fill="currentColor" fill-opacity="0.72">the work being measured</text>
+  <text x="504" y="138.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">measure</text>
+  <rect x="0" y="168" width="520" height="46" rx="6" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2"/>
+  <text x="16" y="189" font-size="11.5" font-weight="600" fill="currentColor">Entity allocation</text>
+  <text x="16" y="203" font-size="9.5" fill="currentColor" fill-opacity="0.72">the work being measured</text>
+  <text x="504" y="194.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">measure</text>
+</svg>
+<!-- /fig:bench-what-a-timer-catches -->
+
 <svg viewBox="0 0 640 236" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timing breakdown for a cold versus warm DXF parse: on a cold run disk I/O is a large share of the timed region, on a warm run I/O shrinks to a cache hit and parsing dominates" style="width:100%;max-width:640px;display:block;margin:1.5rem auto;">
   <title>Cold vs Warm DXF Parse Timing</title>
   <desc>Two horizontal timelines between t0 and t1. The cold run splits into a wide disk-read segment and a parse-and-iterate segment. The warm run has a small cache-hit segment and a much larger parse-and-iterate segment, which is the region to isolate and compare.</desc>
+  <rect x="0" y="0" width="640" height="236" fill="var(--color-surface)"/>
   <text x="20" y="34" font-size="11" fill="currentColor" opacity="0.6" font-weight="600">perf_counter timed region</text>
   <!-- cold run -->
   <text x="18" y="88" font-size="11" fill="currentColor">cold run</text>
@@ -224,6 +257,50 @@ if __name__ == "__main__":
 ## Fallback Strategies & Pitfalls
 
 **1. OS cache warmth is the biggest confound.** A benchmark run right after boot, or after processing files larger than RAM, hits cold cache and reports throughput several times lower than steady state. Always warm the cache, and when you need cold-start numbers, measure them in a clearly separate pass — never average a cold run into a warm series.
+
+<!-- fig:bench-harness-controls -->
+<svg viewBox="-20 -20 516.6 244.1" role="img" aria-label="Warm-up run, median of runs, disabled GC, a fixed fixture and separate memory instruments — the controls a parsing benchmark needs" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:517px;display:block;margin:1.5rem auto;">
+  <title>The five controls that make a parsing benchmark reproducible</title>
+  <desc>Each control, the confound it removes, and what the number means without it. None of them make parsing faster; they make the measurement mean the same thing on a second machine, which is the only property that makes a benchmark usable in a library decision.</desc>
+  <defs>
+    <marker id="bch2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="bch2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="516.6" height="244.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="476.6" height="182" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="476.6" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Control</text>
+  <text x="226.6" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Confound removed</text>
+  <line x1="293.2" y1="0" x2="293.2" y2="182" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="384.9" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Without it</text>
+  <line x1="159.9" y1="0" x2="159.9" y2="182" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="476.6" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">Untimed warm-up run</text>
+  <text x="226.6" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">cold page cache, import</text>
+  <text x="384.9" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">measures the disk, not the parser</text>
+  <line x1="0" y1="62" x2="476.6" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Median of N runs</text>
+  <text x="226.6" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">scheduler noise</text>
+  <text x="384.9" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">one outlier sets the result</text>
+  <line x1="0" y1="92" x2="476.6" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">GC disabled in the region</text>
+  <text x="226.6" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">collection pauses</text>
+  <text x="384.9" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">variance swamps the signal</text>
+  <line x1="0" y1="122" x2="476.6" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">Fixed fixture file</text>
+  <text x="226.6" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">entity-mix differences</text>
+  <text x="384.9" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">compares files, not libraries</text>
+  <line x1="0" y1="152" x2="476.6" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="170.5" font-size="10.5" font-weight="600" fill="currentColor">Peak and resident memory</text>
+  <text x="226.6" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.5">—</text>
+  <text x="384.9" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">a fast parser that swaps looks fast</text>
+  <text x="0" y="202" font-size="9.5" fill="currentColor" fill-opacity="0.7">A benchmark that is not reproducible on a second machine cannot settle a library choice.</text>
+</svg>
+<!-- /fig:bench-harness-controls -->
 
 **2. Garbage collection injects phantom pauses.** Python's cyclic collector can fire during a parse and add milliseconds unrelated to `ezdxf`. The harness disables GC inside the timed region; if you remove that, expect noisier medians. Never leave GC disabled outside the measurement in a long-running process — it leaks reference cycles.
 

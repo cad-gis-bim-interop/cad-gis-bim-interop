@@ -85,6 +85,40 @@ Every DXF entity — `LINE`, `LWPOLYLINE`, `INSERT`, `CIRCLE`, anything derived 
 
 `entity.get_xdata(appid)` returns a `list[tuple[int, Any]]` — one tuple per stored value, in file order, starting with the mandatory `(1001, appid)` sentinel that opens every block. The group code in each tuple tells you the Python type `ezdxf` has already decoded the value into:
 
+<!-- fig:xdata-braces -->
+<svg viewBox="-20 -20 406.2 194.1" role="img" aria-label="Code 1001 opens an XDATA block and 1002 braces nest lists inside it, making the payload a tree rather than a flat list" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>How control braces nest an XDATA block</title>
+  <desc>One APPID block of extended entity data. Code 1001 opens the block and names the registered application. Codes 1002 with the values open-brace and close-brace nest a list, so an XDATA payload is a tree rather than a flat sequence. Reading the pairs without folding the braces loses the structure the authoring application encoded.</desc>
+  <defs>
+    <marker id="xd1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="xd1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="406.2" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="166" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">1001  MY_APP</text>
+  <line x1="172" y1="12.9" x2="204" y2="12.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="212" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">opens the APPID block</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">1002  {</text>
+  <line x1="172" y1="31.9" x2="204" y2="31.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="212" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.78">push a nested list</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">1000    &quot;ASSET-4471&quot;</text>
+  <line x1="172" y1="50.9" x2="204" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="212" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">string payload</text>
+  <text x="14" y="73" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">1040    12.5</text>
+  <line x1="172" y1="69.9" x2="204" y2="69.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="212" y="73" font-size="9.5" fill="currentColor" fill-opacity="0.78">real payload</text>
+  <text x="14" y="92" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">1002  }</text>
+  <line x1="172" y1="88.9" x2="204" y2="88.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="212" y="92" font-size="9.5" fill="currentColor" fill-opacity="0.78">pop back one level</text>
+  <text x="14" y="111" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.55">1000  &quot;reviewed&quot;</text>
+  <text x="0" y="152" font-size="9.5" fill="currentColor" fill-opacity="0.7">Fold 1002 braces into nested Python lists before reading values, or the tree flattens.</text>
+</svg>
+<!-- /fig:xdata-braces -->
+
 - **1000** — ASCII string (`str`)
 - **1002** — list control: the string `'{'` opens a nested list, `'}'` closes it
 - **1004** — binary data (`bytes`)
@@ -96,7 +130,7 @@ Every DXF entity — `LINE`, `LWPOLYLINE`, `INSERT`, `CIRCLE`, anything derived 
 
 `ezdxf` does the primitive typing but does nothing semantic: it will not merge the `1002` braces into a structure, will not interpret what a `1000` string "means", and will not validate that a producer's schema is internally consistent. What you get back is the raw tuple stream, faithfully typed. The nesting is the one piece of structure you must reconstruct yourself, by treating `1002` as a stack instruction.
 
-<svg viewBox="0 0 720 300" role="img" aria-label="XDATA decoding flow: an entity's tuple stream is split by APPID, group codes are typed, and 1002 braces are folded into a nested tree" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
+<svg viewBox="0 94 722 202" role="img" aria-label="XDATA decoding flow: an entity's tuple stream is split by APPID, group codes are typed, and 1002 braces are folded into a nested tree" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>Decoding an XDATA Tuple Stream into a Nested Tree</title>
   <desc>Flow diagram: a DXF entity yields a flat list of group-code and value tuples for a given APPID; a decoder maps each group code to a Python type; 1002 open and close braces are folded onto a stack to build a nested list, which is emitted as structured JSON.</desc>
   <defs>
@@ -104,6 +138,7 @@ Every DXF entity — `LINE`, `LWPOLYLINE`, `INSERT`, `CIRCLE`, anything derived 
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="0" y="94" width="722" height="202" fill="var(--color-surface)"/>
   <rect x="16" y="118" width="150" height="64" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="91" y="142" text-anchor="middle" font-size="12" fill="currentColor">DXF Entity</text>
   <text x="91" y="160" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.7">has_xdata(appid)</text>
@@ -258,6 +293,41 @@ For the authoritative group-code definitions, consult the `ezdxf` XDATA document
 ## Fallback Strategies
 
 XDATA parsing fails in predictable ways. Handle these named scenarios in order.
+
+<!-- fig:xdata-appid-scope -->
+<svg viewBox="-20 -20 560 144.4" role="img" aria-label="An entity carries one independent XDATA block per registered APPID, so extraction iterates the APPID table" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;display:block;margin:1.5rem auto;">
+  <title>One entity, one XDATA block per registered application</title>
+  <desc>A single entity can carry extended data from several applications at once, one independent block per registered APPID. The blocks do not see each other, so extracting data means iterating the registered application table rather than reading a single payload — a reader that asks only for its own APPID silently ignores everything a surveying or asset-management add-in attached.</desc>
+  <defs>
+    <marker id="xd2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="xd2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="560" height="144.4" fill="var(--color-surface)"/>
+  <rect x="175" y="24.1" width="170" height="56.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="260" y="48.4" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">One LWPOLYLINE</text>
+  <text x="260" y="62.1" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">entity</text>
+  <rect x="0" y="0" width="105" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="52.5" y="18.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">ACAD</text>
+  <text x="52.5" y="32" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">native extensions</text>
+  <path d="M 105 22.1 L 153 22.1 L 153 52.2 L 175 52.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#xd2-a)" stroke-linejoin="round"/>
+  <rect x="0" y="60.2" width="105" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="52.5" y="78.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Survey add-in</text>
+  <text x="52.5" y="92.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">point numbers</text>
+  <path d="M 105 82.3 L 153 82.3 L 153 52.2 L 175 52.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#xd2-a)" stroke-linejoin="round"/>
+  <rect x="415" y="0" width="105" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="467.5" y="18.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Asset system</text>
+  <text x="467.5" y="32" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">asset identifiers</text>
+  <path d="M 345 52.2 L 393 52.2 L 393 22.1 L 415 22.1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#xd2-a)" stroke-linejoin="round"/>
+  <rect x="415" y="60.2" width="105" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="467.5" y="78.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">In-house tool</text>
+  <text x="467.5" y="92.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">review status</text>
+  <path d="M 345 52.2 L 393 52.2 L 393 82.3 L 415 82.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#xd2-a)" stroke-linejoin="round"/>
+</svg>
+<!-- /fig:xdata-appid-scope -->
 
 **1. Missing or unregistered APPID**
 

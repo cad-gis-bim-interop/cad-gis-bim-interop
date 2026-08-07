@@ -84,11 +84,41 @@ AutoCAD stores parametric 3D geometry as `3DSOLID` entities. Unlike basic `3DFAC
 
 The diagram below shows where `3DSOLID` fits in a DXF entity pipeline and why ACIS payloads must be routed separately from faceted geometry.
 
+<!-- fig:solids-acis-boundary -->
+<svg viewBox="-20 -33.5 427.6 125.8" role="img" aria-label="ezdxf returns the ACIS payload of a 3DSOLID verbatim; evaluating the boundary representation needs a separate modelling kernel" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:428px;display:block;margin:1.5rem auto;">
+  <title>Where the library stops and the ACIS payload begins</title>
+  <desc>Three stages and the boundary between them. The library reads the entity and hands back its embedded ACIS payload verbatim as text or binary. It does not evaluate that payload — the boundary representation inside it is a separate modelling kernel's format. Turning it into faces requires a kernel; without one, what you have is a blob with a version header.</desc>
+  <defs>
+    <marker id="sol1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="sol1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="427.6" height="125.8" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="115.3" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="57.6" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">3DSOLID entity</text>
+  <text x="57.6" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">msp.query()</text>
+  <rect x="149.3" y="0" width="109.7" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="204.2" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">ACIS payload</text>
+  <text x="204.2" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">returned verbatim</text>
+  <rect x="293" y="0" width="94.6" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="340.3" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">B-rep faces</text>
+  <text x="340.3" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">not from ezdxf</text>
+  <line x1="115.3" y1="24.1" x2="149.3" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#sol1-a)"/>
+  <text x="132.3" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">.acis</text>
+  <line x1="259" y1="24.1" x2="293" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#sol1-a)"/>
+  <text x="276" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">needs a kernel</text>
+  <text x="0" y="70.2" font-size="9.5" fill="currentColor" fill-opacity="0.7">The library is a reader, not a modeller — it never claims to evaluate the payload.</text>
+</svg>
+<!-- /fig:solids-acis-boundary -->
+
 <svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DXF entity routing diagram: faceted geometry flows directly to mesh output; 3DSOLID routes through ACIS validation to a geometry kernel" style="width:100%;max-width:640px;display:block;margin:1.5rem auto;">
   <title>3DSOLID Entity Routing in a DXF Parsing Pipeline</title>
   <desc>Diagram showing DXF modelspace entities split into two routes: 3DFACE and MESH flow directly to polygonal mesh output, while 3DSOLID entities are validated for ACIS headers then routed to a geometry kernel (OpenCASCADE / python-occ) for B-Rep to mesh conversion.</desc>
   <!-- Background -->
-  <rect width="640" height="260" fill="none"/>
+  <rect x="0" y="0" width="640" height="260" fill="var(--color-surface)"/>
   <!-- Modelspace box -->
   <rect x="220" y="10" width="200" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="320" y="28" text-anchor="middle" font-size="13" fill="currentColor" font-family="sans-serif">DXF Modelspace</text>
@@ -224,6 +254,42 @@ For the official entity specification, see the [Autodesk DXF Reference for 3DSOL
 ## Fallback Strategies When ACIS Extraction Fails
 
 ACIS payloads fail in automated pipelines for three main reasons: encryption (AutoCAD 2021+), ACIS version mismatches, or proprietary subclass extensions from vertical products. Implement these fallbacks in priority order to maintain pipeline continuity.
+
+<!-- fig:solids-failure-modes -->
+<svg viewBox="-20 -20 511.8 184.1" role="img" aria-label="Encrypted payloads, ACIS version mismatch and proprietary subclasses — why a 3DSOLID payload will not open" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:512px;display:block;margin:1.5rem auto;">
+  <title>Three reasons an ACIS payload will not open</title>
+  <desc>The three recurring extraction failures, what each looks like when you inspect the payload, and what can be done about it. Encryption in particular is not a bug to work around: from AutoCAD 2021 the payload is deliberately obscured, and the honest response is to re-export from the authoring application in a mesh format rather than to attempt recovery.</desc>
+  <defs>
+    <marker id="sol2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="sol2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="511.8" height="184.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="471.8" height="122" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="471.8" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Cause</text>
+  <text x="212.1" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">What you see</text>
+  <line x1="290.8" y1="0" x2="290.8" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="381.3" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">What actually works</text>
+  <line x1="133.4" y1="0" x2="133.4" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="471.8" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">Encrypted (2021+)</text>
+  <text x="212.1" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">payload will not parse</text>
+  <text x="381.3" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">re-export as mesh from the author</text>
+  <line x1="0" y1="62" x2="471.8" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">ACIS version too new</text>
+  <text x="212.1" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">header reads, body does not</text>
+  <text x="381.3" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">export to an older release</text>
+  <line x1="0" y1="92" x2="471.8" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Proprietary subclass</text>
+  <text x="212.1" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">parses, geometry incomplete</text>
+  <text x="381.3" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">request a neutral format</text>
+  <text x="0" y="142" font-size="9.5" fill="currentColor" fill-opacity="0.7">Detect and report per entity — a run that drops solids silently reads as a successful run.</text>
+</svg>
+<!-- /fig:solids-failure-modes -->
 
 **1. Pre-process to mesh before DXF export**
 

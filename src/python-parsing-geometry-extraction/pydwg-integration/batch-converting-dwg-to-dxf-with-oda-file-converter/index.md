@@ -86,6 +86,45 @@ The ODA File Converter is a command-line-capable desktop application. Its CLI ta
 ODAFileConverter "<inDir>" "<outDir>" "<outVer>" "<outFormat>" "<recurse>" "<audit>" "<filter>"
 ```
 
+<!-- fig:oda-cli-arguments -->
+<svg viewBox="-20 -20 368.9 213.1" role="img" aria-label="Input path, output path, version, file type, recurse, audit and filter — the seven positional ODA converter arguments" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>The seven positional arguments, in order</title>
+  <desc>The converter takes seven positional arguments and no named flags, so their order is the interface. Input and output directories, the output version and file type, a recursion flag and an audit flag, and finally an optional filter. Because they are positional, a wrapper that builds the list dynamically must never omit a middle argument — everything after it shifts by one and the converter fails in a way that reads as a bad file.</desc>
+  <defs>
+    <marker id="oda1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="oda1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="368.9" height="213.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="159.1" height="149" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">1  input directory</text>
+  <line x1="165.1" y1="12.9" x2="197.1" y2="12.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="205.1" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">a directory, never a file</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">2  output directory</text>
+  <line x1="165.1" y1="31.9" x2="197.1" y2="31.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="205.1" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.78">must already exist</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">3  output version</text>
+  <line x1="165.1" y1="50.9" x2="197.1" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="205.1" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">e.g. ACAD2018</text>
+  <text x="14" y="73" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">4  output file type</text>
+  <line x1="165.1" y1="69.9" x2="197.1" y2="69.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="205.1" y="73" font-size="9.5" fill="currentColor" fill-opacity="0.78">DXF or DWG</text>
+  <text x="14" y="92" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">5  recurse</text>
+  <line x1="165.1" y1="88.9" x2="197.1" y2="88.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="205.1" y="92" font-size="9.5" fill="currentColor" fill-opacity="0.78">0 or 1</text>
+  <text x="14" y="111" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">6  audit</text>
+  <line x1="165.1" y1="107.9" x2="197.1" y2="107.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="205.1" y="111" font-size="9.5" fill="currentColor" fill-opacity="0.78">1 repairs on the way through</text>
+  <text x="14" y="130" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">7  input filter</text>
+  <line x1="165.1" y1="126.9" x2="197.1" y2="126.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="205.1" y="130" font-size="9.5" fill="currentColor" fill-opacity="0.78">optional, e.g. *.DWG</text>
+  <text x="0" y="171" font-size="9.5" fill="currentColor" fill-opacity="0.7">Positional and unnamed — omitting one shifts every argument after it.</text>
+</svg>
+<!-- /fig:oda-cli-arguments -->
+
 - **`inDir`** — the folder containing source drawings (the converter works on folders, not single files).
 - **`outDir`** — the destination folder for converted output.
 - **`outVer`** — the output version string, for example `ACAD2018` or `ACAD2013`.
@@ -96,7 +135,7 @@ ODAFileConverter "<inDir>" "<outDir>" "<outVer>" "<outFormat>" "<recurse>" "<aud
 
 Because it drives a Qt interface, the process needs an X display even when it produces no visible window. On a headless Linux worker there is no display, so the converter either exits immediately or blocks. `xvfb-run -a` allocates a throwaway virtual framebuffer and picks a free display number, letting the tool initialize normally. What the converter does **not** do well is report per-file failures: it frequently returns exit code `0` even when a specific drawing failed. Treat the process exit code as advisory only, and verify output existence yourself.
 
-<svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Headless DWG to DXF batch pipeline: a DWG folder is passed to xvfb-run wrapping ODAFileConverter, which writes a DXF folder that is verified and loaded per file with ezdxf, producing a success and failure manifest" style="width:100%;max-width:700px;display:block;margin:1.5rem auto;">
+<svg viewBox="-6 68 712 184" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Headless DWG to DXF batch pipeline: a DWG folder is passed to xvfb-run wrapping ODAFileConverter, which writes a DXF folder that is verified and loaded per file with ezdxf, producing a success and failure manifest" style="width:100%;max-width:700px;display:block;margin:1.5rem auto;">
   <title>Headless DWG to DXF Batch Conversion</title>
   <desc>A DWG source folder is handed to xvfb-run wrapping the ODA File Converter, which writes a DXF output folder; each DXF is verified to exist and loaded with ezdxf, and the run returns a manifest splitting successes from failures.</desc>
   <defs>
@@ -104,6 +143,7 @@ Because it drives a Qt interface, the process needs an X display even when it pr
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="-6" y="68" width="712" height="184" fill="var(--color-surface)"/>
   <rect x="10" y="92" width="118" height="60" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="69" y="118" text-anchor="middle" font-size="12" fill="currentColor" font-weight="600">DWG folder</text>
   <text x="69" y="138" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.75">*.DWG</text>
@@ -272,6 +312,34 @@ The converter is a free download from the [Open Design Alliance](https://www.ope
 ## Fallback Strategies
 
 DWG batch conversion fails in five recurring ways. Handle them in order.
+
+<!-- fig:oda-verify-output -->
+<svg viewBox="-20 -20 321.4 216.2" role="img" aria-label="Verify the ODA converter by opening the output and counting entities, not by trusting its exit code" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>Why the exit code is not the verification</title>
+  <desc>A branch taken after the converter returns. A zero exit code with a readable DXF carrying entities is a success. A zero exit code with a missing or empty output is a routine failure mode of a GUI application driven headlessly, and treating the exit code as the verification is what lets an empty batch reach downstream processing.</desc>
+  <defs>
+    <marker id="oda2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="oda2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="321.4" height="216.2" fill="var(--color-surface)"/>
+  <polygon points="140.7,0 254.5,31 140.7,62 26.9,31" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.6"/>
+  <text x="140.7" y="35" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">Exit code was zero — now what?</text>
+  <rect x="0" y="128" width="126.7" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="63.3" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Accept</text>
+  <text x="63.3" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">record the counts</text>
+  <path d="M 140.7 62 L 140.7 92 L 63.3 92 L 63.3 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#oda2-a)" stroke-linejoin="round"/>
+  <text x="63.3" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">output opens, entities &gt; 0</text>
+  <rect x="154.7" y="128" width="126.7" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="218" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Fail the file</text>
+  <text x="218" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">retry, then quarantine</text>
+  <path d="M 140.7 62 L 140.7 92 L 218 92 L 218 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#oda2-a)" stroke-linejoin="round"/>
+  <text x="218" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">missing or empty output</text>
+</svg>
+<!-- /fig:oda-verify-output -->
 
 **1. Output version target.** Default to `ACAD2018` (AC1032) for the broadest `ezdxf` coverage. Choose `ACAD2013` (AC1027) when a downstream tool rejects AC1032, or when proxy entities from a vertical product round-trip more cleanly through the older schema. The version fragmentation behind these codes is documented in [Understanding DWG Version Compatibility](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/understanding-dwg-version-compatibility/).
 

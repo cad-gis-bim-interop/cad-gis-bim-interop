@@ -30,6 +30,37 @@
   --color-code-function: #6b21a8;
   --color-code-punct: #475569;
 
+  /* Surfaces that are not a flat token in the light scheme, named so the dark
+     scheme can flip them without touching component rules. */
+  --color-header-bg: rgba(251, 248, 243, 0.82);
+  --color-card-raise: #ffffff;          /* top stop of the raised-card gradient */
+  --color-veil-primary: rgba(30, 58, 95, 0.05);
+  --color-veil-primary-strong: rgba(30, 58, 95, 0.06);
+  --color-veil-highlight: rgba(13, 148, 136, 0.07);
+  --color-veil-warn: rgba(217, 119, 6, 0.08);
+  --color-veil-accent: rgba(194, 65, 12, 0.07);
+  --color-veil-danger: rgba(185, 28, 28, 0.07);
+  --color-danger: #b91c1c;
+  --color-row-hover: rgba(13, 148, 136, 0.04);
+  --color-glow-highlight: rgba(13, 148, 136, 0.06);
+  --color-glow-accent: rgba(194, 65, 12, 0.05);
+  /* Foreground used ON a saturated brand fill (buttons, skip-link, badges). */
+  --color-on-primary: #ffffff;
+  --color-on-highlight: #ffffff;
+  --shadow-tint: 20, 32, 46;
+
+  /* Diagram palette — inline SVGs key off these so a theme flip recolours the
+     figure interiors, not just the prose around them. */
+  --svg-ink: var(--color-text);
+  --svg-ink-soft: var(--color-text-soft);
+  --svg-canvas: transparent;
+  --svg-fill: rgba(30, 58, 95, 0.05);
+  --svg-fill-alt: rgba(13, 148, 136, 0.07);
+  --svg-fill-warn: rgba(194, 65, 12, 0.07);
+  --svg-stroke: #2c5282;
+  --svg-accent: #9a4a08;
+  --svg-highlight: #0d7066;
+
   /* Spacing scale (8pt) */
   --s-0: 0;
   --s-1: 0.25rem;
@@ -92,4 +123,78 @@
   :root {
     --header-h: 72px;
   }
+}
+
+/* ===========================================================================
+   Dark scheme
+   ---------------------------------------------------------------------------
+   Every colour above is re-declared here, so flipping `data-theme` on <html>
+   repaints the whole surface — page, header, cards, tables, code blocks and the
+   interiors of the inline SVG diagrams — rather than only the body text. The
+   no-flash script in <head> always stamps an explicit data-theme (stored choice
+   first, OS preference otherwise), so this one selector is the single source of
+   truth and there is no `prefers-color-scheme` duplicate to drift from.
+   =========================================================================== */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Brand hues lifted until each clears 4.5:1 on --color-surface. */
+  --color-primary: #8ab4e8;
+  --color-primary-600: #a9c8f0;
+  --color-primary-100: #1e3145;
+  --color-accent: #f0955c;
+  --color-accent-600: #f4ae7f;
+  --color-accent-100: #3a2415;
+  --color-highlight: #45c8b8;
+  --color-highlight-100: #123a37;
+  --color-warn: #eab308;
+  --color-success: #4ade80;
+
+  --color-surface: #0f1720;        /* deep slate, the blueprint negative */
+  --color-surface-alt: #16212d;
+  --color-surface-sunken: #1b2836;
+  --color-text: #e9eff6;
+  --color-text-soft: #c4cfdb;
+  --color-text-muted: #98a6b5;
+  --color-border: #324356;
+  --color-border-soft: #253445;
+
+  --color-code-bg: #101a24;
+  --color-code-inline-bg: #1a2634;
+  --color-code-text: #dce6f0;
+  --color-code-comment: #93a4b5;
+  --color-code-keyword: #8ab4e8;
+  --color-code-string: #5fcbb9;
+  --color-code-number: #f0955c;
+  --color-code-function: #c6a6f0;
+  --color-code-punct: #a3b2c2;
+
+  --color-header-bg: rgba(15, 23, 32, 0.86);
+  --color-card-raise: #1b2836;
+  --color-veil-primary: rgba(138, 180, 232, 0.08);
+  --color-veil-primary-strong: rgba(138, 180, 232, 0.10);
+  --color-veil-highlight: rgba(69, 200, 184, 0.10);
+  --color-veil-warn: rgba(234, 179, 8, 0.10);
+  --color-veil-accent: rgba(240, 149, 92, 0.10);
+  --color-veil-danger: rgba(248, 113, 113, 0.12);
+  --color-danger: #f87171;
+  --color-row-hover: rgba(69, 200, 184, 0.07);
+  --color-glow-highlight: rgba(69, 200, 184, 0.07);
+  --color-glow-accent: rgba(240, 149, 92, 0.05);
+  /* On a light brand fill the foreground has to go dark again. */
+  --color-on-primary: #0f1720;
+  --color-on-highlight: #06211e;
+  --shadow-tint: 0, 0, 0;
+
+  --svg-canvas: transparent;
+  --svg-fill: rgba(138, 180, 232, 0.10);
+  --svg-fill-alt: rgba(69, 200, 184, 0.12);
+  --svg-fill-warn: rgba(240, 149, 92, 0.12);
+  --svg-stroke: #a9c8f0;
+  --svg-accent: #f4ae7f;
+  --svg-highlight: #5fcbb9;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.50), 0 2px 4px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.40);
 }

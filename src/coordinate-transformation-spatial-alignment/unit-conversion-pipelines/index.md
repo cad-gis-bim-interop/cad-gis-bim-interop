@@ -83,7 +83,7 @@ As a foundational stage of the [Coordinate Transformation & Spatial Alignment](h
 ---
 
 <!-- Inline SVG: Unit Conversion Pipeline Architecture -->
-<svg viewBox="0 0 780 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Unit Conversion Pipeline showing four sequential stages: Metadata Extraction, Canonical Normalization, Coordinate and Attribute Transformation, and Validation and Export" style="width:100%;max-width:780px;display:block;margin:2rem auto;">
+<svg viewBox="-6 44 792 132" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Unit Conversion Pipeline showing four sequential stages: Metadata Extraction, Canonical Normalization, Coordinate and Attribute Transformation, and Validation and Export" style="width:100%;max-width:780px;display:block;margin:2rem auto;">
   <title>Unit Conversion Pipeline Architecture</title>
   <desc>Four sequential pipeline stages connected by arrows: Metadata Extraction reads DXF $INSUNITS, IFC IfcUnitAssignment, and GeoJSON CRS; Canonical Normalization converts to meters using pint; Coordinate and Attribute Transformation applies numpy vectorized scaling; Validation and Export enforces tolerance thresholds and writes unit-declared outputs.</desc>
   <defs>
@@ -91,6 +91,7 @@ As a foundational stage of the [Coordinate Transformation & Spatial Alignment](h
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="-6" y="44" width="792" height="132" fill="var(--color-surface)"/>
   <!-- Stage boxes -->
   <rect x="10" y="60" width="160" height="100" rx="8" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
   <rect x="210" y="60" width="160" height="100" rx="8" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
@@ -152,6 +153,34 @@ Before implementing a conversion pipeline, establish a controlled environment th
 ## Architectural Overview
 
 ### How Unit Declarations Differ Across Formats
+
+<!-- fig:ucp-where-units-live -->
+<svg viewBox="-20 -20 580 198" role="img" aria-label="DXF keeps units in a header code, IFC on the project unit assignment, and GIS inside the CRS definition itself" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:580px;display:block;margin:1.5rem auto;">
+  <title>Where each format records its unit</title>
+  <desc>Three formats and the very different places they keep unit information. DXF records an integer code in a header variable that no reader applies to coordinates. IFC carries a unit assignment on the project entity, which does apply to every length in the model. A GIS dataset carries its unit inside the coordinate reference system definition itself, so the unit and the projection cannot disagree.</desc>
+  <defs>
+    <marker id="ucp1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ucp1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="580" height="198" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="21" font-size="11.5" font-weight="600" fill="currentColor">DXF</text>
+  <text x="16" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.72">integer code, advisory — no reader applies it</text>
+  <text x="524" y="26.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">$INSUNITS</text>
+  <rect x="0" y="56" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="77" font-size="11.5" font-weight="600" fill="currentColor">IFC</text>
+  <text x="16" y="91" font-size="9.5" fill="currentColor" fill-opacity="0.72">binding for every length in the model</text>
+  <text x="524" y="82.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">IfcUnitAssignment</text>
+  <rect x="0" y="112" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2"/>
+  <text x="16" y="133" font-size="11.5" font-weight="600" fill="currentColor">GIS vector</text>
+  <text x="16" y="147" font-size="9.5" fill="currentColor" fill-opacity="0.72">unit is part of the CRS, cannot disagree</text>
+  <text x="524" y="138.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">CRS axis unit</text>
+</svg>
+<!-- /fig:ucp-where-units-live -->
 
 Each format carries unit metadata in a different location and with different guarantees:
 
@@ -420,6 +449,38 @@ IFC models can declare `MILLI` as a prefix on the standard `METRE` length unit, 
 
 A correct unit conversion pipeline must pass a round-trip test: convert source units to canonical meters, then back to source units, and verify that the reconstructed values match the originals within the configured tolerance.
 
+<!-- fig:ucp-roundtrip -->
+<svg viewBox="-20 -20 418 286" role="img" aria-label="Converting to metres and straight back must return the original value; a mismatched reciprocal factor fails this round-trip test" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>The round-trip test that catches a wrong factor</title>
+  <desc>A test sequence. A source coordinate is converted to the canonical metre representation and immediately converted back to its declared source unit. The two values must agree to floating-point tolerance. A reciprocal that is not exactly the inverse — a hard-coded 0.3048 against a 3.28084 — fails here rather than silently in production geometry.</desc>
+  <defs>
+    <marker id="ucp2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ucp2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="418" height="286" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="178" height="34" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.4"/>
+  <text x="89" y="21" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">test fixture</text>
+  <line x1="89" y1="34" x2="89" y2="246" stroke="currentColor" stroke-width="1" stroke-opacity="0.28" stroke-dasharray="4 4"/>
+  <rect x="200" y="0" width="178" height="34" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.4"/>
+  <text x="289" y="21" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">unit converter</text>
+  <line x1="289" y1="34" x2="289" y2="246" stroke="currentColor" stroke-width="1" stroke-opacity="0.28" stroke-dasharray="4 4"/>
+  <line x1="89" y1="60" x2="289" y2="60" stroke="currentColor" stroke-width="1.3" marker-end="url(#ucp2-a)"/>
+  <text x="189" y="53" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">to_metres(value, code)</text>
+  <line x1="289" y1="100" x2="89" y2="100" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#ucp2-o)"/>
+  <text x="189" y="93" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">canonical metres</text>
+  <line x1="89" y1="140" x2="289" y2="140" stroke="currentColor" stroke-width="1.3" marker-end="url(#ucp2-a)"/>
+  <text x="189" y="133" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">from_metres(metres, code)</text>
+  <line x1="289" y1="180" x2="89" y2="180" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#ucp2-o)"/>
+  <text x="189" y="173" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">value again</text>
+  <path d="M 89 212 L 115 212 L 115 226 L 92 226" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ucp2-a)"/>
+  <text x="123" y="222" font-size="9.5" fill="currentColor" fill-opacity="0.8">assert |Δ| &lt; 1e-9</text>
+</svg>
+<!-- /fig:ucp-roundtrip -->
+
 ```python
 # pytest>=7.0, numpy>=1.26, pint>=0.23
 import numpy as np
@@ -554,3 +615,5 @@ Normalize each component file independently before assembly — do not attempt a
 - [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — similarity transformation for correcting geometric drift between datasets
 - [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — semantic classification routing that operates on metrically normalized geometry
 - [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — end-to-end worked example combining unit normalization with CRS reprojection
+- [Detecting Drawing Units When $INSUNITS Is Missing](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/detecting-drawing-units-when-insunits-is-missing/) — the evidence an unlabelled drawing offers, and recording the result as an assumption
+- [Converting IFC Length Units to Metres in Python](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-ifc-length-units-to-metres-in-python/) — resolving the project unit assignment and applying it exactly once

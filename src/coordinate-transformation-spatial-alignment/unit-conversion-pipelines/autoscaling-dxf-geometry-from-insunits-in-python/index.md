@@ -92,6 +92,7 @@ The value `0` is a first-class case, not an error. It means the originating appl
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.7"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="700" height="320" fill="var(--color-surface)"/>
   <!-- Read header -->
   <rect x="270" y="14" width="160" height="48" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="350" y="38" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif">Read $INSUNITS</text>
@@ -224,6 +225,58 @@ if __name__ == "__main__":
     print(f"Applied scale: {factor} m/unit")
 ```
 
+<!-- fig:insunits-lookup -->
+<svg viewBox="-20 -20 435.4 304.1" role="img" aria-label="The $INSUNITS codes and their metre scale factors, with code 0 excluded because it means undefined rather than a unit" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:435px;display:block;margin:1.5rem auto;">
+  <title>The $INSUNITS codes a CAD pipeline actually meets</title>
+  <desc>The header codes that appear in practice, each with its unit and the factor that converts a drawing coordinate to metres. Code zero is deliberately absent from the lookup: it means the authoring application recorded no base unit, and treating it as a unit rather than as a missing value is what turns an unlabelled drawing into a thousandfold scale error.</desc>
+  <defs>
+    <marker id="ins1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ins1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="435.4" height="304.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="263.2" height="242" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="263.2" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">$INSUNITS</text>
+  <text x="122.8" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Unit</text>
+  <line x1="162.3" y1="0" x2="162.3" y2="242" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="212.7" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Metres per unit</text>
+  <line x1="83.3" y1="0" x2="83.3" y2="242" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="263.2" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">0</text>
+  <text x="122.8" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">undefined</text>
+  <text x="212.7" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">not in the lookup</text>
+  <line x1="0" y1="62" x2="263.2" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">1</text>
+  <text x="122.8" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">inches</text>
+  <text x="212.7" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">0.0254</text>
+  <line x1="0" y1="92" x2="263.2" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">2</text>
+  <text x="122.8" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">feet</text>
+  <text x="212.7" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">0.3048</text>
+  <line x1="0" y1="122" x2="263.2" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">4</text>
+  <text x="122.8" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">millimetres</text>
+  <text x="212.7" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">0.001</text>
+  <line x1="0" y1="152" x2="263.2" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="170.5" font-size="10.5" font-weight="600" fill="currentColor">5</text>
+  <text x="122.8" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">centimetres</text>
+  <text x="212.7" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">0.01</text>
+  <line x1="0" y1="182" x2="263.2" y2="182" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="200.5" font-size="10.5" font-weight="600" fill="currentColor">6</text>
+  <text x="122.8" y="200.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">metres</text>
+  <text x="212.7" y="200.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">1.0</text>
+  <line x1="0" y1="212" x2="263.2" y2="212" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="230.5" font-size="10.5" font-weight="600" fill="currentColor">7</text>
+  <text x="122.8" y="230.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">kilometres</text>
+  <text x="212.7" y="230.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">1000.0</text>
+  <text x="0" y="262" font-size="9.5" fill="currentColor" fill-opacity="0.7">Codes 1 and 2 are inches and feet — the off-by-one that catches teams skimming the spec.</text>
+</svg>
+<!-- /fig:insunits-lookup -->
+
 A minimal test that exercises both a known unit and the undefined policy:
 
 ```python
@@ -280,6 +333,35 @@ def test_undefined_uses_measurement():
 ## Fallback Strategies
 
 **1. Undefined units (`$INSUNITS=0`).** Apply a configured default, use `$MEASUREMENT` as a weak metric/imperial tiebreaker, and log the applied factor with the file name. Surface `undefined=True` in the result so callers can route the file to manual verification rather than trusting it silently.
+
+<!-- fig:insunits-zero-policy -->
+<svg viewBox="-20 -20 422.5 229.6" role="img" aria-label="A known $INSUNITS code resolves exactly; code zero enters an explicit, logged policy rather than a silent default" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:423px;display:block;margin:1.5rem auto;">
+  <title>The policy path for an undefined $INSUNITS</title>
+  <desc>A branch on the undefined case. A recognised non-zero code resolves through the lookup to an exact factor. A zero code enters the policy path: the configured default is applied, the drafting-mode flag is consulted only as a weak tiebreaker, and the assumption is logged so it is reviewable rather than invisible.</desc>
+  <defs>
+    <marker id="ins2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ins2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="422.5" height="229.6" fill="var(--color-surface)"/>
+  <polygon points="191.2,0 286.2,31 191.2,62 96.2,31" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.6"/>
+  <text x="191.2" y="35" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">$INSUNITS = 0?</text>
+  <rect x="0" y="128" width="177.2" height="61.6" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="88.6" y="155" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Exact factor</text>
+  <text x="88.6" y="168.7" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">from the lookup</text>
+  <path d="M 191.2 62 L 191.2 92 L 88.6 92 L 88.6 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#ins2-a)" stroke-linejoin="round"/>
+  <text x="88.6" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">no — known code</text>
+  <rect x="205.2" y="128" width="177.2" height="61.6" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="293.9" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Configured default</text>
+  <text x="293.9" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">$MEASUREMENT as tiebreaker</text>
+  <text x="293.9" y="175.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">assumption logged</text>
+  <path d="M 191.2 62 L 191.2 92 L 293.9 92 L 293.9 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#ins2-a)" stroke-linejoin="round"/>
+  <text x="293.9" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">yes — undefined</text>
+</svg>
+<!-- /fig:insunits-zero-policy -->
 
 **2. Per-`INSERT` unit overrides.** A block definition can carry its own units, and AutoCAD scales inserted blocks whose units differ from the drawing. `autoscale_document()` scales the drawing uniformly and does not resolve block-level unit mismatches. If your blocks were authored in different units, flatten and apply the block-to-drawing ratio before the drawing-to-metre scale, exactly as when [converting DXF millimetres to metres before pyproj reprojection](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/converting-dxf-millimeters-to-meters-before-pyproj-reprojection/).
 

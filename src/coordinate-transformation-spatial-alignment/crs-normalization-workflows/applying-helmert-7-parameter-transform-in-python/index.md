@@ -83,6 +83,41 @@ A datum is defined by an ellipsoid and its position and orientation relative to 
 
 The transform is defined on geocentric ECEF coordinates, so the full workflow has three stages: convert source geographic coordinates to ECEF using the source ellipsoid, apply the seven parameters, then convert the target ECEF back to geographic on the target ellipsoid. The rotations are small (typically under a few arc-seconds), so the exact rotation matrix is replaced by its small-angle linearisation.
 
+<!-- fig:helmert-ecef-sandwich -->
+<svg viewBox="-20 -33.5 514.5 125.8" role="img" aria-label="The Helmert transform operates only on geocentric XYZ, so a datum conversion converts geodetic coordinates to ECEF first and back afterwards" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:515px;display:block;margin:1.5rem auto;">
+  <title>Where the Helmert transform sits in a datum conversion</title>
+  <desc>A four-stage chain. Geodetic latitude, longitude and height on the source datum are converted to geocentric ECEF XYZ on the source ellipsoid; the seven-parameter similarity transform maps those XYZ values onto the WGS84 geocentric frame; the result is converted back to geodetic coordinates on the WGS84 ellipsoid. The transform itself only ever operates on Cartesian XYZ.</desc>
+  <defs>
+    <marker id="hel1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="hel1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="514.5" height="125.8" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="90.8" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="45.4" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">φ, λ, h</text>
+  <text x="45.4" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">source datum</text>
+  <rect x="124.8" y="0" width="99.8" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="174.6" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">X, Y, Z</text>
+  <text x="174.6" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">source ellipsoid</text>
+  <rect x="258.5" y="0" width="113.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="315.1" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">X', Y', Z'</text>
+  <text x="315.1" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">WGS84 geocentric</text>
+  <rect x="405.6" y="0" width="68.8" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="440" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">φ', λ', h'</text>
+  <text x="440" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">WGS84</text>
+  <line x1="90.8" y1="24.1" x2="124.8" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#hel1-a)"/>
+  <text x="107.8" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">geodetic → ECEF</text>
+  <line x1="224.5" y1="24.1" x2="258.5" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#hel1-a)"/>
+  <text x="241.5" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">7 parameters</text>
+  <line x1="371.6" y1="24.1" x2="405.6" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#hel1-a)"/>
+  <text x="388.6" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">ECEF → geodetic</text>
+  <text x="0" y="70.2" font-size="9.5" fill="currentColor" fill-opacity="0.7">The similarity transform never sees an angle — only Cartesian metres.</text>
+</svg>
+<!-- /fig:helmert-ecef-sandwich -->
+
 $$
 \begin{pmatrix} X' \\ Y' \\ Z' \end{pmatrix}
 = \begin{pmatrix} t_x \\ t_y \\ t_z \end{pmatrix}
@@ -102,7 +137,7 @@ $$
 
 This is the **position_vector** convention (EPSG method 1033). The **coordinate_frame** convention (EPSG method 1032) flips the sign of every off-diagonal rotation term — equivalently, it negates `r_x, r_y, r_z`. The magnitude of the rotations is identical; only their sign differs. A parameter set is meaningless without its convention label, and mixing them is the single most common source of a few-metre systematic error.
 
-<svg viewBox="0 0 760 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Helmert datum transform pipeline: source geographic to ECEF, seven-parameter similarity transform, then ECEF back to WGS84 geographic" style="width:100%;max-width:760px;display:block;margin:1.5rem auto;">
+<svg viewBox="-10 34 752 192" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Helmert datum transform pipeline: source geographic to ECEF, seven-parameter similarity transform, then ECEF back to WGS84 geographic" style="width:100%;max-width:760px;display:block;margin:1.5rem auto;">
   <title>Helmert 7-Parameter Datum Transform Pipeline</title>
   <desc>Data flows from source-datum geographic coordinates through a cartesian conversion into geocentric ECEF metres, through the seven-parameter similarity transform, back through an inverse cartesian conversion into WGS84 geographic coordinates. Below the flow, the governing equation is shown.</desc>
   <defs>
@@ -110,6 +145,7 @@ This is the **position_vector** convention (EPSG method 1033). The **coordinate_
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="-10" y="34" width="752" height="192" fill="var(--color-surface)"/>
   <rect x="6" y="70" width="150" height="70" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="81" y="100" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">Source datum</text>
   <text x="81" y="118" text-anchor="middle" font-size="10" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.75">geographic (&#966;, &#955;, h)</text>
@@ -258,6 +294,37 @@ if __name__ == "__main__":
 ## Fallback Strategies
 
 **1. Convention sign confusion (position_vector vs coordinate_frame)**
+
+<!-- fig:helmert-sign-conventions -->
+<svg viewBox="-20 -20 570 194.1" role="img" aria-label="Position-vector and coordinate-frame Helmert conventions differ only by the sign of the three rotation terms, and mixing them leaves a metre-scale residual" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:570px;display:block;margin:1.5rem auto;">
+  <title>Position-vector versus coordinate-frame rotation conventions</title>
+  <desc>Two panels contrasting the two rotation sign conventions used by published Helmert parameter sets. The position-vector convention rotates the point about the axes; the coordinate-frame convention rotates the axes about the point, which negates all three rotation terms. Using a parameter set under the wrong convention leaves a metre-scale residual that scales with distance from the origin.</desc>
+  <defs>
+    <marker id="hel2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="hel2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="570" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="125" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">position_vector (EPSG 9606)</text>
+  <line x1="14" y1="33" x2="236" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— rotates the POINT about the axes</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— rx, ry, rz as published</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— PROJ: +convention=position_vector</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— used by most EPSG transformations</text>
+  <rect x="280" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.11" stroke="currentColor" stroke-width="1.9"/>
+  <text x="405" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">coordinate_frame (EPSG 9607)</text>
+  <line x1="294" y1="33" x2="516" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="296" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— rotates the AXES about the point</text>
+  <text x="296" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— rx, ry, rz all negated</text>
+  <text x="296" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— PROJ: +convention=coordinate_frame</text>
+  <text x="296" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— common in national grid documents</text>
+  <text x="265" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">Same numbers, opposite signs — the residual grows with distance from the geocentre.</text>
+</svg>
+<!-- /fig:helmert-sign-conventions -->
 
 A result that is offset by a consistent few metres — same direction for every point — almost always means the rotation signs are inverted. Registries and vendors disagree on which convention they publish, and some omit the label. If you only have one set of rotations, test both: negate `r_x, r_y, r_z` and re-run against a known control point. The correct convention drives the control-point residual toward zero; the wrong one leaves a stubborn systematic bias.
 

@@ -87,6 +87,38 @@ IFC4 introduced a formal coordinate-operation model. The model's `IfcGeometricRe
 
 The map conversion stores a rigid 2D transform plus a height offset:
 
+<!-- fig:georef-map-conversion -->
+<svg viewBox="-20 -20 446.6 194.1" role="img" aria-label="Eastings, northings, height, the X-axis abscissa pair and scale — the fields of an IfcMapConversion" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:447px;display:block;margin:1.5rem auto;">
+  <title>The parameters a map conversion carries</title>
+  <desc>The fields of the coordinate operation that relates the model's local engineering frame to a projected coordinate reference system. Eastings and northings place the model origin, the height offsets it vertically, the two abscissa components encode the rotation as a direction vector rather than an angle, and the scale reconciles the model unit with the projection unit.</desc>
+  <defs>
+    <marker id="geo1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="geo1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="446.6" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="207.4" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">Eastings         432187.55</text>
+  <line x1="213.4" y1="12.9" x2="245.4" y2="12.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="253.4" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">where the model origin sits</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">Northings        512044.10</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">OrthogonalHeight     42.30</text>
+  <line x1="213.4" y1="50.9" x2="245.4" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="253.4" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">vertical offset</text>
+  <text x="14" y="73" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">XAxisAbscissa     0.99966</text>
+  <line x1="213.4" y1="69.9" x2="245.4" y2="69.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="253.4" y="73" font-size="9.5" fill="currentColor" fill-opacity="0.78">rotation as a direction, not an angle</text>
+  <text x="14" y="92" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">XAxisOrdinate     0.02618</text>
+  <text x="14" y="111" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">Scale                1.000</text>
+  <line x1="213.4" y1="107.9" x2="245.4" y2="107.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="253.4" y="111" font-size="9.5" fill="currentColor" fill-opacity="0.78">model unit against projection unit</text>
+  <text x="0" y="152" font-size="9.5" fill="currentColor" fill-opacity="0.7">The rotation is a vector pair — take its arctangent, do not read it as degrees.</text>
+</svg>
+<!-- /fig:georef-map-conversion -->
+
 - **`Eastings`, `Northings`, `OrthogonalHeight`** — the projected coordinates of the model's local origin.
 - **`XAxisAbscissa`, `XAxisOrdinate`** — the components of a unit vector giving the direction of the local X axis in the grid. They encode rotation as `(cos θ, sin θ)`, not as an angle.
 - **`Scale`** — a combined map scale factor relating model distances to grid distances. It defaults to `1.0`.
@@ -117,6 +149,7 @@ What IFC georeferencing does **not** guarantee:
       <polygon points="0 0, 8 3, 0 6" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="720" height="260" fill="var(--color-surface)"/>
   <rect x="270" y="8" width="180" height="48" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
   <text x="360" y="28" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">RepresentationContext</text>
   <text x="360" y="45" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.65">HasCoordinateOperation?</text>
@@ -276,6 +309,39 @@ The projected coordinates from `transform.apply` are exactly what the footprints
 ## Fallback Strategies
 
 **1. No `IfcMapConversion` (IFC2x3 or an unreferenced IFC4 export)**
+
+<!-- fig:georef-fallback-order -->
+<svg viewBox="-20 -20 480.2 216.2" role="img" aria-label="Use IfcMapConversion when present, fall back to IfcSite reference coordinates for placement only, otherwise fit from control points" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:480px;display:block;margin:1.5rem auto;">
+  <title>What to do when a model carries no map conversion</title>
+  <desc>A branch on what georeferencing the file actually declares. A map conversion with a projected CRS is authoritative. A site with reference latitude and longitude is a weaker signal — degrees-minutes-seconds arrays, usually rounded, good for placing a model on a map but not for setting anything out. A model with neither must be georeferenced from surveyed control points, which is a different job.</desc>
+  <defs>
+    <marker id="geo2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="geo2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="480.2" height="216.2" fill="var(--color-surface)"/>
+  <polygon points="220.1,0 335.5,31 220.1,62 104.7,31" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.6"/>
+  <text x="220.1" y="35" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">What georeferencing is declared?</text>
+  <rect x="0" y="128" width="128.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="64" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Authoritative</text>
+  <text x="64" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">projected CRS named</text>
+  <path d="M 220.1 62 L 220.1 92 L 64 92 L 64 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#geo2-a)" stroke-linejoin="round"/>
+  <text x="64" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">IfcMapConversion</text>
+  <rect x="156.1" y="128" width="128.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="220.1" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Placement only</text>
+  <text x="220.1" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">rounded DMS arrays</text>
+  <path d="M 220.1 62 L 220.1 92 L 220.1 92 L 220.1 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#geo2-a)" stroke-linejoin="round"/>
+  <text x="220.1" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">IfcSite lat/long only</text>
+  <rect x="312.1" y="128" width="128.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="376.2" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Fit from control</text>
+  <text x="376.2" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">a survey problem</text>
+  <path d="M 220.1 62 L 220.1 92 L 376.2 92 L 376.2 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#geo2-a)" stroke-linejoin="round"/>
+  <text x="376.2" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">neither</text>
+</svg>
+<!-- /fig:georef-fallback-order -->
 
 `read_map_transform` returns `None`. Drop to `read_site_anchor`, but treat the result as an approximate origin only. Combine it with a known project rotation from survey documentation rather than trusting the file to supply the grid alignment.
 

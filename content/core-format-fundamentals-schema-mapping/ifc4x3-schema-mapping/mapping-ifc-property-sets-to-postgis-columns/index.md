@@ -80,6 +80,37 @@ An IFC element carries its descriptive data in property sets (`IfcPropertySet`) 
 
 The problem is that this shape is unbounded and producer-dependent. Revit, ArchiCAD, Civil 3D, and infrastructure authoring tools each emit different pset names, and IFC4x3 adds infrastructure-specific sets that never appear in a building model. A relational schema with one column per property would need hundreds of nullable columns and would break every time a new authoring tool appeared. The durable answer is to keep a stable spine — the handful of columns every element has — and store the variable remainder as `JSONB`, which PostGIS/PostgreSQL can index and query with containment operators.
 
+<!-- fig:pset-column-strategy -->
+<svg viewBox="-20 -20 570 194.1" role="img" aria-label="Typed columns give constraints but need migrations; JSONB absorbs schema drift — a stable typed core plus JSONB carries both" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:570px;display:block;margin:1.5rem auto;">
+  <title>Typed columns versus a JSONB payload for property sets</title>
+  <desc>Two table designs for the same data. Typed columns give constraints, indexes and query plans a planner can reason about, but every new property set is a migration. A JSONB payload absorbs schema drift without migrations at the cost of weaker typing. The pattern that survives contact with real models is both: a small stable core of typed columns plus JSONB for the long tail.</desc>
+  <defs>
+    <marker id="pg1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="pg1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="570" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="125" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Typed columns</text>
+  <line x1="14" y1="33" x2="236" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— constraints and defaults</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— plannable, indexable</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— every new pset is a migration</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— breaks on model variety</text>
+  <rect x="280" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="405" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">JSONB payload</text>
+  <line x1="294" y1="33" x2="516" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="296" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— absorbs unknown psets</text>
+  <text x="296" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— GIN index for containment</text>
+  <text x="296" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— no type guarantees</text>
+  <text x="296" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— no migration on drift</text>
+  <text x="265" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">Ship both: a typed core for what every model has, JSONB for the tail.</text>
+</svg>
+<!-- /fig:pset-column-strategy -->
+
 <svg viewBox="0 0 720 320" role="img" aria-label="IFC element mapped into a PostGIS row: core attributes become typed columns, property sets become a JSONB column, and reprojected geometry becomes a geometry column" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>Flattening an IFC Element into a Hybrid PostGIS Row</title>
   <desc>Diagram: an IFC element on the left fans out into three targets. Its GlobalId, class, and name become stable typed columns; its property sets are flattened by get_psets into a JSONB column indexed with GIN; its reprojected shape becomes a geometry column indexed with GiST.</desc>
@@ -88,6 +119,7 @@ The problem is that this shape is unbounded and producer-dependent. Revit, Archi
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="720" height="320" fill="var(--color-surface)"/>
   <rect x="16" y="126" width="150" height="68" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="91" y="152" text-anchor="middle" font-size="12" fill="currentColor">IFC Element</text>
   <text x="91" y="170" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.7">IfcWall, IfcSlab...</text>
@@ -226,6 +258,49 @@ if __name__ == "__main__":
 ## Fallback Strategies
 
 **1. Schema drift: JSONB versus typed columns**
+
+<!-- fig:pset-load-path -->
+<svg viewBox="-45 -20 475.9 310.8" role="img" aria-label="Read elements, flatten property sets, split into typed core and JSONB, then insert in batches within one transaction" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:476px;display:block;margin:1.5rem auto;">
+  <title>The load path from an IFC element to a PostGIS row</title>
+  <desc>Four stages. Elements are read from the model, their property sets are flattened into one record each, the record is split into the stable core columns and a JSONB remainder, and rows are inserted in batches inside one transaction. Batching matters because a per-element insert spends its time on round trips rather than on the database.</desc>
+  <defs>
+    <marker id="pg2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="pg2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-45" y="-20" width="475.9" height="310.8" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="258" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="129" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Read elements</text>
+  <text x="129" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">by_type(&quot;IfcElement&quot;)</text>
+  <circle cx="-14" cy="24.1" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="27.6" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">1</text>
+  <text x="276" y="27.6" font-size="9.5" fill="currentColor" fill-opacity="0.75">one pass over the model</text>
+  <rect x="0" y="74.2" width="258" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="129" y="94.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Flatten psets</text>
+  <text x="129" y="108.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">get_psets(element)</text>
+  <circle cx="-14" cy="98.3" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="101.8" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">2</text>
+  <text x="276" y="101.8" font-size="9.5" fill="currentColor" fill-opacity="0.75">one record per GlobalId</text>
+  <rect x="0" y="148.4" width="258" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="129" y="168.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Split core / JSONB</text>
+  <text x="129" y="182.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">stable columns first</text>
+  <circle cx="-14" cy="172.5" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="176" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">3</text>
+  <text x="276" y="176" font-size="9.5" fill="currentColor" fill-opacity="0.75">GlobalId is the key</text>
+  <rect x="0" y="222.6" width="258" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="129" y="242.9" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Batch insert</text>
+  <text x="129" y="256.6" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">one transaction</text>
+  <circle cx="-14" cy="246.7" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="250.2" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">4</text>
+  <text x="276" y="250.2" font-size="9.5" fill="currentColor" fill-opacity="0.75">round trips dominate otherwise</text>
+  <line x1="129" y1="48.2" x2="129" y2="74.2" stroke="currentColor" stroke-width="1.4" marker-end="url(#pg2-a)"/>
+  <line x1="129" y1="122.4" x2="129" y2="148.4" stroke="currentColor" stroke-width="1.4" marker-end="url(#pg2-a)"/>
+  <line x1="129" y1="196.6" x2="129" y2="222.6" stroke="currentColor" stroke-width="1.4" marker-end="url(#pg2-a)"/>
+</svg>
+<!-- /fig:pset-load-path -->
 
 New authoring tools introduce new pset names on every project. Keep the variable remainder in `JSONB` so a new pset never requires a migration, and promote only a stable whitelist of hot properties (for example `IsExternal`, `FireRating`, `LoadBearing`) into typed columns via generated columns or an ETL step. This hybrid gives B-tree speed on hot filters and drift-tolerance everywhere else.
 

@@ -53,7 +53,7 @@ dateModified: "2026-06-24"
 
 Extracting DWG layer metadata requires an intermediate normalization step. Because Autodesk's DWG format is proprietary and version-fragmented, direct binary parsing is unstable in production pipelines. The reliable approach converts DWG to DXF using the [Open Design Alliance File Converter](https://www.opendesign.com/guestfiles/oda_file_converter) or `libredwg`, then queries layer names, visibility states, color indices, and entity counts via `ezdxf`. This is covered in depth in the [DWG-to-Python Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) guide, which this page extends with a focused implementation for layer extraction.
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 160" role="img" aria-label="DWG layer extraction pipeline: DWG file → DXF converter → ezdxf layer table → JSON manifest" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 34 732 92" role="img" aria-label="DWG layer extraction pipeline: DWG file → DXF converter → ezdxf layer table → JSON manifest" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>DWG Layer Extraction Pipeline</title>
   <desc>Data flows left to right: a DWG file is converted to DXF by ODA/libredwg, parsed by ezdxf to read the LAYER table, then serialized to a JSON manifest for downstream GIS or BIM systems.</desc>
   <defs>
@@ -61,6 +61,7 @@ Extracting DWG layer metadata requires an intermediate normalization step. Becau
       <polygon points="0 0, 8 3, 0 6" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="-6" y="34" width="732" height="92" fill="var(--color-surface)"/>
   <!-- Stage boxes -->
   <rect x="10" y="50" width="130" height="60" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
   <text x="75" y="76" text-anchor="middle" font-size="12" fill="currentColor" font-family="sans-serif" font-weight="600">.dwg file</text>
@@ -89,6 +90,54 @@ When the ODA File Converter or `libredwg` converts a DWG to DXF, it translates t
 - **Linetype reference** — a string name pointing to a `LTYPE` table entry.
 - **Lineweight** — an integer code (e.g., `25` = 0.25 mm); `-1` means "default".
 - **Flags** — frozen, locked, plot-suppressed states encoded in the `70` and `290` group codes.
+
+<!-- fig:layer-table-fields -->
+<svg viewBox="-20 -20 437.5 274.1" role="img" aria-label="Name, colour, line type, frozen, off and locked — the LAYER record fields and which affect extraction" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:438px;display:block;margin:1.5rem auto;">
+  <title>What a LAYER table record carries after conversion</title>
+  <desc>The layer properties that survive a DWG-to-DXF conversion, what each one means, and whether it affects the geometry a pipeline extracts. Only some of them do: colour and line type are presentation, whereas the frozen and off states routinely decide whether a drafter considered a layer part of the deliverable at all.</desc>
+  <defs>
+    <marker id="dly1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="dly1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="437.5" height="274.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="387.9" height="212" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="387.9" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Field</text>
+  <text x="138.5" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Means</text>
+  <line x1="213.2" y1="0" x2="213.2" y2="212" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="300.6" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Affects extraction?</text>
+  <line x1="63.9" y1="0" x2="63.9" y2="212" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="387.9" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">name</text>
+  <text x="138.5" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">the classification key</text>
+  <text x="300.6" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes — routing depends on it</text>
+  <line x1="0" y1="62" x2="387.9" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">color</text>
+  <text x="138.5" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">display index or true colour</text>
+  <text x="300.6" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no</text>
+  <line x1="0" y1="92" x2="387.9" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">linetype</text>
+  <text x="138.5" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">display pattern</text>
+  <text x="300.6" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no</text>
+  <line x1="0" y1="122" x2="387.9" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">frozen</text>
+  <text x="138.5" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">excluded from regeneration</text>
+  <text x="300.6" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">usually — often superseded work</text>
+  <line x1="0" y1="152" x2="387.9" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="170.5" font-size="10.5" font-weight="600" fill="currentColor">off</text>
+  <text x="138.5" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">hidden but regenerated</text>
+  <text x="300.6" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">usually — same reason</text>
+  <line x1="0" y1="182" x2="387.9" y2="182" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="200.5" font-size="10.5" font-weight="600" fill="currentColor">locked</text>
+  <text x="138.5" y="200.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">not editable</text>
+  <text x="300.6" y="200.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no</text>
+  <text x="0" y="232" font-size="9.5" fill="currentColor" fill-opacity="0.7">Frozen and off are editorial decisions — record them, then decide, rather than filtering blind.</text>
+</svg>
+<!-- /fig:layer-table-fields -->
 
 `ezdxf` exposes these through the `Layer` entity object. In `ezdxf >= 1.0`, the visibility state methods (`is_frozen()`, `is_locked()`, `is_off()`) are callable methods, not plain attribute properties. Calling them without parentheses always returns the bound method object (truthy), which silently masks frozen/off states — a common bug when upgrading from pre-1.0 code.
 
@@ -253,6 +302,39 @@ if __name__ == "__main__":
 ## Fallback Strategies and Troubleshooting
 
 **1. Manifest is empty (`total_layers == 0`) after conversion**
+
+<!-- fig:layer-empty-manifest -->
+<svg viewBox="-20 -20 507.2 216.2" role="img" aria-label="No layer table, layers without entities, or only system defaults — the three causes of an empty layer manifest" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:507px;display:block;margin:1.5rem auto;">
+  <title>Diagnosing an empty layer manifest</title>
+  <desc>A branch on what an empty manifest actually means. A converted file with no layer table never converted successfully. A file with a table but no entities on any layer converted structurally but lost its geometry. A file whose only layers are the system defaults was empty to begin with. The three call for entirely different responses, and an empty manifest alone distinguishes none of them.</desc>
+  <defs>
+    <marker id="dly2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="dly2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="507.2" height="216.2" fill="var(--color-surface)"/>
+  <polygon points="233.6,0 354.1,31 233.6,62 113,31" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.6"/>
+  <text x="233.6" y="35" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">Manifest came back empty — why?</text>
+  <rect x="0" y="128" width="137.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="68.5" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Conversion failed</text>
+  <text x="68.5" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">re-run, then quarantine</text>
+  <path d="M 233.6 62 L 233.6 92 L 68.5 92 L 68.5 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#dly2-a)" stroke-linejoin="round"/>
+  <text x="68.5" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">no LAYER table</text>
+  <rect x="165.1" y="128" width="137.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="233.6" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Geometry lost</text>
+  <text x="233.6" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">check the audit flag</text>
+  <path d="M 233.6 62 L 233.6 92 L 233.6 92 L 233.6 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#dly2-a)" stroke-linejoin="round"/>
+  <text x="233.6" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">table but no entities</text>
+  <rect x="330.1" y="128" width="137.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="398.6" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Drawing was empty</text>
+  <text x="398.6" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">nothing to extract</text>
+  <path d="M 233.6 62 L 233.6 92 L 398.6 92 L 398.6 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#dly2-a)" stroke-linejoin="round"/>
+  <text x="398.6" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">only &quot;0&quot; and Defpoints</text>
+</svg>
+<!-- /fig:layer-empty-manifest -->
 
 The converter likely wrote an empty or structurally broken DXF. Re-run ODA with audit enabled (`audit=1` in the CLI arguments) and check its log for group-code errors. If `libredwg` was used, try the same file through ODA — newer DWG revisions often trip `libredwg`'s parser before ODA does.
 

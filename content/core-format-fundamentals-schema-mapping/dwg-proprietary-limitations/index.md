@@ -95,6 +95,48 @@ Before implementing any pattern on this page, confirm your environment satisfies
 
 ### Why DWG Cannot Be Parsed Directly
 
+<!-- fig:dwg-release-signatures -->
+<svg viewBox="-46.8 -61.8 753.3 128.9" role="img" aria-label="AC1015 through AC1032 — the DWG magic signatures still in circulation and the release each one covers" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:753px;display:block;margin:1.5rem auto;">
+  <title>DWG release signatures a converter has to recognise</title>
+  <desc>The magic signatures written at file offset zero across the DWG releases still in circulation. Each covers several product years, so the signature identifies the binary schema rather than the version of AutoCAD that wrote the file. A signature outside this set is a file the converter has never seen and should quarantine rather than attempt.</desc>
+  <defs>
+    <marker id="dwg1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="dwg1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-46.8" y="-61.8" width="753.3" height="128.9" fill="var(--color-surface)"/>
+  <line x1="0" y1="0" x2="656" y2="0" stroke="currentColor" stroke-width="1.4" stroke-opacity="0.5" marker-end="url(#dwg1-a)"/>
+  <line x1="0" y1="0" x2="0" y2="-14" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.45"/>
+  <circle cx="0" cy="0" r="3.5" fill="currentColor" fill-opacity="0.85"/>
+  <text x="0" y="-22" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">AC1015</text>
+  <text x="0" y="-35" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">R2000–2002</text>
+  <line x1="126" y1="0" x2="126" y2="14" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.45"/>
+  <circle cx="126" cy="0" r="3.5" fill="currentColor" fill-opacity="0.85"/>
+  <text x="126" y="32" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">AC1018</text>
+  <text x="126" y="45" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">R2004–2006</text>
+  <line x1="252" y1="0" x2="252" y2="-14" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.45"/>
+  <circle cx="252" cy="0" r="3.5" fill="currentColor" fill-opacity="0.85"/>
+  <text x="252" y="-22" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">AC1021</text>
+  <text x="252" y="-35" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">R2007–2009</text>
+  <line x1="378" y1="0" x2="378" y2="14" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.45"/>
+  <circle cx="378" cy="0" r="3.5" fill="currentColor" fill-opacity="0.85"/>
+  <text x="378" y="32" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">AC1024</text>
+  <text x="378" y="45" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">R2010–2012</text>
+  <line x1="504" y1="0" x2="504" y2="-14" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.45"/>
+  <circle cx="504" cy="0" r="3.5" fill="currentColor" fill-opacity="0.85"/>
+  <text x="504" y="-22" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">AC1027</text>
+  <text x="504" y="-35" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">R2013–2017</text>
+  <line x1="630" y1="0" x2="630" y2="14" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.45"/>
+  <circle cx="630" cy="0" r="3.5" fill="currentColor" fill-opacity="0.85"/>
+  <text x="630" y="32" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">AC1032</text>
+  <text x="630" y="45" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">R2018+</text>
+  <text x="660" y="4" font-size="9.5" fill="currentColor" fill-opacity="0.65">newer</text>
+</svg>
+<!-- /fig:dwg-release-signatures -->
+
 The DWG binary specification has never been formally published by Autodesk. Each major release — identified by a 6-byte magic signature at byte offset 0 — introduces a different object serialisation strategy, a different section layout, and a different compressed encoding for object handles. The Open Design Alliance reverse-engineered the format over many years and maintains the closest public approximation, but even the ODA implementation diverges from AutoCAD behaviour on ACIS 3D solid encryption, certain proxy object payloads, and application-defined dictionary entries.
 
 For Python automation builders, this creates three hard constraints:
@@ -135,6 +177,7 @@ The diagram below shows the complete routing logic from raw `.dwg` intake to val
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="760" height="420" fill="var(--color-surface)"/>
   <!-- Background lanes -->
   <rect x="10" y="10" width="740" height="400" rx="8" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" opacity="0.2"/>
   <!-- Step boxes -->
@@ -188,6 +231,34 @@ The diagram below shows the complete routing logic from raw `.dwg` intake to val
 ## Step-by-Step Implementation
 
 ### Step 1 — Binary Header Inspection and Version Detection
+
+<!-- fig:dwg-quarantine-gate -->
+<svg viewBox="-20 -20 376.1 216.2" role="img" aria-label="A recognised six-byte DWG signature routes to conversion; anything else is quarantined with the bytes recorded" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>Routing on the six-byte signature before any conversion</title>
+  <desc>A branch taken on six bytes read at offset zero, before the converter is invoked at all. A recognised signature routes to the conversion queue with its target release chosen from a registry. An unrecognised one is quarantined with the bytes recorded. Guessing at an unknown signature costs a converter invocation and produces output nobody can trust.</desc>
+  <defs>
+    <marker id="dwg2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="dwg2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="376.1" height="216.2" fill="var(--color-surface)"/>
+  <polygon points="168,0 263,31 168,62 73,31" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.6"/>
+  <text x="168" y="35" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">Signature in the registry?</text>
+  <rect x="0" y="128" width="154" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="77" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Convert</text>
+  <text x="77" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">target release from registry</text>
+  <path d="M 168 62 L 168 92 L 77 92 L 77 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#dwg2-a)" stroke-linejoin="round"/>
+  <text x="77" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">recognised</text>
+  <rect x="182" y="128" width="154" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="259.1" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Quarantine</text>
+  <text x="259.1" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">record the signature</text>
+  <path d="M 168 62 L 168 92 L 259.1 92 L 259.1 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#dwg2-a)" stroke-linejoin="round"/>
+  <text x="259.1" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">unknown bytes</text>
+</svg>
+<!-- /fig:dwg-quarantine-gate -->
 
 Read exactly 6 bytes at offset 0 before touching any conversion tooling. An unrecognised signature should trigger an immediate quarantine, not a fallback attempt — attempting conversion on a corrupt or mis-named binary can crash the converter and fill your error queue with misleading exit codes.
 
@@ -578,3 +649,4 @@ Layer table entries, block definitions, and extended entity data (XDATA) are pre
 - [Metadata Extraction Strategies](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/) — XDATA parsing, block attribute extraction, and application ID enumeration
 - [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — IFC class equivalencies and property set translation for BIM pipeline targets
 - [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) — related comparison of pydwg vs ODA approaches for DWG layer extraction
+- [Auditing and Repairing DXF Files with ezdxf](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/auditing-and-repairing-dxf-files-with-ezdxf/) — the structural gate a converted file should pass before anything parses it

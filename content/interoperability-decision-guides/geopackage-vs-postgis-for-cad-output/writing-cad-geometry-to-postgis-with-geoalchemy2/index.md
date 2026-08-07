@@ -79,6 +79,36 @@ GeoAlchemy2 extends SQLAlchemy with a `Geometry` column type that maps to a Post
 
 The bridge from shapely to the database is `geoalchemy2.shape.from_shape(geom, srid=...)`. Shapely geometries are pure coordinate objects with no SRID; `from_shape` serialises the geometry to Extended Well-Known Binary and stamps the SRID onto it, producing a `WKBElement` that SQLAlchemy binds as the column value. The reverse — `to_shape` — turns a queried `WKBElement` back into a shapely geometry. GeoAlchemy2 does not reproject, validate, or repair geometry; it is a faithful type bridge, so the geometry and SRID you hand it must already be correct.
 
+<!-- fig:geoalchemy-column-binding -->
+<svg viewBox="-20 -20 445.8 194.1" role="img" aria-label="A GeoAlchemy2 Geometry column declaration binds the geometry type, dimensionality, SRID and spatial index at once" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:446px;display:block;margin:1.5rem auto;">
+  <title>What a Geometry column declaration binds</title>
+  <desc>A single column declaration and the four things it fixes. The geometry type constrains what may be inserted, the trailing Z makes the column three-dimensional so CAD elevations survive, the SRID is enforced by PostGIS on every row, and the spatial index flag decides whether the column is queryable at scale or only storable.</desc>
+  <defs>
+    <marker id="ga1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ga1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="445.8" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="179.8" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.55">geom = Column(</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">  Geometry(</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">    &quot;GEOMETRYZ&quot;,</text>
+  <line x1="185.8" y1="50.9" x2="217.8" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="225.8" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">type + the Z that keeps CAD elevation</text>
+  <text x="14" y="73" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">    srid=27700,</text>
+  <line x1="185.8" y1="69.9" x2="217.8" y2="69.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="225.8" y="73" font-size="9.5" fill="currentColor" fill-opacity="0.78">enforced by PostGIS on every row</text>
+  <text x="14" y="92" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">    spatial_index=True</text>
+  <line x1="185.8" y1="88.9" x2="217.8" y2="88.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="225.8" y="92" font-size="9.5" fill="currentColor" fill-opacity="0.78">GiST — without it, no scalable query</text>
+  <text x="14" y="111" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.55">  ))</text>
+  <text x="0" y="152" font-size="9.5" fill="currentColor" fill-opacity="0.7">A CRS mismatch between the frame and the column SRID makes spatial joins return nothing.</text>
+</svg>
+<!-- /fig:geoalchemy-column-binding -->
+
 Crucially, GeoAlchemy2 creates a GiST spatial index automatically when it emits `CREATE TABLE` for a model — but only when the table is created through `metadata.create_all()`. If the table already exists, or you load with `to_postgis`, you must create the index yourself. Building it after the bulk load rather than before is materially faster, because maintaining a spatial index during a large insert is far more expensive than building it once at the end. The upstream conversion that produces these shapely geometries is covered in [Geometry Mesh Conversion](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/geometry-mesh-conversion/) — this page assumes you already hold valid, reprojected shapely geometries.
 
 ## Production-Ready Script
@@ -149,6 +179,49 @@ if __name__ == "__main__":
     print(f"Wrote {write_features(dsn, demo)} rows")
 ```
 
+<!-- fig:geoalchemy-bulk-path -->
+<svg viewBox="-45 -20 481.4 310.8" role="img" aria-label="Prepare WKB with an SRID, batch the rows, execute per batch in one transaction, then build the spatial index after the load" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:481px;display:block;margin:1.5rem auto;">
+  <title>The bulk-insert path a CAD load should take</title>
+  <desc>Four stages. Converted geometry is prepared as well-known binary with its SRID attached, rows are accumulated into batches, each batch is executed as one statement inside a transaction, and the spatial index is created after the load rather than maintained during it. Building the index afterwards turns per-row index maintenance into one bulk build.</desc>
+  <defs>
+    <marker id="ga2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ga2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-45" y="-20" width="481.4" height="310.8" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="262" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="131" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Prepare geometry</text>
+  <text x="131" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">WKB + explicit SRID</text>
+  <circle cx="-14" cy="24.1" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="27.6" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">1</text>
+  <text x="280" y="27.6" font-size="9.5" fill="currentColor" fill-opacity="0.75">one conversion per feature</text>
+  <rect x="0" y="74.2" width="262" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="131" y="94.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Accumulate batches</text>
+  <text x="131" y="108.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">a few thousand rows</text>
+  <circle cx="-14" cy="98.3" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="101.8" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">2</text>
+  <text x="280" y="101.8" font-size="9.5" fill="currentColor" fill-opacity="0.75">round trips dominate below this</text>
+  <rect x="0" y="148.4" width="262" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="131" y="168.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Execute per batch</text>
+  <text x="131" y="182.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">inside one transaction</text>
+  <circle cx="-14" cy="172.5" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="176" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">3</text>
+  <text x="280" y="176" font-size="9.5" fill="currentColor" fill-opacity="0.75">one failure rolls back cleanly</text>
+  <rect x="0" y="222.6" width="262" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="131" y="242.9" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Build the GiST index</text>
+  <text x="131" y="256.6" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">after the load</text>
+  <circle cx="-14" cy="246.7" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="250.2" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">4</text>
+  <text x="280" y="250.2" font-size="9.5" fill="currentColor" fill-opacity="0.75">not maintained per row</text>
+  <line x1="131" y1="48.2" x2="131" y2="74.2" stroke="currentColor" stroke-width="1.4" marker-end="url(#ga2-a)"/>
+  <line x1="131" y1="122.4" x2="131" y2="148.4" stroke="currentColor" stroke-width="1.4" marker-end="url(#ga2-a)"/>
+  <line x1="131" y1="196.6" x2="131" y2="222.6" stroke="currentColor" stroke-width="1.4" marker-end="url(#ga2-a)"/>
+</svg>
+<!-- /fig:geoalchemy-bulk-path -->
+
 **Key implementation notes:**
 
 - `from_shape(geom, srid=SRID)` is mandatory: shapely carries no SRID, and an SRID-0 geometry inserted into an SRID-27700 column raises a PostGIS constraint error.
@@ -172,6 +245,46 @@ if __name__ == "__main__":
 ## Fallback Strategies
 
 Bulk loads into PostGIS fail in a handful of recurring ways. Handle them in this order.
+
+<!-- fig:geoalchemy-failure-order -->
+<svg viewBox="-20 -20 535.5 214.1" role="img" aria-label="SRID mismatch, geometry type violation, invalid geometry and oversized batches — the recurring PostGIS bulk-load failures" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:536px;display:block;margin:1.5rem auto;">
+  <title>How a bulk load into PostGIS fails, in the order to check</title>
+  <desc>Four recurring bulk-load failures, what the database reports for each, and the fix. They are listed in the order worth checking because the cheapest diagnosis comes first: an SRID mismatch is visible before a single row is written, whereas a memory failure only shows up once the batch is large enough.</desc>
+  <defs>
+    <marker id="ga3-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ga3-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="535.5" height="214.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="495.5" height="152" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="495.5" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Failure</text>
+  <text x="213.5" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">What the database says</text>
+  <line x1="294.7" y1="0" x2="294.7" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="395.1" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Fix</text>
+  <line x1="132.3" y1="0" x2="132.3" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="495.5" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">SRID mismatch</text>
+  <text x="213.5" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">constraint violation on insert</text>
+  <text x="395.1" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">set the frame CRS to the column SRID</text>
+  <line x1="0" y1="62" x2="495.5" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Wrong geometry type</text>
+  <text x="213.5" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">type constraint violation</text>
+  <text x="395.1" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">declare GEOMETRY or split the load</text>
+  <line x1="0" y1="92" x2="495.5" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Invalid geometry</text>
+  <text x="213.5" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">accepted, then breaks queries</text>
+  <text x="395.1" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">make_valid before insert</text>
+  <line x1="0" y1="122" x2="495.5" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">Batch too large</text>
+  <text x="213.5" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">memory pressure, long locks</text>
+  <text x="395.1" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">cap the batch, commit per batch</text>
+  <text x="0" y="172" font-size="9.5" fill="currentColor" fill-opacity="0.7">Only the third is silent at write time — which is why validity is checked before the insert.</text>
+</svg>
+<!-- /fig:geoalchemy-failure-order -->
 
 **1. Declare the SRID explicitly and consistently**
 

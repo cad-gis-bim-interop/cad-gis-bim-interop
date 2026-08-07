@@ -82,13 +82,47 @@ IFC geometry is parametric — extruded profiles, swept solids, boolean cuts —
 
 A GeoJSON footprint is a 2D polygon, so the mesh has to be flattened. The reliable route is: build one `shapely.geometry.Polygon` from each triangle's XY coordinates, discard the degenerate ones (vertical faces collapse to zero-area slivers when Z is dropped), then `shapely.ops.unary_union` the survivors into a single `Polygon` or `MultiPolygon`. A final `.simplify(tolerance)` removes the tessellation noise that would otherwise bloat the output with thousands of near-collinear vertices.
 
+<!-- fig:ifcgeo-footprint -->
+<svg viewBox="-20 -33.5 617.3 101.7" role="img" aria-label="Compile the mesh in world coordinates, project to the XY plane, union the triangles, then write the polygon" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:617px;display:block;margin:1.5rem auto;">
+  <title>From a parametric product to a plan footprint</title>
+  <desc>Four stages. The parametric representation is compiled into a triangulated mesh in world coordinates; the mesh vertices are projected onto the horizontal plane; the projected triangles are unioned into a single outline; and the outline is written as a GeoJSON polygon. The union is the expensive stage and the one that decides whether the output is a footprint or a pile of triangles.</desc>
+  <defs>
+    <marker id="ifg1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ifg1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="617.3" height="101.7" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="93.8" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="46.9" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IFC product</text>
+  <text x="46.9" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">parametric</text>
+  <rect x="127.8" y="0" width="138.6" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="197.1" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">World-coord mesh</text>
+  <text x="197.1" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">USE_WORLD_COORDS</text>
+  <rect x="300.3" y="0" width="133" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="366.8" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Projected triangles</text>
+  <text x="366.8" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">on the XY plane</text>
+  <rect x="467.3" y="0" width="110" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="522.3" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">One footprint</text>
+  <text x="522.3" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">GeoJSON polygon</text>
+  <line x1="93.8" y1="24.1" x2="127.8" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#ifg1-a)"/>
+  <text x="110.8" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">create_shape</text>
+  <line x1="266.3" y1="24.1" x2="300.3" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#ifg1-a)"/>
+  <text x="283.3" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">drop Z</text>
+  <line x1="433.3" y1="24.1" x2="467.3" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#ifg1-a)"/>
+  <text x="450.3" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">unary_union</text>
+</svg>
+<!-- /fig:ifcgeo-footprint -->
+
 What this pipeline does **not** give you for free:
 
 - **A correct CRS.** OpenCASCADE emits the numbers stored in the file. If the model is georeferenced you must apply that georeferencing; if it is not, the footprint sits in local engineering space. Neither is WGS84.
 - **Watertight 2D topology.** `unary_union` merges overlapping triangles, but self-touching rings can survive. Repair with `shapely.make_valid()` before serializing.
 - **Interior voids automatically.** Courtyards and shafts appear only if the projected triangles actually leave a hole; a coarse tessellation can fill them in.
 
-<svg viewBox="0 0 720 210" role="img" aria-label="Pipeline from IFC element mesh through 2D projection and triangle union to a GeoJSON feature, with a CRS branch feeding reprojection" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
+<svg viewBox="-10 50 740 168" role="img" aria-label="Pipeline from IFC element mesh through 2D projection and triangle union to a GeoJSON feature, with a CRS branch feeding reprojection" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>IFC element to GeoJSON footprint pipeline</title>
   <desc>An IFC element is tessellated to a mesh, projected to the XY plane, its triangles are unioned and simplified into a footprint, reprojected using the file CRS, and written as a GeoJSON feature with GlobalId and property attributes.</desc>
   <defs>
@@ -96,6 +130,7 @@ What this pipeline does **not** give you for free:
       <polygon points="0 0, 8 3, 0 6" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="-10" y="50" width="740" height="168" fill="var(--color-surface)"/>
   <rect x="6"   y="66" width="120" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
   <rect x="156" y="66" width="120" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
   <rect x="306" y="66" width="124" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
@@ -260,6 +295,38 @@ The features here carry raw world coordinates. Before they are map-ready they mu
 ## Fallback Strategies
 
 **1. Elements with no geometry raise or yield empty meshes**
+
+<!-- fig:ifcgeo-batch-isolation -->
+<svg viewBox="-20 -20 418 286" role="img" aria-label="Guard each element evaluation so a failure is recorded and skipped, and report attempted versus produced counts" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>Isolating one bad element from a whole batch</title>
+  <desc>A call sequence across a batch. Each element is evaluated in its own guarded call, so an element whose geometry cannot be compiled is recorded and skipped rather than aborting the file. The counts of attempted and produced elements are what the run reports, because a conversion that silently produced fewer features than it read looks identical to a successful one.</desc>
+  <defs>
+    <marker id="ifg2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ifg2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="418" height="286" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="178" height="34" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.4"/>
+  <text x="89" y="21" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">batch driver</text>
+  <line x1="89" y1="34" x2="89" y2="246" stroke="currentColor" stroke-width="1" stroke-opacity="0.28" stroke-dasharray="4 4"/>
+  <rect x="200" y="0" width="178" height="34" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.4"/>
+  <text x="289" y="21" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">geometry kernel</text>
+  <line x1="289" y1="34" x2="289" y2="246" stroke="currentColor" stroke-width="1" stroke-opacity="0.28" stroke-dasharray="4 4"/>
+  <line x1="89" y1="60" x2="289" y2="60" stroke="currentColor" stroke-width="1.3" marker-end="url(#ifg2-a)"/>
+  <text x="189" y="53" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">create_shape(element)</text>
+  <line x1="289" y1="100" x2="89" y2="100" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#ifg2-o)"/>
+  <text x="189" y="93" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">mesh</text>
+  <line x1="89" y1="140" x2="289" y2="140" stroke="currentColor" stroke-width="1.3" marker-end="url(#ifg2-a)"/>
+  <text x="189" y="133" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">create_shape(next)</text>
+  <line x1="289" y1="180" x2="89" y2="180" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#ifg2-o)"/>
+  <text x="189" y="173" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">raises — recorded, skipped</text>
+  <path d="M 89 212 L 115 212 L 115 226 L 92 226" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ifg2-a)"/>
+  <text x="123" y="222" font-size="9.5" fill="currentColor" fill-opacity="0.8">report attempted vs produced</text>
+</svg>
+<!-- /fig:ifcgeo-batch-isolation -->
 
 Spaces, annotations, grids, and type objects carry no body representation. The iterator skips most, but guard the mesh read so an empty array never reaches `unary_union`:
 

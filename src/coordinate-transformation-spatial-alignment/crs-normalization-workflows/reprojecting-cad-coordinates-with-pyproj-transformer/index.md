@@ -83,9 +83,44 @@ To reproject CAD coordinates in Python, build a single `pyproj.Transformer.from_
 
 First, **axis order follows the CRS authority**, not intuition. `EPSG:4326` is officially latitude-first. Since `pyproj` 2.0 the library respects this, so a naive `Transformer.from_crs("EPSG:25832", "EPSG:4326")` returns `(lat, lon)`. Every CAD, GeoJSON, and shapefile toolchain expects `(x, y)` / `(lon, lat)`. Passing `always_xy=True` normalises both input and output to that traditional order, eliminating an entire class of "my points landed in the wrong hemisphere" bugs.
 
+<!-- fig:pyproj-build-once -->
+<svg viewBox="-20 -20 576 286" role="img" aria-label="Building a pyproj Transformer compiles a PROJ pipeline once; every transform call after that reuses it on whole arrays" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:576px;display:block;margin:1.5rem auto;">
+  <title>Why the Transformer is built once and reused</title>
+  <desc>A call sequence. Constructing a Transformer makes PROJ search its database, select a coordinate operation and compile a pipeline — the expensive part. Each subsequent transform call reuses that compiled pipeline on whole numpy arrays. Rebuilding the Transformer inside the loop repeats the database search for every chunk.</desc>
+  <defs>
+    <marker id="ppj-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ppj-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="576" height="286" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="164" height="34" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.4"/>
+  <text x="82" y="21" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">pipeline</text>
+  <line x1="82" y1="34" x2="82" y2="246" stroke="currentColor" stroke-width="1" stroke-opacity="0.28" stroke-dasharray="4 4"/>
+  <rect x="186" y="0" width="164" height="34" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.4"/>
+  <text x="268" y="21" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">pyproj.Transformer</text>
+  <line x1="268" y1="34" x2="268" y2="246" stroke="currentColor" stroke-width="1" stroke-opacity="0.28" stroke-dasharray="4 4"/>
+  <rect x="372" y="0" width="164" height="34" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.4"/>
+  <text x="454" y="21" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">PROJ database</text>
+  <line x1="454" y1="34" x2="454" y2="246" stroke="currentColor" stroke-width="1" stroke-opacity="0.28" stroke-dasharray="4 4"/>
+  <line x1="82" y1="60" x2="268" y2="60" stroke="currentColor" stroke-width="1.3" marker-end="url(#ppj-a)"/>
+  <text x="175" y="53" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">from_crs(src, dst, always_xy=True)</text>
+  <line x1="268" y1="100" x2="454" y2="100" stroke="currentColor" stroke-width="1.3" marker-end="url(#ppj-a)"/>
+  <text x="361" y="93" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">search operations</text>
+  <line x1="454" y1="140" x2="268" y2="140" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#ppj-o)"/>
+  <text x="361" y="133" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">compiled pipeline</text>
+  <line x1="82" y1="180" x2="268" y2="180" stroke="currentColor" stroke-width="1.3" marker-end="url(#ppj-a)"/>
+  <text x="175" y="173" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">transform(x_chunk, y_chunk)</text>
+  <line x1="268" y1="220" x2="82" y2="220" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#ppj-o)"/>
+  <text x="175" y="213" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.8">reprojected arrays</text>
+</svg>
+<!-- /fig:pyproj-build-once -->
+
 Second, **the Transformer is a reusable, thread-safe object**. Constructing it resolves the CRS pair and selects an operation — work you do not want to repeat per point. Build it once, cache it, and call `.transform()` as many times as you like, including from multiple threads. The `.transform()` call also accepts numpy arrays directly, dispatching the whole batch into PROJ in a single C call rather than paying Python-loop overhead per coordinate.
 
-<svg viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CAD reprojection flow: projected CAD point arrays in metres pass through one cached always_xy Transformer, are transformed as vectorized numpy arrays, filtered for finite values, and validated against a control point and bounding box" style="width:100%;max-width:760px;display:block;margin:1.5rem auto;">
+<svg viewBox="-10 56 780 159" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CAD reprojection flow: projected CAD point arrays in metres pass through one cached always_xy Transformer, are transformed as vectorized numpy arrays, filtered for finite values, and validated against a control point and bounding box" style="width:100%;max-width:760px;display:block;margin:1.5rem auto;">
   <title>Vectorized CAD Reprojection with a Cached pyproj Transformer</title>
   <desc>CAD point arrays in a projected CRS enter a single cached Transformer created with always_xy=True. The transformer processes the whole numpy array in one vectorized call, non-finite out-of-area results are filtered, and the output is validated against a control point and a bounding-box domain check before writing WGS84 longitude and latitude.</desc>
   <defs>
@@ -93,6 +128,7 @@ Second, **the Transformer is a reusable, thread-safe object**. Constructing it r
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="-10" y="56" width="780" height="159" fill="var(--color-surface)"/>
   <rect x="6" y="80" width="168" height="72" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="90" y="110" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">CAD point arrays</text>
   <text x="90" y="128" text-anchor="middle" font-size="10" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.75">EPSG:25832, metres</text>
@@ -248,6 +284,52 @@ if __name__ == "__main__":
 ## Fallback Strategies
 
 **1. Swapped coordinates from axis-order defaults**
+
+<!-- fig:pyproj-api-choices -->
+<svg viewBox="-20 -20 510.8 214.1" role="img" aria-label="Transformer.from_crs versus the deprecated transform function versus per-call Proj objects, compared on axis order, caching, array support and status" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:511px;display:block;margin:1.5rem auto;">
+  <title>Three pyproj reprojection APIs compared</title>
+  <desc>A comparison of the modern Transformer.from_crs API, the deprecated module-level transform function, and constructing a Proj object per call, across axis-order handling, whether the coordinate operation is cached, whether numpy arrays are accepted whole, and current support status.</desc>
+  <defs>
+    <marker id="ppj2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ppj2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="510.8" height="214.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="470.8" height="152" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="470.8" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Behaviour</text>
+  <text x="195.5" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Transformer.from_crs</text>
+  <line x1="263.6" y1="0" x2="263.6" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="321.2" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">pyproj.transform()</text>
+  <line x1="378.8" y1="0" x2="378.8" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="424.8" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Proj() per call</text>
+  <line x1="127.4" y1="0" x2="127.4" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="470.8" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">Axis order control</text>
+  <text x="195.5" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">always_xy flag</text>
+  <text x="321.2" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">always_xy flag</text>
+  <text x="424.8" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">implicit</text>
+  <line x1="0" y1="62" x2="470.8" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Operation cached</text>
+  <text x="195.5" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes, on the object</text>
+  <text x="321.2" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no</text>
+  <text x="424.8" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no</text>
+  <line x1="0" y1="92" x2="470.8" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Whole numpy arrays</text>
+  <text x="195.5" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes</text>
+  <text x="321.2" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes</text>
+  <text x="424.8" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">element-wise</text>
+  <line x1="0" y1="122" x2="470.8" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">Status</text>
+  <text x="195.5" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">current</text>
+  <text x="321.2" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">deprecated</text>
+  <text x="424.8" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">legacy</text>
+  <text x="0" y="172" font-size="9.5" fill="currentColor" fill-opacity="0.7">One Transformer per CRS pair, hoisted out of the loop, is the whole optimisation.</text>
+</svg>
+<!-- /fig:pyproj-api-choices -->
 
 If reprojected points appear mirrored across the equator or land at impossible latitudes, `always_xy=True` was omitted and `pyproj` returned `(lat, lon)`. Set the flag on every `Transformer.from_crs` call. There is no downside for `(x, y)` toolchains, and it makes input and output order explicit and identical.
 

@@ -87,6 +87,7 @@ Both are the destination the earlier stages of a CAD-to-GIS pipeline converge on
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="760" height="272" fill="var(--color-surface)"/>
   <!-- Source -->
   <rect x="24" y="118" width="160" height="64" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
   <text x="104" y="146" text-anchor="middle" font-size="12" fill="currentColor" font-family="sans-serif" font-weight="600">Converted geometry</text>
@@ -106,8 +107,8 @@ Both are the destination the earlier stages of a CAD-to-GIS pipeline converge on
   <text x="628" y="242" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif" opacity="0.7">concurrent, indexed</text>
   <!-- Arrows -->
   <line x1="184" y1="150" x2="236" y2="150" stroke="currentColor" stroke-width="1.5" opacity="0.5" marker-end="url(#arr)"/>
-  <line x1="400" y1="150" x2="516" y2="82" stroke="currentColor" stroke-width="1.5" opacity="0.5" marker-end="url(#arr)"/>
-  <line x1="400" y1="150" x2="516" y2="216" stroke="currentColor" stroke-width="1.5" opacity="0.5" marker-end="url(#arr)"/>
+  <path d="M 400 150 L 458 150 L 458 82 L 516 82" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" opacity="0.5" marker-end="url(#arr)"/>
+  <path d="M 400 150 L 458 150 L 458 216 L 516 216" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" opacity="0.5" marker-end="url(#arr)"/>
   <text x="452" y="104" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif" opacity="0.6">desktop</text>
   <text x="452" y="196" text-anchor="middle" font-size="10" fill="currentColor" font-family="sans-serif" opacity="0.6">at scale</text>
 </svg>
@@ -127,6 +128,30 @@ Before writing converted geometry to either target, confirm the following:
 ## Architectural Overview
 
 The two targets differ in one foundational way: GeoPackage is an embedded database (a file your process opens directly) while PostGIS is a client-server database (a service your process connects to over a socket). Every operational difference flows from that.
+
+<!-- fig:gpkg-embedded-vs-server -->
+<svg viewBox="-20 -20 580 142" role="img" aria-label="GeoPackage runs the engine inside the writing process on a file; PostGIS runs it as a separate server every writer connects to" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:580px;display:block;margin:1.5rem auto;">
+  <title>Where the database engine runs in each target</title>
+  <desc>The one structural difference the rest follow from. With GeoPackage the engine is a library inside the writing process and the database is a file it opens; concurrency and access control are the filesystem's problem. With PostGIS the engine is a separate server and every writer is a client; concurrency, access control and connection limits become part of the deployment.</desc>
+  <defs>
+    <marker id="gpg1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="gpg1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="580" height="142" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="21" font-size="11.5" font-weight="600" fill="currentColor">GeoPackage</text>
+  <text x="16" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.72">engine is a library in your process</text>
+  <text x="524" y="26.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">one .gpkg file</text>
+  <rect x="0" y="56" width="540" height="46" rx="6" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2"/>
+  <text x="16" y="77" font-size="11.5" font-weight="600" fill="currentColor">PostGIS</text>
+  <text x="16" y="91" font-size="9.5" fill="currentColor" fill-opacity="0.72">engine is a server your process connects to</text>
+  <text x="524" y="82.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">connections, roles</text>
+</svg>
+<!-- /fig:gpkg-embedded-vs-server -->
 
 | Dimension | GeoPackage | PostGIS |
 |-----------|-----------|---------|
@@ -244,6 +269,16 @@ Two processes writing the same `.gpkg` contend on the SQLite file lock; the seco
 
 `to_postgis` writes rows but no spatial index. Every subsequent `ST_Intersects` or bounding-box query table-scans until you add a GiST index. Make index creation part of the write step, not an afterthought.
 
+### Attribute types survive differently in each target
+
+A GeoDataFrame column is typed by pandas, and neither target preserves that typing the way you might expect. GeoPackage inherits SQLite's dynamic typing: a column declared as `INTEGER` will happily accept a string, and a column of mixed types round-trips as whatever each individual value was. PostGIS is strict, so the same frame either writes cleanly or raises — which is the more useful behaviour, but only if you have decided the types deliberately rather than letting the writer infer them from whatever the first chunk contained.
+
+The case that bites hardest is a column of CAD attribute values that is *mostly* numeric. Pandas infers a float dtype, the one row containing `"N/A"` forces the column to `object`, and the two targets then disagree about what was written. Coerce attribute columns explicitly before the write, and decide what a non-conforming value becomes — null, a sentinel, or a rejected row — rather than discovering the answer per target.
+
+### Null geometry is not the same as an empty geometry
+
+Converted CAD data produces both, and they mean different things: a null geometry is a feature whose geometry could not be extracted, and an empty geometry is a feature whose extraction produced nothing. Both write successfully to both targets, and both then behave inconsistently in spatial predicates — an empty geometry participates in an index and matches nothing, a null one is skipped entirely by most functions. Decide which one your pipeline emits, assert that the other never occurs, and record the count of features that hit either case, because a rising count is the earliest visible symptom of an upstream extraction regression.
+
 ## Validation & Testing
 
 Test the write path for both targets against a small fixture, asserting round-trip fidelity and that the spatial index exists:
@@ -275,6 +310,50 @@ def test_postgis_has_spatial_index(engine):
 ## Performance & Scale
 
 **GeoPackage** performs best as a write-once, read-many artifact. Wrap a bulk load in a single transaction (`to_file` does this per call) and avoid many small appends — each `to_file` call reopens the file and rebuilds indexes. For datasets beyond tens of millions of features, or where query concurrency matters, the single-writer SQLite model becomes the ceiling; move to PostGIS.
+
+<!-- fig:gpkg-choose-by-access -->
+<svg viewBox="-20 -20 414.5 244.1" role="img" aria-label="GeoPackage and PostGIS compared on concurrent writers, reader requirements, handover and schema change" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>Choosing the storage target by how the output is read</title>
+  <desc>The two targets compared on the access patterns that decide between them: concurrent writers, whether a reader needs anything installed, how a result is handed to someone else, and how schema changes are managed. The deciding question is rarely how much data there is — it is how many processes touch it at once and how it gets delivered.</desc>
+  <defs>
+    <marker id="gpg2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="gpg2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="414.5" height="244.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="374.5" height="182" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="374.5" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Concern</text>
+  <text x="181.4" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">GeoPackage</text>
+  <line x1="244.2" y1="0" x2="244.2" y2="182" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="309.4" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">PostGIS</text>
+  <line x1="118.7" y1="0" x2="118.7" y2="182" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="374.5" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">Concurrent writers</text>
+  <text x="181.4" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">one</text>
+  <text x="309.4" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">many</text>
+  <line x1="0" y1="62" x2="374.5" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Reader needs</text>
+  <text x="181.4" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">nothing installed</text>
+  <text x="309.4" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">a client and credentials</text>
+  <line x1="0" y1="92" x2="374.5" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Handover</text>
+  <text x="181.4" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">send the file</text>
+  <text x="309.4" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">grant a role</text>
+  <line x1="0" y1="122" x2="374.5" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">Schema change</text>
+  <text x="181.4" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">rewrite the file</text>
+  <text x="309.4" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">migration</text>
+  <line x1="0" y1="152" x2="374.5" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="170.5" font-size="10.5" font-weight="600" fill="currentColor">Best fit</text>
+  <text x="181.4" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">write once, read many</text>
+  <text x="309.4" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">shared, evolving</text>
+  <text x="0" y="202" font-size="9.5" fill="currentColor" fill-opacity="0.7">The question is who reads it and how, not how large it is.</text>
+</svg>
+<!-- /fig:gpkg-choose-by-access -->
 
 **PostGIS** scales through indexing and batching. After bulk loading, `VACUUM ANALYZE` the table so the planner has fresh statistics, and create the GiST index *after* the bulk insert rather than before — maintaining an index during a large load is far slower than building it once at the end. For very large loads, insert in batches of a few thousand rows per transaction to bound WAL growth, and consider `COPY`-based ingestion for the largest jobs. Partition by region or by capture date when a single table grows past hundreds of millions of rows.
 

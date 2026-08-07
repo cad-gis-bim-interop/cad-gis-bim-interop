@@ -45,6 +45,7 @@ Every interoperability project answers the same three questions in sequence: *wh
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="760" height="470" fill="var(--color-surface)"/>
   <!-- Stage 1: source format -->
   <rect x="20" y="20" width="530" height="58" rx="8" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.2"/>
   <text x="285" y="44" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6" font-weight="600">SOURCE FORMAT</text>
@@ -88,6 +89,42 @@ Interoperability decisions are cross-cutting: a single choice at one stage const
 
 The first is parsing and geometry extraction. Every decision guide here assumes you can already open a file and pull structured geometry out of it — iterating a DXF model space, evaluating an IFC representation tree into a mesh, or reading a GIS feature layer. The [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) reference establishes the five-stage pipeline model — ingestion, parser dispatch, geometry extraction, coordinate normalisation, serialisation — that the decisions below slot into. When a guide says "ezdxf reads this reliably but ODA does not," it is a statement about parser dispatch, and the underlying mechanics live in that reference and its [ezdxf Deep Dive](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ezdxf-deep-dive/) and [pydwg Integration](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/) workflows.
 
+<!-- fig:decisions-sequence -->
+<svg viewBox="-45 -20 475.3 236.6" role="img" aria-label="Read the source, choose the interchange representation, then choose storage — the order that keeps each decision reversible" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:475px;display:block;margin:1.5rem auto;">
+  <title>Three decisions, and the order that keeps them independent</title>
+  <desc>The three interoperability decisions in the order that keeps each one from foreclosing the next. How the source is read is settled by the input format. What the interchange representation is follows from what the deliverable means. Where the output lands follows from who reads it. Taken in this order each is reversible; taken out of order, a storage choice made first quietly dictates the other two.</desc>
+  <defs>
+    <marker id="idg1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="idg1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-45" y="-20" width="475.3" height="236.6" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="272" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="136" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">How is the source read?</text>
+  <text x="136" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">decided by the input format</text>
+  <circle cx="-14" cy="24.1" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="27.6" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">1</text>
+  <text x="290" y="27.6" font-size="9.5" fill="currentColor" fill-opacity="0.75">DXF parses, DWG converts</text>
+  <rect x="0" y="74.2" width="272" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="136" y="94.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">What is the interchange?</text>
+  <text x="136" y="108.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">decided by the deliverable</text>
+  <circle cx="-14" cy="98.3" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="101.8" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">2</text>
+  <text x="290" y="101.8" font-size="9.5" fill="currentColor" fill-opacity="0.75">linework or typed products</text>
+  <rect x="0" y="148.4" width="272" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="136" y="168.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Where does output land?</text>
+  <text x="136" y="182.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">decided by who reads it</text>
+  <circle cx="-14" cy="172.5" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="176" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">3</text>
+  <text x="290" y="176" font-size="9.5" fill="currentColor" fill-opacity="0.75">a file or a server</text>
+  <line x1="136" y1="48.2" x2="136" y2="74.2" stroke="currentColor" stroke-width="1.4" marker-end="url(#idg1-a)"/>
+  <line x1="136" y1="122.4" x2="136" y2="148.4" stroke="currentColor" stroke-width="1.4" marker-end="url(#idg1-a)"/>
+</svg>
+<!-- /fig:decisions-sequence -->
+
 The second is coordinate handling. A library choice that reads geometry perfectly is still worthless if the coordinates land in the wrong place. CAD files store local drawing units with no coordinate reference system; GIS stores demand an explicit CRS. Choosing an interchange format therefore implies a coordinate strategy: DXF carries no georeferencing of its own, IFC has an optional `IfcMapConversion`, and GeoJSON mandates WGS84. The [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) reference covers the unit conversion and reprojection that must happen between parsing and storage, and it is the reason the interchange-format decision can never be made on geometry alone.
 
 The third is the format and schema layer itself. Deciding between DXF and IFC for a given ingestion route requires understanding what each format can represent — DXF's flat entity model versus IFC's typed, related object graph — and where each one loses information. The [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) reference documents the group-code taxonomy of DXF, the entity hierarchy of IFC4X3, and the specific constraints of proprietary DWG. Those constraints, especially the ones described under [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/), are what force the library decision that opens this section.
@@ -122,6 +159,10 @@ The trap here is assuming these tools are interchangeable. They are not: they oc
 Once you can read the source, the next decision is what to carry into GIS, and the two dominant routes encode fundamentally different world models. The [DXF vs IFC for GIS Ingestion](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/) guide addresses the choice directly. DXF is geometry-first: fast to parse, universally supported, and a natural fit when you need footprints, linework, and layers as GIS features. IFC is semantics-first: it carries the building's object graph — walls, spaces, storeys, systems, and their relationships and property sets — which is exactly what a digital twin or asset register needs and exactly what DXF throws away.
 
 Choosing DXF when the downstream consumer needs storey membership or fire-rating property sets produces a technically valid ingestion that is functionally useless, because the attributes never made it through the interchange format. Choosing IFC when all anyone wanted was 2D building outlines burdens the pipeline with a heavier parse and a geometry-evaluation step for no benefit. The guide maps the two formats against what GIS actually consumes, covers the georeferencing gap on both sides, and links to the fallback route — [converting IFC to DXF as a GIS fallback](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/dxf-vs-ifc-for-gis-ingestion/converting-ifc-to-dxf-as-a-gis-fallback/) — for when a GIS toolchain refuses IFC entirely.
+
+### Choosing a Geometry Engine for Python Pipelines
+
+The three decisions above settle how data enters and leaves a pipeline; [Choosing a Geometry Engine for Python Pipelines](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-a-geometry-engine-for-python-pipelines/) settles what happens in the middle. Shapely, trimesh and OpenCASCADE answer different questions, and the one that decides between them — planar, mesh or exact solid — is worth asking before the first import rather than after the code is written.
 
 ### GeoPackage vs PostGIS for CAD Output
 
@@ -195,6 +236,42 @@ Read across the rows and the division of labour is obvious: no single tool spans
 
 When a route is already chosen and misbehaving, the symptom usually points back to a decision made a stage earlier. The table below maps the common production symptoms to the decision that caused them and the corrective route.
 
+<!-- fig:decisions-cost-of-lateness -->
+<svg viewBox="-20 -20 671.1 144.4" role="img" aria-label="Unreadable files, lost property sets, slow spatial queries and misplaced assets each trace back to an earlier interoperability decision" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:671px;display:block;margin:1.5rem auto;">
+  <title>Symptoms that point back to an earlier decision</title>
+  <desc>Four production symptoms and the decision each one actually traces to. None of them announce themselves at the stage where they appear: an unreadable file is a read-route decision, a lost property set is an interchange decision, a slow spatial query is a storage decision, and a misplaced asset is a coordinate decision made before any of them.</desc>
+  <defs>
+    <marker id="idg2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="idg2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="671.1" height="144.4" fill="var(--color-surface)"/>
+  <rect x="230.6" y="17.4" width="170" height="69.6" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="315.6" y="41.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">The symptom</text>
+  <text x="315.6" y="55.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">is never where</text>
+  <text x="315.6" y="68.8" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">the decision was</text>
+  <rect x="0" y="0" width="160.6" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="80.3" y="18.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Cannot read the file</text>
+  <text x="80.3" y="32" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">→ read route</text>
+  <path d="M 160.6 22.1 L 208.6 22.1 L 208.6 52.2 L 230.6 52.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#idg2-a)" stroke-linejoin="round"/>
+  <rect x="0" y="60.2" width="160.6" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="80.3" y="78.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Property sets missing</text>
+  <text x="80.3" y="92.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">→ interchange</text>
+  <path d="M 160.6 82.3 L 208.6 82.3 L 208.6 52.2 L 230.6 52.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#idg2-a)" stroke-linejoin="round"/>
+  <rect x="470.6" y="0" width="160.6" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="550.9" y="18.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Spatial query is slow</text>
+  <text x="550.9" y="32" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">→ storage target</text>
+  <path d="M 400.6 52.2 L 448.6 52.2 L 448.6 22.1 L 470.6 22.1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#idg2-a)" stroke-linejoin="round"/>
+  <rect x="470.6" y="60.2" width="160.6" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="550.9" y="78.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Asset in the wrong place</text>
+  <text x="550.9" y="92.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">→ CRS handling</text>
+  <path d="M 400.6 52.2 L 448.6 52.2 L 448.6 82.3 L 470.6 82.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#idg2-a)" stroke-linejoin="round"/>
+</svg>
+<!-- /fig:decisions-cost-of-lateness -->
+
 | Symptom | Root Cause | Fix |
 |---|---|---|
 | `ezdxf.readfile()` raises on a `.dwg` input | ezdxf has no DWG reader; wrong library for the source | Route DWG through a converter first — see [Choosing ezdxf, pydwg, or ODA for Production](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-ezdxf-pydwg-or-oda-for-production/) |
@@ -221,6 +298,22 @@ Interoperability jobs increasingly run in containers and CI, where there is no d
 
 A decision that was correct at selection can rot as inputs change. Encode the assumptions as tests: assert that the parser opens a corpus of real files, that the interchange format still carries the attributes a consumer contracts for, and that the storage target ingests within its throughput budget. Commit reference files for each supported source format and version, and fail the build when coverage or fidelity regresses. This turns an informal decision into an enforced contract, which is the only form of decision that survives a library upgrade six months later.
 
+### The cost of changing each decision later
+
+The three decisions are not equally expensive to revisit, and knowing the ordering is what makes it reasonable to defer one and unreasonable to defer another.
+
+Changing the **storage target** is the cheapest. The converted geometry already exists in a normalised in-memory form; a second writer is a new function against the same records, and the two targets can run side by side during a migration. Teams routinely move from GeoPackage to PostGIS when a second consumer appears, and the change touches the last stage only.
+
+Changing the **interchange representation** is moderately expensive, because it changes what the pipeline is able to say. Moving from a linework route to a typed-product route is not a swap of parsers; it is a different extraction, a different attribute model, and usually a different source deliverable requested from the design team. Budget weeks, not hours, and expect the request to the design team to be the long pole.
+
+Changing the **read route** is the expensive one, and it is expensive for reasons that are not technical. Introducing a licensed converter into a pipeline that assumed pure Python adds a binary to every container image, a licence to whatever governs redistribution, a subprocess to supervise, and a failure mode — the converter that exits zero having written nothing — that the rest of the pipeline was not built to notice. This asymmetry is the reason the read route is settled first: it is the decision least amenable to being revisited under time pressure, and the one whose constraints the other two have to live within.
+
+### Deciding once, and recording why
+
+A decision that is not written down is remade, usually by someone who was not in the room, usually under deadline. Each of the three deserves a short record: what was chosen, what the alternative was, and — the part that actually pays for itself — the observation that would justify revisiting it. "PostGIS, because a second team needs concurrent read access; revisit if that team goes away and the artefact becomes a handover" is a decision a successor can evaluate. "PostGIS" is not.
+
+The revisit conditions are usually concrete and worth naming explicitly: a delivery arriving in a DWG release the current converter does not cover, a consumer appearing who needs property sets the linework route never carried, a query pattern that a single-file store cannot serve. Each of those is a signal that a specific decision has expired, rather than a general sense that the pipeline is struggling — and a signal attached to a decision is what turns a rewrite into an amendment.
+
 ### Reversibility
 
 Favour routes that are cheap to change. Writing an intermediate DXF or GeoJSON artifact between stages costs disk but buys the ability to re-run the storage step without re-reading the source, to swap PostGIS for GeoPackage without touching the parser, or to add an IFC route alongside a DXF one. The staged architecture in the diagram above is not just conceptual; materialising the boundaries as files is what makes a decision reversible instead of load-bearing.
@@ -239,3 +332,4 @@ Interoperability is a sequence of three decisions — which library, which inter
 - [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — the extraction mechanics every route in this section depends on
 - [Coordinate Transformation & Spatial Alignment](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/) — the unit conversion and reprojection between parsing and storage
 - [Core Format Fundamentals & Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/) — what DXF, IFC, and DWG can and cannot represent
+- [Choosing a Geometry Engine for Python Pipelines](https://www.cad-gis-bim-interop.org/interoperability-decision-guides/choosing-a-geometry-engine-for-python-pipelines/) — Shapely, trimesh or OpenCASCADE — the decision that governs everything between read and write

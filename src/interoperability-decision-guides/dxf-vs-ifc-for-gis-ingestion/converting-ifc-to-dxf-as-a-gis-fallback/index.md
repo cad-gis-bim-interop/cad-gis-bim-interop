@@ -79,6 +79,36 @@ The conversion bridges two libraries with opposite jobs. `ifcopenshell.geom.crea
 
 Neither library does the semantic bridging for you. IFC's typed objects, property sets, and relationships have no DXF equivalent, so the conversion is lossy by construction. What `ezdxf` gives you to preserve identity is the layer name and XDATA — free-form string attachments keyed by a registered application id. Use them deliberately: the layer name is the most portable carrier because every DXF consumer preserves it, while XDATA survives only through XDATA-aware readers.
 
+<!-- fig:ifc2dxf-libraries -->
+<svg viewBox="-20 -33.5 477 125.8" role="img" aria-label="IfcOpenShell evaluates parametric IFC into a mesh and ezdxf writes explicit geometry — the mesh is the only shared representation" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:477px;display:block;margin:1.5rem auto;">
+  <title>Two libraries with opposite jobs, joined at the mesh</title>
+  <desc>The conversion joins a geometry kernel to a writer. IfcOpenShell evaluates a parametric IFC representation into an explicit triangulated mesh; ezdxf writes explicit geometry into a tagged DXF. The mesh is the only thing they share, which is why everything semantic about the IFC product has to be carried across as layer names and attributes rather than as structure.</desc>
+  <defs>
+    <marker id="i2d1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="i2d1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="477" height="125.8" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="93.8" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="46.9" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IFC product</text>
+  <text x="46.9" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">parametric</text>
+  <rect x="127.8" y="0" width="131.7" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="193.6" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Triangulated mesh</text>
+  <text x="193.6" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">explicit vertices</text>
+  <rect x="293.5" y="0" width="143.5" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="365.2" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DXF entities</text>
+  <text x="365.2" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">LWPOLYLINE on a layer</text>
+  <line x1="93.8" y1="24.1" x2="127.8" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#i2d1-a)"/>
+  <text x="110.8" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">create_shape</text>
+  <line x1="259.5" y1="24.1" x2="293.5" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#i2d1-a)"/>
+  <text x="276.5" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">project + write</text>
+  <text x="0" y="70.2" font-size="9.5" fill="currentColor" fill-opacity="0.7">Everything the product knew about itself has to survive as a layer name or an attribute.</text>
+</svg>
+<!-- /fig:ifc2dxf-libraries -->
+
 The value of doing this in code rather than a GUI export is control over exactly which representation you keep. Writing a full mesh for every wall produces a DXF that a 2D GIS tool cannot use and that bloats to hundreds of megabytes; writing a footprint keeps the file small and directly indexable. The [ifcopenshell Workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/ifcopenshell-workflow/) covers the geometry-settings object in depth.
 
 ## Production-Ready Script
@@ -159,6 +189,37 @@ if __name__ == "__main__":
     print(f"Wrote {n} products to DXF")
 ```
 
+<!-- fig:ifc2dxf-what-is-lost -->
+<svg viewBox="-20 -20 570 194.1" role="img" aria-label="Geometry and layer-encoded classification survive an IFC to DXF downgrade; the product hierarchy, property sets and georeferencing do not" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:570px;display:block;margin:1.5rem auto;">
+  <title>What survives the downgrade and what does not</title>
+  <desc>Two columns listing what the DXF still carries after the conversion and what only existed in the IFC. Geometry and a classification encoded in the layer name survive. The typed product hierarchy, property sets, material assignments and the georeferencing that made the model placeable do not, unless they are deliberately re-encoded on the way out.</desc>
+  <defs>
+    <marker id="i2d2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="i2d2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="570" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.11" stroke="currentColor" stroke-width="1.9"/>
+  <text x="125" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Survives</text>
+  <line x1="14" y1="33" x2="236" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— footprint and mesh geometry</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— class encoded in the layer name</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— a chosen attribute in XDATA</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— placement, if written explicitly</text>
+  <rect x="280" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="405" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Lost unless re-encoded</text>
+  <line x1="294" y1="33" x2="516" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="296" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— typed product hierarchy</text>
+  <text x="296" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— property and quantity sets</text>
+  <text x="296" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— material assignments</text>
+  <text x="296" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— IfcMapConversion georeferencing</text>
+  <text x="265" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">A fallback, not an equivalence — decide what to re-encode before converting.</text>
+</svg>
+<!-- /fig:ifc2dxf-what-is-lost -->
+
 **Key implementation notes:**
 
 - `ezdxf.new("R2018")` selects DXF version AC1032; the `MESH` entity requires R2000 or later, so do not target R12 if you intend to write meshes.
@@ -182,6 +243,46 @@ if __name__ == "__main__":
 ## Fallback Strategies
 
 Convert defensively — the IFC-to-DXF downgrade fails in predictable ways, and each has a concrete mitigation.
+
+<!-- fig:ifc2dxf-failure-modes -->
+<svg viewBox="-20 -20 504.5 214.1" role="img" aria-label="Missing geometry, unit mismatch, huge coordinates and mesh explosion — the four recurring IFC to DXF conversion failures" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:505px;display:block;margin:1.5rem auto;">
+  <title>How the downgrade fails, and what each failure looks like</title>
+  <desc>Four recurring failures of an IFC-to-DXF conversion, the symptom each produces in the output, and the mitigation. All four produce a DXF that opens cleanly, which is why the conversion has to be checked against entity counts and extents rather than against whether it raised.</desc>
+  <defs>
+    <marker id="i2d3-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="i2d3-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="504.5" height="214.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="464.5" height="152" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="464.5" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Failure</text>
+  <text x="233.6" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Symptom in the DXF</text>
+  <line x1="311.1" y1="0" x2="311.1" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="387.8" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Mitigation</text>
+  <line x1="156.1" y1="0" x2="156.1" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="464.5" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">Element has no geometry</text>
+  <text x="233.6" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">silently absent</text>
+  <text x="387.8" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">count in vs out, per class</text>
+  <line x1="0" y1="62" x2="464.5" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Unit assignment ignored</text>
+  <text x="233.6" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">1 000× extents</text>
+  <text x="387.8" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">read IfcUnitAssignment first</text>
+  <line x1="0" y1="92" x2="464.5" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Full projected coordinates</text>
+  <text x="233.6" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">precision loss far from origin</text>
+  <text x="387.8" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">write a local origin + offset</text>
+  <line x1="0" y1="122" x2="464.5" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">Every face written</text>
+  <text x="233.6" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">unusable entity counts</text>
+  <text x="387.8" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">project to a footprint</text>
+  <text x="0" y="172" font-size="9.5" fill="currentColor" fill-opacity="0.7">Each of these produces a DXF that opens — verify counts and extents, not exit status.</text>
+</svg>
+<!-- /fig:ifc2dxf-failure-modes -->
 
 **1. Choose footprint over mesh by default**
 

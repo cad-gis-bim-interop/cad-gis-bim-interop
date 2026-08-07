@@ -109,7 +109,7 @@ AEC tech engineers routinely encounter source files where spatial geometry and n
 
 ---
 
-<svg viewBox="0 0 800 260" role="img" aria-label="Five-stage metadata extraction pipeline diagram" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:800px;display:block;margin:1.5rem auto;">
+<svg viewBox="-6 46 764 185" role="img" aria-label="Five-stage metadata extraction pipeline diagram" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:800px;display:block;margin:1.5rem auto;">
   <title>Five-Stage Metadata Extraction Pipeline</title>
   <desc>Data flows left to right through five stages: Format Detection, Parser Init, Attribute Harvest, Schema Normalize, and Validate &amp; Serialize. DXF, IFC, and GeoPackage source types feed into the first stage. The final stage outputs Parquet, GeoJSON, and PostgreSQL targets.</desc>
   <defs>
@@ -117,6 +117,7 @@ AEC tech engineers routinely encounter source files where spatial geometry and n
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.55"/>
     </marker>
   </defs>
+  <rect x="-6" y="46" width="764" height="185" fill="var(--color-surface)"/>
   <!-- Stage boxes -->
   <rect x="10" y="90" width="120" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
   <text x="70" y="111" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif" font-weight="600">Format</text>
@@ -181,6 +182,47 @@ pip install ezdxf ifcopenshell geopandas pydantic pyproj lxml
 
 The extraction mechanism differs substantially across the three primary format families this site covers.
 
+<!-- fig:meta-where-it-lives -->
+<svg viewBox="-20 -20 479.3 184.1" role="img" aria-label="Block attributes and XDATA in CAD, property sets in IFC, and table columns in GIS — the three metadata mechanisms" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:479px;display:block;margin:1.5rem auto;">
+  <title>Where each format keeps the metadata worth extracting</title>
+  <desc>The three format families and the mechanism each uses to attach descriptive data to geometry. The mechanisms are genuinely different in kind — a bag of tags, a typed graph of relationships, and a fixed table schema — so a single extraction routine cannot serve all three, and the normalisation has to happen after extraction rather than during it.</desc>
+  <defs>
+    <marker id="mex1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="mex1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="479.3" height="184.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="439.3" height="122" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="439.3" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Format</text>
+  <text x="154.3" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Mechanism</text>
+  <line x1="226.5" y1="0" x2="226.5" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="301.8" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Attached to</text>
+  <line x1="377.2" y1="0" x2="377.2" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="408.2" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Typed?</text>
+  <line x1="82.1" y1="0" x2="82.1" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="439.3" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">DXF / DWG</text>
+  <text x="154.3" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">ATTRIB, XDATA</text>
+  <text x="301.8" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">a placement or entity</text>
+  <text x="408.2" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no</text>
+  <line x1="0" y1="62" x2="439.3" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">IFC</text>
+  <text x="154.3" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">property and quantity sets</text>
+  <text x="301.8" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">a product, via a relationship</text>
+  <text x="408.2" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes</text>
+  <line x1="0" y1="92" x2="439.3" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">GIS vector</text>
+  <text x="154.3" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">table columns</text>
+  <text x="301.8" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">a feature row</text>
+  <text x="408.2" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">yes</text>
+  <text x="0" y="142" font-size="9.5" fill="currentColor" fill-opacity="0.7">Normalise after extraction — the three mechanisms have no common shape to extract into.</text>
+</svg>
+<!-- /fig:meta-where-it-lives -->
+
 **DXF (ASCII/Binary):** Metadata lives in three distinct layers — entity-level DXF group codes (attributes on `ATTRIB` entities attached to `INSERT` block references), object-level extension dictionaries (custom application data stored in the `OBJECTS` section), and XData blobs (group-code-1001 records keyed by application name). The `ezdxf` library exposes all three via distinct APIs. Understanding how entities nest within block definitions is essential for accurate mapping; consult the [DXF Entity Structure Breakdown](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/) for a complete group-code taxonomy and entity hierarchy reference.
 
 **IFC (STEP/EXPRESS):** Attributes are organized as property sets (`Pset_*` and custom `IfcPropertySet` instances) linked to `IfcProduct` entities through `IfcRelDefinesByProperties` relationship objects. The schema is strongly typed and versioned — IFC4x3 introduced civil-specific entities (`IfcAlignment`, `IfcBridge`) that do not exist in IFC2x3 or IFC4. The [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) guide covers relationship traversal and schema-version detection in depth.
@@ -201,6 +243,39 @@ The extraction mechanism differs substantially across the three primary format f
 ## Step-by-Step Implementation
 
 ### Step 1 — Format Detection and Routing
+
+<!-- fig:meta-sniff-first -->
+<svg viewBox="-20 -20 489.7 216.2" role="img" aria-label="Route on the file magic — a DWG signature, a DXF section tag or a STEP ISO-10303 preamble — never on the extension" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:490px;display:block;margin:1.5rem auto;">
+  <title>Identifying a file by its bytes rather than its extension</title>
+  <desc>A three-way branch taken on the first bytes of the file. A DWG signature, the tagged text a DXF begins with, and the ISO-10303 preamble of a STEP file are each unambiguous. Extensions are not: enterprise data lakes and FTP drops routinely carry mislabelled files, and an extension-driven router hands them to the wrong parser.</desc>
+  <defs>
+    <marker id="mex2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="mex2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="489.7" height="216.2" fill="var(--color-surface)"/>
+  <polygon points="224.9,0 326.4,31 224.9,62 123.4,31" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1.6"/>
+  <text x="224.9" y="35" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">What do the first bytes say?</text>
+  <rect x="0" y="128" width="131.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="65.6" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DWG</text>
+  <text x="65.6" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">convert first</text>
+  <path d="M 224.9 62 L 224.9 92 L 65.6 92 L 65.6 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#mex2-a)" stroke-linejoin="round"/>
+  <text x="65.6" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">&quot;AC10xx&quot;</text>
+  <rect x="159.2" y="128" width="131.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="224.9" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DXF</text>
+  <text x="224.9" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">read directly</text>
+  <path d="M 224.9 62 L 224.9 92 L 224.9 92 L 224.9 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#mex2-a)" stroke-linejoin="round"/>
+  <text x="224.9" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">&quot;  0\nSECTION&quot;</text>
+  <rect x="318.5" y="128" width="131.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="384.1" y="148.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IFC</text>
+  <text x="384.1" y="162" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">check FILE_SCHEMA</text>
+  <path d="M 224.9 62 L 224.9 92 L 384.1 92 L 384.1 128" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#mex2-a)" stroke-linejoin="round"/>
+  <text x="384.1" y="85" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">&quot;ISO-10303-21&quot;</text>
+</svg>
+<!-- /fig:meta-sniff-first -->
 
 Never rely solely on file extensions; they are frequently mislabeled in enterprise data lakes and legacy FTP drops. Implement a lightweight header inspection routine that reads magic bytes or the first few ASCII tokens.
 
@@ -558,3 +633,4 @@ Use entity-type filtering early — `ifc_file.by_type("IfcProduct")` — to avoi
 - [IFC4x3 Schema Mapping](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/) — EXPRESS schema traversal and relationship resolution for civil BIM models
 - [Extracting Block Attributes from CAD Files](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/extracting-block-attributes-from-cad-files/) — production script for harvesting `ATTRIB` entities from `INSERT` block references
 - [DWG Proprietary Limitations](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dwg-proprietary-limitations/) — conversion gateway requirements and open-source parser constraints for binary DWG files
+- [Writing Extracted CAD Metadata to Parquet](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/metadata-extraction-strategies/writing-extracted-cad-metadata-to-parquet/) — a typed core plus a map column, partitioned so a re-extraction replaces one source

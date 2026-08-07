@@ -84,6 +84,37 @@ A DXF `3DFACE` entity stores up to four corner points and nothing else — no sh
 
 `ezdxf` reads the corner coordinates verbatim and does not merge shared edges between adjacent faces. A wall exported as fifty `3DFACE` entities yields two hundred corner points even though the true vertex count is far lower. Deduplication is your job, and it must be tolerance-based: exporters round coordinates inconsistently, so two corners that are geometrically the same point can differ in the last decimal place. A dictionary keyed on the coordinate tuple rounded to a fixed number of decimals gives each unique location one stable index.
 
+<!-- fig:face-no-connectivity -->
+<svg viewBox="-20 -20 594 194.1" role="img" aria-label="A 3DFACE has no shared vertex table, no edge connectivity and no consistent winding — everything an OBJ mesh requires" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:594px;display:block;margin:1.5rem auto;">
+  <title>What a soup of 3DFACE entities is missing</title>
+  <desc>A DXF face carries up to four corner points and nothing else. There is no shared vertex table, so a corner touched by six faces is stored six times; there is no edge list, so nothing records that two faces are neighbours; and winding is per face, so normals do not agree. An OBJ mesh needs all three, which is why the conversion is a welding problem rather than a translation.</desc>
+  <defs>
+    <marker id="f3d1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="f3d1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="594" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="262" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="131" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">3DFACE as stored</text>
+  <line x1="14" y1="33" x2="248" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— 3 or 4 corners, standalone</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— a shared corner stored per face</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— no edge or neighbour record</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— winding decided per face</text>
+  <rect x="292" y="0" width="262" height="130" rx="6" fill="currentColor" fill-opacity="0.11" stroke="currentColor" stroke-width="1.9"/>
+  <text x="423" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">What OBJ needs</text>
+  <line x1="306" y1="33" x2="540" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="308" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— one vertex table</text>
+  <text x="308" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— faces indexing into it</text>
+  <text x="308" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— shared edges implied by indices</text>
+  <text x="308" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— consistent outward normals</text>
+  <text x="277" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">The conversion is vertex welding plus winding repair, not a format rewrite.</text>
+</svg>
+<!-- /fig:face-no-connectivity -->
+
 <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3DFACE to OBJ pipeline: query 3DFACE entities, read four corner points, deduplicate corners into a shared vertex list with a rounded-tuple dictionary, then write 1-indexed OBJ v and f lines" style="width:100%;max-width:700px;display:block;margin:1.5rem auto;">
   <title>3DFACE to Wavefront OBJ Conversion Pipeline</title>
   <desc>Left to right: ezdxf queries 3DFACE entities; each entity yields corners vtx0 to vtx3; corners are rounded and deduplicated through a dictionary into a shared vertex list with stable indices; the result is written as OBJ v lines and 1-indexed f lines.</desc>
@@ -92,6 +123,7 @@ A DXF `3DFACE` entity stores up to four corner points and nothing else — no sh
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="700" height="250" fill="var(--color-surface)"/>
   <rect x="10" y="88" width="140" height="66" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="80" y="116" text-anchor="middle" font-size="12" fill="currentColor" font-weight="600">3DFACE query</text>
   <text x="80" y="136" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.75">msp.query("3DFACE")</text>
@@ -228,6 +260,56 @@ For the entity's exact group-code layout, see the [Autodesk DXF 3DFACE reference
 ## Fallback Strategies
 
 `3DFACE` conversion fails on four recurring defects. Address them in order.
+
+<!-- fig:face-weld-pipeline -->
+<svg viewBox="-45 -20 499.6 385" role="img" aria-label="Quantise corners, build the vertex table, collapse padded quads, shift to a local origin, then write faces as indices" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;display:block;margin:1.5rem auto;">
+  <title>The welding pipeline that produces a usable mesh</title>
+  <desc>Five stages. Corners are quantised onto a tolerance grid so near-coincident points collapse to one key; the quantised keys become a vertex table; degenerate faces whose fourth corner repeats the third are collapsed to triangles; the mesh is shifted to a local origin so coordinates stay in a range floating-point can carry; and the result is written with faces indexing the table.</desc>
+  <defs>
+    <marker id="f3d2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="f3d2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-45" y="-20" width="499.6" height="385" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="266" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="133" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Quantise corners</text>
+  <text x="133" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">onto a tolerance grid</text>
+  <circle cx="-14" cy="24.1" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="27.6" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">1</text>
+  <text x="284" y="27.6" font-size="9.5" fill="currentColor" fill-opacity="0.75">the tolerance is the whole decision</text>
+  <rect x="0" y="74.2" width="266" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="133" y="94.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Build the vertex table</text>
+  <text x="133" y="108.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">one entry per key</text>
+  <circle cx="-14" cy="98.3" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="101.8" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">2</text>
+  <text x="284" y="101.8" font-size="9.5" fill="currentColor" fill-opacity="0.75">six copies become one</text>
+  <rect x="0" y="148.4" width="266" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="133" y="168.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Collapse padded quads</text>
+  <text x="133" y="182.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">4th corner repeats the 3rd</text>
+  <circle cx="-14" cy="172.5" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="176" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">3</text>
+  <text x="284" y="176" font-size="9.5" fill="currentColor" fill-opacity="0.75">DXF pads triangles this way</text>
+  <rect x="0" y="222.6" width="266" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="133" y="242.9" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Shift to a local origin</text>
+  <text x="133" y="256.6" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">subtract the centroid</text>
+  <circle cx="-14" cy="246.7" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="250.2" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">4</text>
+  <text x="284" y="250.2" font-size="9.5" fill="currentColor" fill-opacity="0.75">keeps float32 usable</text>
+  <rect x="0" y="296.8" width="266" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="133" y="317.1" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Write indexed faces</text>
+  <text x="133" y="330.8" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">OBJ f statements</text>
+  <circle cx="-14" cy="320.9" r="11" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.2"/>
+  <text x="-14" y="324.4" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">5</text>
+  <text x="284" y="324.4" font-size="9.5" fill="currentColor" fill-opacity="0.75">indices, not coordinates</text>
+  <line x1="133" y1="48.2" x2="133" y2="74.2" stroke="currentColor" stroke-width="1.4" marker-end="url(#f3d2-a)"/>
+  <line x1="133" y1="122.4" x2="133" y2="148.4" stroke="currentColor" stroke-width="1.4" marker-end="url(#f3d2-a)"/>
+  <line x1="133" y1="196.6" x2="133" y2="222.6" stroke="currentColor" stroke-width="1.4" marker-end="url(#f3d2-a)"/>
+  <line x1="133" y1="270.8" x2="133" y2="296.8" stroke="currentColor" stroke-width="1.4" marker-end="url(#f3d2-a)"/>
+</svg>
+<!-- /fig:face-weld-pipeline -->
 
 **1. Degenerate quads and slivers.** A face whose four corners collapse to fewer than three unique points is a line or a dot. The consecutive-duplicate pass in the script drops these, but near-degenerate quads — three near-collinear corners plus one real point — survive as slivers. After building the mesh, discard faces whose Newell-normal magnitude is below a threshold, or run `trimesh.Trimesh(...).remove_degenerate_faces()` if you route the result through `trimesh`.
 

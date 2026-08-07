@@ -94,6 +94,7 @@ The bulge is the mechanism that makes `LWPOLYLINE` able to represent arcs withou
       <polygon points="0 0, 8 3, 0 6" fill="currentColor" opacity="0.7"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="700" height="250" fill="var(--color-surface)"/>
   <rect x="270" y="14" width="160" height="48" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="350" y="34" text-anchor="middle" font-size="12" fill="currentColor">LWPOLYLINE</text>
   <text x="350" y="51" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">vertices + bulge</text>
@@ -184,6 +185,47 @@ if __name__ == "__main__":
               f"({kind}) on layer {poly['layer']}")
 ```
 
+<!-- fig:lwpoly-bulge-flattening -->
+<svg viewBox="-0.6 -8 427.5 248.1" role="img" aria-label="A bulge segment read as a chord versus the same segment flattened into short line segments that follow the arc" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:428px;display:block;margin:1.5rem auto;">
+  <title>What a bulge encodes, and what flattening returns</title>
+  <desc>One arc segment between two vertices, carrying a bulge of 0.5. The straight chord is what an extractor that reads only x and y produces. The subdivided polyline is what flattening returns: a chain of short segments none of which departs from the true arc by more than the requested sag tolerance. The area between the chord and the arc is the error a naive read introduces on every curved segment.</desc>
+  <defs>
+    <marker id="lwp1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="lwp1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-0.6" y="-8" width="427.5" height="248.1" fill="var(--color-surface)"/>
+  <rect x="34" y="12" width="350" height="164" rx="4" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="34" y1="176" x2="384" y2="176" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5"/>
+  <line x1="34" y1="12" x2="34" y2="176" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5"/>
+  <text x="209" y="198" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.7">X (drawing units)</text>
+  <text x="26" y="94" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.7">Y</text>
+  <polyline points="34,16 384,16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-opacity="0.6" stroke-dasharray="6 4"/>
+  <circle cx="34" cy="16" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="384" cy="16" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <text x="41" y="32" font-size="9.5" fill="currentColor" fill-opacity="0.85">chord only</text>
+  <polyline points="34,16 56.3,62.4 82.2,102 111.2,133.8 142.5,157 175.3,171.2 209,176 242.7,171.2 275.5,157 306.8,133.8 335.8,102 361.7,62.4 384,16" fill="none" stroke="currentColor" stroke-width="2" stroke-opacity="0.95"/>
+  <circle cx="34" cy="16" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="56.3" cy="62.4" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="82.2" cy="102" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="111.2" cy="133.8" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="142.5" cy="157" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="175.3" cy="171.2" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="209" cy="176" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="242.7" cy="171.2" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="275.5" cy="157" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="306.8" cy="133.8" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="335.8" cy="102" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="361.7" cy="62.4" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="384" cy="16" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <text x="202" y="166" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.85">flattening()</text>
+  <text x="34" y="218" font-size="9.5" fill="currentColor" fill-opacity="0.7">Two vertices and a bulge of 0.5 — the arc is implicit, and reading x/y alone discards it.</text>
+</svg>
+<!-- /fig:lwpoly-bulge-flattening -->
+
 **Key implementation notes:**
 
 - `get_points(format="xyb")` returns `(x, y, bulge)` tuples. The bulge belongs to the segment leading to the *next* vertex, so the final vertex of an open polyline always has a bulge of `0`.
@@ -208,6 +250,36 @@ For the storage-level view of how these vertices are encoded as group codes `10`
 ## Fallback Strategies
 
 Real-world drawings break naive extractors in predictable ways. Handle these scenarios in order.
+
+<!-- fig:lwpoly-ocs-lift -->
+<svg viewBox="-20 -33.5 466.1 125.8" role="img" aria-label="Planar OCS vertices plus elevation and extrusion become world coordinates through the entity OCS transform" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:466px;display:block;margin:1.5rem auto;">
+  <title>Lifting planar OCS coordinates into world space</title>
+  <desc>Three stages. The stored vertices are two-dimensional and live in the entity's own plane, whose orientation is the extrusion vector and whose height is the elevation. Applying the object coordinate system transform lifts them into world coordinates. Where the extrusion is the default the transform is the identity, which is why the step is so easy to omit and so damaging when the extrusion is not.</desc>
+  <defs>
+    <marker id="lwp2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="lwp2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="466.1" height="125.8" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="120" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="60" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">(x, y) + elevation</text>
+  <text x="60" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">planar, in the entity</text>
+  <rect x="154" y="0" width="120.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="214.1" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Extrusion vector</text>
+  <text x="214.1" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">defines the plane</text>
+  <rect x="308.2" y="0" width="117.9" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="367.1" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">(X, Y, Z) world</text>
+  <text x="367.1" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">placeable geometry</text>
+  <line x1="120" y1="24.1" x2="154" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#lwp2-a)"/>
+  <text x="137" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">ocs().to_wcs()</text>
+  <line x1="274.2" y1="24.1" x2="308.2" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#lwp2-a)"/>
+  <text x="291.2" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">apply</text>
+  <text x="0" y="70.2" font-size="9.5" fill="currentColor" fill-opacity="0.7">Identity when the extrusion is (0, 0, 1) — which is why omitting it passes every default-case test.</text>
+</svg>
+<!-- /fig:lwpoly-ocs-lift -->
 
 **1. Mixed line and arc segments in one polyline**
 

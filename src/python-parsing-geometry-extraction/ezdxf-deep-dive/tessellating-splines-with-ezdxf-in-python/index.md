@@ -84,7 +84,7 @@ A `SPLINE` entity encodes a Non-Uniform Rational B-Spline. Its definition lives 
 
 Because the curve is a continuous mathematical object, there is no single "correct" vertex list — you choose a fidelity. `ezdxf` offers two adaptive routes. The direct route, `entity.flattening(distance, segments=4)`, walks the curve and subdivides recursively until the straight chord between successive samples deviates from the true curve by no more than `distance`; `segments` sets the minimum samples per knot span so that low-curvature spans still get a baseline resolution. The lower-level route, `entity.construction_tool()`, returns an `ezdxf.math.BSpline` you can drive directly with `.flattening(distance)` for the same sag-bounded output or `.approximate(n)` for a fixed count of `n` evenly parameterised points.
 
-<svg viewBox="0 0 700 240" role="img" aria-label="A SPLINE NURBS definition of control points, knots, weights and degree is evaluated by ezdxf flattening at a sag tolerance to produce adaptive polyline vertices" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;display:block;margin:1.5rem auto;">
+<svg viewBox="8 35 643 160" role="img" aria-label="A SPLINE NURBS definition of control points, knots, weights and degree is evaluated by ezdxf flattening at a sag tolerance to produce adaptive polyline vertices" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;display:block;margin:1.5rem auto;">
   <title>SPLINE Tessellation at a Sag Tolerance</title>
   <desc>Diagram showing a NURBS spline defined by control points, a knot vector, weights and a degree, passed through the ezdxf flattening evaluator with a sag distance, producing an adaptive polyline that samples more densely where curvature is high.</desc>
   <defs>
@@ -92,6 +92,7 @@ Because the curve is a continuous mathematical object, there is no single "corre
       <polygon points="0 0, 8 3, 0 6" fill="currentColor" opacity="0.7"/>
     </marker>
   </defs>
+  <rect x="8" y="35" width="643" height="160" fill="var(--color-surface)"/>
   <rect x="24" y="70" width="150" height="86" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="99" y="92" text-anchor="middle" font-size="11" fill="currentColor">NURBS input</text>
   <text x="99" y="110" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">control points</text>
@@ -174,6 +175,38 @@ if __name__ == "__main__":
               f"-> {s['vertex_count']} vertices on layer {s['layer']}")
 ```
 
+<!-- fig:spline-sag-tradeoff -->
+<svg viewBox="-0.6 -8 408 258.1" role="img" aria-label="The same spline tessellated coarsely and finely — the sag tolerance trades vertex count against deviation from the true curve" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>The same curve at two sag tolerances</title>
+  <desc>One cubic curve sampled twice. The coarse sampling uses few vertices and visibly cuts the corners where curvature is highest; the fine sampling follows the curve closely at several times the vertex count. The tolerance is a budget, not a quality setting: it trades vertices for deviation, and the right value depends on the drawing units the coordinates are in.</desc>
+  <defs>
+    <marker id="spl1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="spl1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-0.6" y="-8" width="408" height="258.1" fill="var(--color-surface)"/>
+  <rect x="34" y="12" width="350" height="174" rx="4" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="34" y1="186" x2="384" y2="186" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5"/>
+  <line x1="34" y1="12" x2="34" y2="186" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5"/>
+  <text x="209" y="208" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.7">X (drawing units)</text>
+  <text x="26" y="99" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.7">Y</text>
+  <polyline points="34,186 86.8,59 156.1,79.6 233.9,146.8 312.5,159.3 384,16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-opacity="0.6" stroke-dasharray="6 4"/>
+  <circle cx="34" cy="186" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="86.8" cy="59" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="156.1" cy="79.6" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="233.9" cy="146.8" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="312.5" cy="159.3" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="384" cy="16" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <text x="149.1" y="95.6" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.85">coarse</text>
+  <polyline points="34,186 41.9,148 50.5,117.3 59.8,93.4 69.7,75.8 80.2,63.7 91.3,56.8 102.9,54.3 115,55.7 127.4,60.4 140.3,67.9 153.4,77.5 166.9,88.8 180.5,101 194.4,113.8 208.4,126.3 222.6,138.2 236.8,148.8 251,157.6 265.1,163.9 279.2,167.2 293.2,166.9 307,162.4 320.6,153.2 334,138.7 347.1,118.3 359.8,91.4 372.1,57.5 384,16" fill="none" stroke="currentColor" stroke-width="2" stroke-opacity="0.95"/>
+  <text x="272.2" y="157.2" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.85">fine</text>
+  <text x="34" y="228" font-size="9.5" fill="currentColor" fill-opacity="0.7">A tolerance far below the coordinate scale turns one arc into thousands of points.</text>
+</svg>
+<!-- /fig:spline-sag-tradeoff -->
+
 **Key implementation notes:**
 
 - `spline.flattening(sag_tolerance, segments=...)` is the primary entry point. It returns `Vec3` objects; wrap them in `tuple()` for plain coordinate output.
@@ -198,6 +231,36 @@ For the group-code-level view of how control points (`10`), knots (`40`), and we
 ## Fallback Strategies
 
 **1. Choosing sag tolerance versus segment count**
+
+<!-- fig:spline-nurbs-parts -->
+<svg viewBox="-20 -20 459 156.1" role="img" aria-label="Degree, control points, knot vector and weights — the four parts of a SPLINE entity NURBS definition" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:459px;display:block;margin:1.5rem auto;">
+  <title>The four attributes that define a SPLINE</title>
+  <desc>The parts of the NURBS definition a spline entity carries, and what each governs. Degree fixes the polynomial order; the control points shape the curve without generally lying on it; the knot vector distributes parameter space and is where a corrupt export usually shows; and the weights make the curve rational, which is how exact conic sections are represented.</desc>
+  <defs>
+    <marker id="spl2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="spl2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="459" height="156.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="207.4" height="92" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+  <text x="14" y="16" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">dxf.degree      3</text>
+  <line x1="213.4" y1="12.9" x2="245.4" y2="12.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="253.4" y="16" font-size="9.5" fill="currentColor" fill-opacity="0.78">polynomial order — 3 is near-universal</text>
+  <text x="14" y="35" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">control_points  n</text>
+  <line x1="213.4" y1="31.9" x2="245.4" y2="31.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="253.4" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.78">shape the curve; generally not on it</text>
+  <text x="14" y="54" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">knots           n+degree+1</text>
+  <line x1="213.4" y1="50.9" x2="245.4" y2="50.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="253.4" y="54" font-size="9.5" fill="currentColor" fill-opacity="0.78">a wrong count is a corrupt export</text>
+  <text x="14" y="73" font-size="10.5" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.95">weights         optional</text>
+  <line x1="213.4" y1="69.9" x2="245.4" y2="69.9" stroke="currentColor" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+  <text x="253.4" y="73" font-size="9.5" fill="currentColor" fill-opacity="0.78">present ⇒ rational ⇒ exact conics</text>
+  <text x="0" y="114" font-size="9.5" fill="currentColor" fill-opacity="0.7">A knot count that does not satisfy the identity is the first thing to check on a failed tessellation.</text>
+</svg>
+<!-- /fig:spline-nurbs-parts -->
 
 Prefer a sag tolerance over a fixed segment count whenever geometric fidelity matters. `flattening(distance)` adapts to curvature, so tight bends get more points and straight runs get fewer. Reach for `construction_tool().approximate(n)` only when a downstream consumer requires a *fixed* number of vertices per curve regardless of shape (some GPU buffers and fixed-stride formats do). Set `distance` as a fraction of the smallest feature you care about — for metre-unit survey data, `0.05` (5 cm) is a sensible default.
 

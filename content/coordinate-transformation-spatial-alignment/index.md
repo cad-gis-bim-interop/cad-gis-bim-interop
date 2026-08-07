@@ -71,6 +71,40 @@ Before automating transformations, engineers must understand the mathematical an
 - **Coordinate Order & Axis Orientation**: ISO 19111 and EPSG standards dictate whether coordinates are expressed as `(x, y)` or `(lat, lon)`, and whether axes point east/north or north/east. Misinterpreting axis order is a leading cause of silent pipeline failures — `pyproj` defaults to authority-mandated order, which for many geographic CRS means `(lat, lon)`, directly opposite what most vector libraries expect.
 - **Local vs. Global Systems**: CAD and BIM environments frequently use arbitrary local grids (often with `0,0` at a project corner or survey monument), while GIS relies on globally registered systems. Bridging these requires control point registration, Helmert transformations, or affine matrix alignment.
 
+<!-- fig:cts-reference-stack -->
+<svg viewBox="-20 -20 710.2 254" role="img" aria-label="Drawing units, site grid, projected CRS and geographic CRS — the four frames a CAD coordinate must climb to become a mappable position" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:710px;display:block;margin:1.5rem auto;">
+  <title>The stack of frames a CAD coordinate passes through</title>
+  <desc>Four nested frames read from the bottom up. Drawing units are raw numbers with a unit declared in a header variable. The site grid places those numbers relative to an arbitrary project origin. A projected coordinate reference system gives them metres on a defined map projection. A geographic coordinate reference system gives them angles on a defined datum. Every alignment bug is a step of this stack that was skipped.</desc>
+  <defs>
+    <marker id="cts1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="cts1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="710.2" height="254" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="520" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="21" font-size="11.5" font-weight="600" fill="currentColor">Geographic CRS</text>
+  <text x="16" y="35" font-size="9.5" fill="currentColor" fill-opacity="0.72">angles on a named datum</text>
+  <text x="504" y="26.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">EPSG:4326</text>
+  <rect x="0" y="56" width="520" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="77" font-size="11.5" font-weight="600" fill="currentColor">Projected CRS</text>
+  <text x="16" y="91" font-size="9.5" fill="currentColor" fill-opacity="0.72">metres on a map projection</text>
+  <text x="504" y="82.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">EPSG:25832</text>
+  <rect x="0" y="112" width="520" height="46" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4"/>
+  <text x="16" y="133" font-size="11.5" font-weight="600" fill="currentColor">Site grid</text>
+  <text x="16" y="147" font-size="9.5" fill="currentColor" fill-opacity="0.72">arbitrary project origin and bearing</text>
+  <text x="504" y="138.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">per project</text>
+  <rect x="0" y="168" width="520" height="46" rx="6" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2"/>
+  <text x="16" y="189" font-size="11.5" font-weight="600" fill="currentColor">Drawing units</text>
+  <text x="16" y="203" font-size="9.5" fill="currentColor" fill-opacity="0.72">raw numbers, unit in the header</text>
+  <text x="504" y="194.5" text-anchor="end" font-size="10" font-family="var(--font-mono, monospace)" xml:space="preserve" fill="currentColor" fill-opacity="0.8">$INSUNITS</text>
+  <line x1="546" y1="2" x2="546" y2="212" stroke="currentColor" stroke-width="1.4" stroke-opacity="0.6" marker-end="url(#cts1-a)"/>
+  <text x="554" y="107" font-size="9.5" fill="currentColor" fill-opacity="0.7">increasing spatial meaning</text>
+</svg>
+<!-- /fig:cts-reference-stack -->
+
 Authoritative CRS definitions come from the [EPSG Geodetic Parameter Registry](https://epsg.org/) and the [PROJ library](https://proj.org/), which implement ISO 19111 and provide the computational backbone for most Python spatial stacks. [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) covers the practical process of parsing, validating, and resolving ambiguous CRS metadata from real CAD and GIS sources.
 
 ---
@@ -79,7 +113,7 @@ Authoritative CRS definitions come from the [EPSG Geodetic Parameter Registry](h
   <title>Coordinate Transformation Pipeline Overview</title>
   <desc>Three source coordinate systems — CAD local grid, GIS projected CRS, and BIM project base point — feed into a Python transformation engine that applies CRS normalization, unit scaling, and affine registration before producing validated, aligned output geometry.</desc>
   <!-- Background -->
-  <rect width="820" height="340" rx="8" fill="none"/>
+  <rect x="0" y="0" width="820" height="340" fill="var(--color-surface)"/>
   <!-- Source boxes -->
   <!-- CAD -->
   <rect x="20" y="60" width="160" height="70" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.7"/>
@@ -153,6 +187,10 @@ CAD files frequently store geometry in millimeters or inches, while GIS defaults
 ### Local-to-Global Registration & Affine Alignment
 
 When working with arbitrary CAD/BIM grids, simple reprojection is insufficient. Engineers must compute transformation matrices that account for translation, rotation, and scale differences between local project coordinates and real-world survey control. This involves solving a least-squares Helmert transformation using paired control points. Proper implementation of [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) ensures that rotated site plans, skewed survey grids, and scaled detail drawings align precisely with georeferenced base maps.
+
+### Vertical Datums & Height Systems
+
+Horizontal alignment is only half of a coordinate. [Vertical Datums and Height Systems](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/vertical-datums-and-height-systems/) covers the third ordinate: reconciling ellipsoidal heights from GNSS, orthometric heights from levelling, and the arbitrary project datum a BIM model is authored against. It is the stage most often skipped, because a vertical error is invisible in plan and only surfaces on site.
 
 ### Layer Mapping & Semantic Preservation
 
@@ -248,6 +286,32 @@ Release `Transformer` objects after use in long-running workers, and avoid holdi
 
 Even mathematically correct transformations can produce misaligned results if precision thresholds and floating-point behavior are ignored. Validation is not a final checkpoint; it is an embedded pipeline stage.
 
+<!-- fig:cts-tolerance-budget -->
+<svg viewBox="-20 -20 485.9 124.1" role="img" aria-label="Survey-grade work allows 0.05 metres of residual against control points; general mapping allows 0.5 metres" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:486px;display:block;margin:1.5rem auto;">
+  <title>Residual tolerance by asset class</title>
+  <desc>A bar chart of the residual thresholds this section works to. Survey-grade assets such as utilities and setting-out data allow 0.05 metres of residual against independent control points; general mapping and planning outputs allow 0.5 metres. A transformation whose residual exceeds its class threshold fails the run rather than being written.</desc>
+  <defs>
+    <marker id="cts2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="cts2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="485.9" height="124.1" fill="var(--color-surface)"/>
+  <text x="102.6" y="11.5" text-anchor="end" font-size="10.5" fill="currentColor" fill-opacity="0.9">Survey-grade assets</text>
+  <rect x="112.6" y="0" width="30" height="16" rx="3" fill="currentColor" fill-opacity="0.42" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.9"/>
+  <text x="150.6" y="11.5" font-size="10" font-weight="600" fill="currentColor" fill-opacity="0.85">0.05 m</text>
+  <text x="102.6" y="41.5" text-anchor="end" font-size="10.5" fill="currentColor" fill-opacity="0.9">General mapping</text>
+  <rect x="112.6" y="30" width="300" height="16" rx="3" fill="currentColor" fill-opacity="0.22" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5"/>
+  <text x="420.6" y="41.5" font-size="10" fill="currentColor" fill-opacity="0.85">0.5 m</text>
+  <line x1="112.6" y1="48" x2="412.6" y2="48" stroke="currentColor" stroke-width="1" stroke-opacity="0.35"/>
+  <text x="112.6" y="63" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.6">0</text>
+  <text x="412.6" y="63" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.6">0.5</text>
+  <text x="0" y="82" font-size="9.5" fill="currentColor" fill-opacity="0.7">The threshold is a gate, not a report: exceeding it stops the pipeline.</text>
+</svg>
+<!-- /fig:cts-tolerance-budget -->
+
 ### Precision Loss & Floating-Point Drift
 
 Coordinate transformations involve trigonometric functions and matrix multiplications that accumulate rounding errors. Over long distances or multiple chained transformations, this drift can exceed millimeter tolerances required in structural or utility design. Mitigation strategies:
@@ -268,6 +332,49 @@ When aligning datasets with slightly different origins or survey adjustments, ex
 | City-scale GIS analysis | ±1.0 m | Matches cadastral survey precision |
 
 Over-snapping distorts fine geometry; under-snapping leaves gaps in integrated models. Neither failure mode is flagged automatically by most spatial libraries.
+
+### Residuals Are the Only Honest Verification
+
+A transformation cannot be verified by inspecting the transformation. The parameters may be correct and the code faultless, and the output can still be wrong — because the control points were mislabelled, because the survey and the drawing used different marks for the same monument, or because the datum realisation named in the metadata is not the one the survey was actually observed on. None of those are visible in the transform; all of them are visible in the residuals.
+
+The measurement that matters is therefore made against points that were **not** used to fit the transform. Control points used in the solve are absorbed by it: with the minimum number of points the residual on them is zero by construction, whatever the transform is doing to everything else. Reserve at least a third of the available points as check points, transform them, and measure the distance to their surveyed positions.
+
+```python
+# numpy>=1.24
+import numpy as np
+
+def residual_report(transformed: np.ndarray, surveyed: np.ndarray) -> dict:
+    """Residuals on CHECK points — points excluded from the solve."""
+    d = np.linalg.norm(transformed - surveyed, axis=1)
+    return {
+        "n": int(d.size),
+        "rmse": float(np.sqrt((d ** 2).mean())),
+        "max": float(d.max()),
+        "worst_index": int(d.argmax()),
+    }
+```
+
+Report the maximum alongside the root-mean-square error, and act on the maximum. A set of check points whose RMSE is 0.03 m and whose worst residual is 0.4 m does not describe a transform that is slightly imprecise; it describes a transform that is good everywhere except at one point, which almost always means that one point is mismatched between the two datasets. Averaging hides exactly the observation that identifies it.
+
+### Where Precision Is Actually Lost
+
+Three mechanisms account for nearly all precision loss in an alignment pipeline, and they are worth separating because only one of them is about arithmetic.
+
+The first is **magnitude**. Projected coordinates in a national grid routinely run to seven significant figures before the decimal point. In double precision that leaves ample resolution, but in single precision — which is what a mesh format, a graphics buffer, or a `float32` array gives you — the representable spacing at `5.1e5` is already coarser than a centimetre. This is why geometry destined for rendering is shifted to a local origin and the offset carried separately, and why a pipeline that stores the offset as metadata rather than baking it in can move between the two representations without loss.
+
+The second is **repeated transformation**. Every round trip through a projection is a lossy operation, and a pipeline that reprojects at each stage boundary accumulates the loss. Normalise once, at the boundary described above, and carry the coordinate reference system as a field rather than reapplying it.
+
+The third is **serialisation**. Text formats truncate. A GeoJSON writer that emits six decimal places of longitude is quantising to roughly 0.1 m at mid-latitudes, which is coarser than the survey tolerance the earlier stages worked to. Where survey-grade output is the deliverable, either raise the precision deliberately or write to a binary format that does not force the choice.
+
+Only the first of these is a property of floating-point arithmetic; the other two are decisions. That distinction matters because the usual response to a precision complaint is to reach for higher-precision arithmetic, which addresses the mechanism that is least often responsible. Establish where the loss enters by measuring: transform a known control point, record its coordinates at each stage boundary, and compare. The stage where the value first departs from the survey figure is the stage to fix, and it is very rarely the arithmetic.
+
+### Alignment Is Not Complete Until It Is Recorded
+
+A transformed dataset without its transform is an unverifiable artefact. Six months later, when a discrepancy appears between the model and a new survey, the only question that matters is which of the two moved — and that question is answerable only if the parameters, the control points and the residuals were stored alongside the output rather than in the log of a run that has since rotated away.
+
+The record needs four things: the source and target coordinate reference systems as authority codes rather than names, the transform parameters actually applied, the control and check points with their residuals, and the software versions — `pyproj` and the PROJ data package both, since a datum grid revision changes results without changing any code you wrote. Written next to the output as a small JSON sidecar, this turns a re-run into a comparison and a dispute into a measurement.
+
+The same record is what makes a pipeline auditable in a regulated delivery. Infrastructure clients increasingly ask not merely for georeferenced data but for evidence of how it was georeferenced, and a sidecar produced automatically by the pipeline is a far better answer than a description reconstructed afterwards by the engineer who happened to run it.
 
 ### Common Failure Modes
 
@@ -350,6 +457,7 @@ Python's spatial ecosystem — `pyproj`, `geopandas`, `shapely`, `ezdxf`, and `i
 - [CRS Normalization Workflows](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/) — parsing and resolving coordinate reference system metadata from DXF, Shapefile, and IFC sources
 - [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — converting CAD millimeters, inches, and survey feet to metric before reprojection
 - [Scale and Rotation Synchronization](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/) — affine and Helmert alignment for rotated site plans and skewed survey grids
+- [Vertical Datums and Height Systems](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/vertical-datums-and-height-systems/) — ellipsoidal, orthometric and project heights, and the geoid separation between them
 - [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — schema translation and attribute preservation across CAD, GIS, and BIM merges
 - [Python Parsing & Geometry Extraction](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/) — upstream parsing of DXF, DWG, and IFC geometry before spatial alignment begins
 - [Converting CAD Local Coordinates to EPSG:4326](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/crs-normalization-workflows/converting-cad-local-coordinates-to-epsg4326/) — step-by-step guide to the full local-grid-to-geographic-CRS conversion chain

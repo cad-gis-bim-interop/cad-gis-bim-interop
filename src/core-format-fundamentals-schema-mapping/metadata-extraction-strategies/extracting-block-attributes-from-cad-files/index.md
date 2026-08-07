@@ -57,11 +57,41 @@ Use Python's `ezdxf` library to iterate every layout in a DXF document, query `I
 
 Understanding the internal data model prevents silent data loss before you write a single line of extraction code.
 
+<!-- fig:block-attrib-model -->
+<svg viewBox="-20 -33.5 417.4 125.8" role="img" aria-label="ATTDEF in the block definition holds the tag and default; the typed value lives on the ATTRIB of each INSERT" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:1.5rem auto;">
+  <title>Where an attribute value actually lives</title>
+  <desc>The path from a block definition to a value. The definition holds ATTDEF entities, which carry the tag, the prompt and the default. The value a user typed lives on the ATTRIB entities of the INSERT that placed the block. Reading the definition therefore returns defaults, never data — the values only exist on the placements.</desc>
+  <defs>
+    <marker id="blk1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="blk1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="417.4" height="125.8" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="127.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="63.6" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">BLOCK definition</text>
+  <text x="63.6" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">ATTDEF: tag, default</text>
+  <rect x="161.1" y="0" width="84.1" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="203.1" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">INSERT</text>
+  <text x="203.1" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">a placement</text>
+  <rect x="279.2" y="0" width="98.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="328.3" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">ATTRIB</text>
+  <text x="328.3" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">the typed value</text>
+  <line x1="127.1" y1="24.1" x2="161.1" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#blk1-a)"/>
+  <text x="144.1" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">placed by</text>
+  <line x1="245.2" y1="24.1" x2="279.2" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#blk1-a)"/>
+  <text x="262.2" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">carries</text>
+  <text x="0" y="70.2" font-size="9.5" fill="currentColor" fill-opacity="0.7">Iterate INSERT entities, not block definitions — definitions only know the defaults.</text>
+</svg>
+<!-- /fig:block-attrib-model -->
+
 <svg viewBox="0 0 640 320" role="img" aria-label="DXF block attribute entity hierarchy showing BLOCK definition containing ATTDEF templates, and INSERT references containing ATTRIB value entities" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:1.5rem auto;">
   <title>DXF Block Attribute Entity Hierarchy</title>
   <desc>BLOCK definition holds ATTDEF template records; each INSERT placed in a layout carries corresponding ATTRIB value entities as children.</desc>
   <!-- Background -->
-  <rect width="640" height="320" rx="8" fill="none"/>
+  <rect x="0" y="0" width="640" height="320" fill="var(--color-surface)"/>
   <!-- BLOCK box -->
   <rect x="20" y="30" width="180" height="80" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="110" y="56" text-anchor="middle" font-size="13" font-weight="bold" fill="currentColor">BLOCK Definition</text>
@@ -280,6 +310,46 @@ For the broader context of working around closed-binary constraints, see [DWG Pr
 
 **1. `get_attribs()` returns an empty list despite visible attributes in the drawing.**
 The block was exploded before saving — `INSERT` entities with attributes become standalone `TEXT` or `MTEXT` entities at the insertion point. Query `layout.query("TEXT MTEXT")` and filter by proximity to known equipment insertion coordinates. Cross-reference [How to Parse DXF Headers with Python](https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/dxf-entity-structure-breakdown/how-to-parse-dxf-headers-with-python/) for spatial-filter patterns.
+
+<!-- fig:block-attrib-losses -->
+<svg viewBox="-20 -20 485.8 214.1" role="img" aria-label="Exploded blocks, constant attributes, invisible attributes and unresolved external references, and how to tell them apart" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:486px;display:block;margin:1.5rem auto;">
+  <title>Four ways block attributes disappear before extraction</title>
+  <desc>Four states in which attributes are absent or incomplete, what a reader observes in each, and the detection that distinguishes them. All four look identical from the outside — an empty attribute list — which is why extraction has to report why a block yielded nothing rather than just how many it found.</desc>
+  <defs>
+    <marker id="blk2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="blk2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="485.8" height="214.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="445.8" height="152" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="445.8" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Cause</text>
+  <text x="188.1" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">What you observe</text>
+  <line x1="260.7" y1="0" x2="260.7" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="353.2" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">How to detect it</text>
+  <line x1="115.6" y1="0" x2="115.6" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="445.8" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">Block exploded</text>
+  <text x="188.1" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">no INSERT at all</text>
+  <text x="353.2" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">geometry present, INSERT count 0</text>
+  <line x1="0" y1="62" x2="445.8" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Constant attribute</text>
+  <text x="188.1" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">not on the INSERT</text>
+  <text x="353.2" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">read the ATTDEF in the definition</text>
+  <line x1="0" y1="92" x2="445.8" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Invisible attribute</text>
+  <text x="188.1" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">present but flagged hidden</text>
+  <text x="353.2" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">check the invisible flag</text>
+  <line x1="0" y1="122" x2="445.8" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">Unresolved xref</text>
+  <text x="188.1" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">empty INSERT</text>
+  <text x="353.2" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">block definition has no entities</text>
+  <text x="0" y="172" font-size="9.5" fill="currentColor" fill-opacity="0.7">All four present as &quot;no attributes&quot; — report the cause, not just the count.</text>
+</svg>
+<!-- /fig:block-attrib-losses -->
 
 **2. `UnicodeDecodeError` during `ezdxf.readfile()`.**
 The source file mixes Windows-1252 and UTF-8 encoding (common on drawings opened and re-saved across regional AutoCAD installs). Force the encoding at startup:

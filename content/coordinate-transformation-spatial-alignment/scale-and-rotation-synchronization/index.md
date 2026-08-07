@@ -110,7 +110,7 @@ Each authoring environment makes independent choices about linear units (millime
 
 ---
 
-<svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Similarity transformation pipeline: source geometry flows through centroid normalization, SVD decomposition, and transform application to produce aligned geometry" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
+<svg viewBox="-6 54 672 157" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Similarity transformation pipeline: source geometry flows through centroid normalization, SVD decomposition, and transform application to produce aligned geometry" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>Similarity Transformation Pipeline</title>
   <desc>Flow diagram showing source geometry entering centroid normalization, then SVD decomposition producing scale s and rotation R, then translation assembly, then transform application, finally producing aligned geometry with residual validation.</desc>
   <defs>
@@ -118,6 +118,7 @@ Each authoring environment makes independent choices about linear units (millime
       <path d="M0,0 L8,3 L0,6 Z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="-6" y="54" width="672" height="157" fill="var(--color-surface)"/>
   <!-- Boxes -->
   <rect x="10"  y="70" width="110" height="50" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <rect x="160" y="70" width="130" height="50" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -160,6 +161,50 @@ Control points must represent stable, high-precision features: survey monuments,
 A similarity transformation in the plane (or in 3-space) is defined by four parameters: a uniform scale factor $s$, a rotation matrix $R \in SO(n)$, and a translation vector $t$. The transformation maps source coordinates $\mathbf{X}$ to target coordinates $\mathbf{Y}$:
 
 $$\mathbf{Y} = s \cdot R \cdot \mathbf{X} + t$$
+
+<!-- fig:srs-parameter-count -->
+<svg viewBox="-20 -20 467.8 244.1" role="img" aria-label="A planar similarity transform has four unknowns and needs two control points; a spatial one has seven and needs three non-collinear points" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:468px;display:block;margin:1.5rem auto;">
+  <title>Degrees of freedom in a planar and a spatial similarity transform</title>
+  <desc>A comparison of the two-dimensional and three-dimensional similarity transform. The plane has one scale, one rotation angle and two translation components, four unknowns in total, so two well-spread control points already determine it. Three-space has one scale, three rotation angles and three translations, seven unknowns, needing three non-collinear control points.</desc>
+  <defs>
+    <marker id="srs1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="srs1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="467.8" height="244.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="309" height="182" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="309" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Parameter</text>
+  <text x="180.2" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">2D (plane)</text>
+  <line x1="217.8" y1="0" x2="217.8" y2="182" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="263.4" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">3D (space)</text>
+  <line x1="142.6" y1="0" x2="142.6" y2="182" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="309" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">Uniform scale s</text>
+  <text x="180.2" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">1</text>
+  <text x="263.4" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">1</text>
+  <line x1="0" y1="62" x2="309" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">Rotation R</text>
+  <text x="180.2" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">1 angle</text>
+  <text x="263.4" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">3 angles</text>
+  <line x1="0" y1="92" x2="309" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">Translation t</text>
+  <text x="180.2" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">2</text>
+  <text x="263.4" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">3</text>
+  <line x1="0" y1="122" x2="309" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">Unknowns</text>
+  <text x="180.2" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">4</text>
+  <text x="263.4" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">7</text>
+  <line x1="0" y1="152" x2="309" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="170.5" font-size="10.5" font-weight="600" fill="currentColor">Minimum control points</text>
+  <text x="180.2" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">2</text>
+  <text x="263.4" y="170.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">3 non-collinear</text>
+  <text x="0" y="202" font-size="9.5" fill="currentColor" fill-opacity="0.7">Anything beyond these counts is an affine or a projective fit, and will absorb survey error as shear.</text>
+</svg>
+<!-- /fig:srs-parameter-count -->
 
 The uniform scale constraint is what distinguishes a similarity transform from a general affine transform. It preserves angles and relative distances — the two properties that BIM authoring standards and CAD drafting conventions depend on for component sizing and clearance validation.
 
@@ -317,6 +362,41 @@ def run_alignment_pipeline(
 
 ### Collinear control points — singular covariance matrix
 
+<!-- fig:srs-conditioning -->
+<svg viewBox="-48 -20.8 441.1 280.9" role="img" aria-label="Control points strung along one line leave the rotation indeterminate; points spread around the site condition the solve" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:441px;display:block;margin:1.5rem auto;">
+  <title>Well-conditioned versus rank-deficient control point layouts</title>
+  <desc>Two control point sets plotted on the same site. The collinear set lies along a single road centreline; its cross-covariance matrix is rank deficient, the smallest singular value collapses toward zero and the rotation about that line is indeterminate. The spread set brackets the site, so all singular values are comparable and the solve is stable.</desc>
+  <defs>
+    <marker id="srs2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="srs2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-48" y="-20.8" width="441.1" height="280.9" fill="var(--color-surface)"/>
+  <rect x="34" y="12" width="330" height="184" rx="4" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="34" y1="196" x2="364" y2="196" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5"/>
+  <line x1="34" y1="12" x2="34" y2="196" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.5"/>
+  <text x="199" y="218" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.7">Easting (m)</text>
+  <text x="26" y="104" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.7">Northing (m)</text>
+  <polyline points="34,171.5 138.4,167.4 242.9,163.3 347.3,159.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-opacity="0.6" stroke-dasharray="5 4"/>
+  <circle cx="34" cy="171.5" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="138.4" cy="167.4" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="242.9" cy="163.3" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <circle cx="347.3" cy="159.2" r="3.4" fill="currentColor" fill-opacity="0.55"/>
+  <text x="131.4" y="183.4" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.85">collinear</text>
+  <polyline points="38.2,196 364,183.7 326.4,16 63.2,32.4 38.2,196" fill="none" stroke="currentColor" stroke-width="2" stroke-opacity="0.95"/>
+  <circle cx="38.2" cy="196" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="364" cy="183.7" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="326.4" cy="16" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="63.2" cy="32.4" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <circle cx="38.2" cy="196" r="2.8" fill="currentColor" fill-opacity="0.95"/>
+  <text x="319.4" y="6" text-anchor="end" font-size="9.5" fill="currentColor" fill-opacity="0.85">spread</text>
+  <text x="34" y="238" font-size="9.5" fill="currentColor" fill-opacity="0.7">A near-zero singular value is the warning; check it before trusting the rotation.</text>
+</svg>
+<!-- /fig:srs-conditioning -->
+
 All control points aligned along a single axis produce a rank-deficient $H$ matrix, causing SVD to return a near-zero singular value and an indeterminate rotation. The validation function above catches this, but watch for near-collinearity when points are derived from a single corridor feature (e.g., a road centreline). Add off-axis check points from survey monuments or grid corners.
 
 ### Reflection artifact after SVD
@@ -467,3 +547,5 @@ Yes — and you should. Provided the dataset has a single consistent spatial ref
 - [Unit Conversion Pipelines](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/) — resolve DXF, IFC, and survey unit mismatches before control-point extraction
 - [Layer Mapping Logic](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/layer-mapping-logic/) — downstream step: attribute aligned geometry to discipline-specific layers
 - [Aligning BIM Models with GIS Survey Data](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/aligning-bim-models-with-gis-survey-data/) — applied walkthrough using this transform for Revit-to-GIS alignment
+- [Computing RMSE for Control Point Alignment in Python](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/computing-rmse-for-control-point-alignment-in-python/) — measuring a fit on check points held back from it, and acting on the maximum
+- [Detecting Mirrored Transforms in Python](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/scale-and-rotation-synchronization/detecting-mirrored-transforms-in-python/) — the reflection that fits control points perfectly and mirrors the model

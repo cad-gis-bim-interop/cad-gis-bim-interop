@@ -87,6 +87,40 @@ In the IFC schema, properties are not stored on an element as ordinary attribute
 
 Traversing that chain by hand is where most extraction code goes wrong. `ifcopenshell.util.element.get_psets(element)` does the traversal and returns a dictionary. A single external wall might resolve to:
 
+<!-- fig:pset-relationship-graph -->
+<svg viewBox="-20 -33.5 548.7 101.7" role="img" aria-label="An element links to a property set through an objectified relationship, and the set holds the individual properties" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:549px;display:block;margin:1.5rem auto;">
+  <title>Properties hang off an element through a relationship</title>
+  <desc>The traversal from an element to a value. Properties are not attributes of the element: an objectified relationship links the element to a property set, and the set holds the individual properties. The utility that returns a nested dictionary walks this chain for you, which is why it also picks up type-level sets that a hand-written traversal of the instance usually misses.</desc>
+  <defs>
+    <marker id="ips1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ips1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="548.7" height="101.7" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="88.4" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="44.2" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IfcElement</text>
+  <text x="44.2" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">the product</text>
+  <rect x="122.4" y="0" width="102.5" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="173.7" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IfcRelDefines</text>
+  <text x="173.7" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">ByProperties</text>
+  <rect x="258.9" y="0" width="109.8" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="313.8" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">IfcPropertySet</text>
+  <text x="313.8" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">HasProperties</text>
+  <rect x="402.7" y="0" width="106" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="455.7" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Name / value</text>
+  <text x="455.7" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">EXPRESS-typed</text>
+  <line x1="88.4" y1="24.1" x2="122.4" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#ips1-a)"/>
+  <text x="105.4" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">IsDefinedBy</text>
+  <line x1="224.9" y1="24.1" x2="258.9" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#ips1-a)"/>
+  <text x="241.9" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">RelatingPropertyDefinition</text>
+  <line x1="368.7" y1="24.1" x2="402.7" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#ips1-a)"/>
+  <text x="385.7" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">per property</text>
+</svg>
+<!-- /fig:pset-relationship-graph -->
+
 ```python
 {
     "Pset_WallCommon": {"id": 1423, "FireRating": "REI60", "IsExternal": True},
@@ -120,6 +154,7 @@ The diagram traces the relationship path the helper resolves, including the type
       <polygon points="0 0, 8 3, 0 6" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="720" height="250" fill="var(--color-surface)"/>
   <rect x="8" y="98" width="150" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
   <text x="83" y="120" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">IfcElement</text>
   <text x="83" y="137" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.65">the instance</text>
@@ -267,6 +302,46 @@ To carry these attributes onto geometry rather than a flat table, pair this extr
 ## Fallback Strategies
 
 **1. `IfcPropertyTableValue` collapses to a single value or `None`**
+
+<!-- fig:pset-value-shapes -->
+<svg viewBox="-20 -20 453.5 214.1" role="img" aria-label="Single values, enumerated values, list values and table values — the property shapes a flattener must handle" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:454px;display:block;margin:1.5rem auto;">
+  <title>The property value shapes a flattener has to survive</title>
+  <desc>Four property node types, the shape each returns, and what a flattener that assumes a single scalar does with it. Only the first is a plain value; the other three are lists or tables, and collapsing them to a scalar is a silent data loss that leaves a well-formed record behind.</desc>
+  <defs>
+    <marker id="ips2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ips2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="453.5" height="214.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="413.5" height="152" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <rect x="0" y="0" width="413.5" height="32" fill="currentColor" fill-opacity="0.09"/>
+  <text x="12" y="19.5" font-size="10.5" font-weight="600" fill="currentColor">Property type</text>
+  <text x="222.2" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">Shape returned</text>
+  <line x1="273" y1="0" x2="273" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <text x="343.2" y="19.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="currentColor">If assumed scalar</text>
+  <line x1="171.5" y1="0" x2="171.5" y2="152" stroke="currentColor" stroke-width="1" stroke-opacity="0.28"/>
+  <line x1="0" y1="32" x2="413.5" y2="32" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.4"/>
+  <text x="12" y="50.5" font-size="10.5" font-weight="600" fill="currentColor">IfcPropertySingleValue</text>
+  <text x="222.2" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">one typed value</text>
+  <text x="343.2" y="50.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">correct</text>
+  <line x1="0" y1="62" x2="413.5" y2="62" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="80.5" font-size="10.5" font-weight="600" fill="currentColor">IfcPropertyEnumeratedValue</text>
+  <text x="222.2" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">a tuple</text>
+  <text x="343.2" y="80.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">keeps one, drops the rest</text>
+  <line x1="0" y1="92" x2="413.5" y2="92" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="110.5" font-size="10.5" font-weight="600" fill="currentColor">IfcPropertyListValue</text>
+  <text x="222.2" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">a list</text>
+  <text x="343.2" y="110.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">keeps one, drops the rest</text>
+  <line x1="0" y1="122" x2="413.5" y2="122" stroke="currentColor" stroke-width="1" stroke-opacity="0.22"/>
+  <text x="12" y="140.5" font-size="10.5" font-weight="600" fill="currentColor">IfcPropertyTableValue</text>
+  <text x="222.2" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">paired columns</text>
+  <text x="343.2" y="140.5" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.85">collapses to None</text>
+  <text x="0" y="172" font-size="9.5" fill="currentColor" fill-opacity="0.7">Three of the four leave a well-formed record with the data missing.</text>
+</svg>
+<!-- /fig:pset-value-shapes -->
 
 Table properties store two parallel arrays — `DefiningValues` and `DefinedValues` — that describe a lookup curve (for example, a thermal transmittance against temperature). The flat helper cannot represent both columns as one scalar. Read them directly and keep them as arrays:
 

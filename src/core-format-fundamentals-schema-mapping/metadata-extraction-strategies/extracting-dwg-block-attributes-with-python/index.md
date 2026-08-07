@@ -85,6 +85,40 @@ A block reference in DXF is an `INSERT` entity: a placement (insertion point, sc
 
 The critical prerequisite is format: DWG is Autodesk's closed binary format with no public specification, and `ezdxf` cannot read it. You must convert DWG to DXF first — the [ODA File Converter batch workflow](https://www.cad-gis-bim-interop.org/python-parsing-geometry-extraction/pydwg-integration/batch-converting-dwg-to-dxf-with-oda-file-converter/) is the standard route — and then parse the DXF. Once you have DXF, attribute traversal is straightforward, with two subtleties: the block *definition* holds `ATTDEF` templates (including constant attributes that never appear on the reference), and attribute visibility flags distinguish shown fields from hidden ones.
 
+<!-- fig:dwg-attrib-route -->
+<svg viewBox="-20 -33.5 512.5 101.7" role="img" aria-label="DWG must be converted to DXF before ezdxf can query INSERT entities and read their attributes" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:513px;display:block;margin:1.5rem auto;">
+  <title>The conversion hop that DWG attribute extraction requires</title>
+  <desc>Four stages. The DWG is converted to DXF by the ODA File Converter because no pure-Python reader handles the binary format reliably across releases. The DXF is opened, INSERT entities are queried, and their attributes are read. Every stage before the query exists only because the source format is closed.</desc>
+  <defs>
+    <marker id="dba1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="dba1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="512.5" height="101.7" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="89.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="44.6" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DWG</text>
+  <text x="44.6" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">closed binary</text>
+  <rect x="123.2" y="0" width="79.8" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="163.1" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">DXF</text>
+  <text x="163.1" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">tagged text</text>
+  <rect x="237" y="0" width="108.3" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="291.1" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">INSERT query</text>
+  <text x="291.1" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">per layout</text>
+  <rect x="379.2" y="0" width="93.3" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="425.9" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Tag → value</text>
+  <text x="425.9" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">per placement</text>
+  <line x1="89.2" y1="24.1" x2="123.2" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#dba1-a)"/>
+  <text x="106.2" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">ODA converter</text>
+  <line x1="203" y1="24.1" x2="237" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#dba1-a)"/>
+  <text x="220" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">ezdxf.readfile</text>
+  <line x1="345.2" y1="24.1" x2="379.2" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#dba1-a)"/>
+  <text x="362.2" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">get_attribs</text>
+</svg>
+<!-- /fig:dwg-attrib-route -->
+
 <svg viewBox="0 0 720 300" role="img" aria-label="DWG to DXF conversion then attribute harvest: an INSERT reference carries visible ATTRIB values while the block definition holds ATTDEF templates including constant attributes" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
   <title>Harvesting Block Attributes from a Converted DWG</title>
   <desc>Diagram: a DWG file is converted by the ODA File Converter into DXF. ezdxf reads INSERT entities whose attribs list gives visible tag and text pairs, while the block definition supplies ATTDEF templates including constant attributes that are merged into the final attribute record.</desc>
@@ -93,6 +127,7 @@ The critical prerequisite is format: DWG is Autodesk's closed binary format with
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="720" height="300" fill="var(--color-surface)"/>
   <rect x="16" y="122" width="120" height="56" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
   <text x="76" y="146" text-anchor="middle" font-size="12" fill="currentColor">DWG file</text>
   <text x="76" y="164" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.7">closed binary</text>
@@ -238,6 +273,37 @@ if __name__ == "__main__":
 ## Fallback Strategies
 
 **1. Constant attributes are missing from the reference**
+
+<!-- fig:dwg-attrib-constants -->
+<svg viewBox="-20 -20 570 194.1" role="img" aria-label="Variable attributes appear on every INSERT; constant attributes live only on the block definition and are missed by placement-only extraction" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:570px;display:block;margin:1.5rem auto;">
+  <title>Variable versus constant attributes after conversion</title>
+  <desc>Two attribute kinds and where each survives a conversion. A variable attribute is written as an ATTRIB on every placement and comes through intact. A constant attribute is stored once on the definition and is never written per placement, so an extractor that reads only placements loses it entirely — and loses it silently, because the placement is well-formed without it.</desc>
+  <defs>
+    <marker id="dba2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="dba2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="570" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.11" stroke="currentColor" stroke-width="1.9"/>
+  <text x="125" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Variable attribute</text>
+  <line x1="14" y1="33" x2="236" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— written per INSERT</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— read via get_attribs()</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— survives conversion intact</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— the common case</text>
+  <rect x="280" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="405" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Constant attribute</text>
+  <line x1="294" y1="33" x2="516" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="296" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— stored once on the ATTDEF</text>
+  <text x="296" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— absent from every INSERT</text>
+  <text x="296" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— get_attribs() never sees it</text>
+  <text x="296" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— lost silently</text>
+  <text x="265" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">Merge the definition’s constant ATTDEFs into every placement record.</text>
+</svg>
+<!-- /fig:dwg-attrib-constants -->
 
 If an expected tag (a fixed sheet-size or discipline code) never shows up in `insert.attribs`, it is almost certainly a constant attribute defined only on the `ATTDEF`. Read `doc.blocks[block_name]`, collect `ATTDEF` entities where `is_const` is true, and merge their `tag`/`text` into the record. Skipping this step drops fields that appear on every printed sheet.
 

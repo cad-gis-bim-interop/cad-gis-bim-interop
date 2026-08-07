@@ -84,6 +84,37 @@ To reproject a DXF drawing correctly, scale its coordinates to **metres first**,
 
 `pyproj` sits at the opposite end. A `Transformer` built from a projected source CRS (for example EPSG:32633, UTM zone 33N) expects its input in that CRS's linear unit, which is **metres**. `pyproj` has no awareness of the DXF header, performs no unit inspection, and will happily transform any number you give it. The unit-conversion responsibility lives entirely in the glue code between the two libraries — and getting the order wrong is the single most common reason CAD-to-GIS reprojection silently produces garbage.
 
+<!-- fig:mm-order-of-operations -->
+<svg viewBox="-20 -20 570 194.1" role="img" aria-label="Reprojecting before scaling gives PROJ millimetre magnitudes it reads as metres; scaling first is the only correct order" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:570px;display:block;margin:1.5rem auto;">
+  <title>Why scaling has to happen before reprojection</title>
+  <desc>Two orderings of the same two operations. Reprojecting first hands PROJ millimetre magnitudes it will interpret as metres, so the point is placed hundreds of kilometres from the site and no error is raised. Scaling first gives PROJ the metres its projection definition expects, and the reprojection lands where the survey says it should.</desc>
+  <defs>
+    <marker id="mm1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="mm1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="570" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="125" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Reproject, then scale</text>
+  <line x1="14" y1="33" x2="236" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— PROJ receives 1 000× magnitudes</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— reads them as metres</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— point lands far off site</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— no exception raised</text>
+  <rect x="280" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.11" stroke="currentColor" stroke-width="1.9"/>
+  <text x="405" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Scale, then reproject</text>
+  <line x1="294" y1="33" x2="516" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="296" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— coordinates already in metres</text>
+  <text x="296" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— projection definition satisfied</text>
+  <text x="296" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— lands on the surveyed position</text>
+  <text x="296" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— the only correct order</text>
+  <text x="265" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">Both orderings run cleanly; only one is right.</text>
+</svg>
+<!-- /fig:mm-order-of-operations -->
+
 The order of operations is strict: **scale, then project**. Scaling is a uniform multiply in the drawing's own planar space; reprojection is a nonlinear datum-and-projection transform. Reversing them does not commute, and the failure is silent — no exception is raised, the numbers just come out wrong.
 
 <svg viewBox="0 0 720 300" role="img" aria-label="Two DXF reprojection paths: the correct path scales millimetres to metres before pyproj and lands on the site; the wrong path reprojects raw millimetres and lands in the ocean" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:1.5rem auto;">
@@ -94,6 +125,7 @@ The order of operations is strict: **scale, then project**. Scaling is a uniform
       <path d="M0,0 L0,6 L8,3 z" fill="currentColor" opacity="0.7"/>
     </marker>
   </defs>
+  <rect x="0" y="0" width="720" height="300" fill="var(--color-surface)"/>
   <!-- Correct path label -->
   <text x="16" y="28" font-size="11" fill="currentColor" font-family="sans-serif" font-weight="700">Correct: scale then project</text>
   <!-- Box 1 shared source -->
@@ -294,6 +326,40 @@ if __name__ == "__main__":
 ## Fallback Strategies
 
 **1. `$INSUNITS=0` (undefined units).** Never assume millimetres. Pass an explicit `default_when_undefined` only after confirming the unit with the drawing's originator, inspect `$MEASUREMENT` (0 = imperial, 1 = metric) as a weak corroborating signal, and log the decision. Building a robust default policy is the job of [autoscaling DXF geometry from $INSUNITS in Python](https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/unit-conversion-pipelines/autoscaling-dxf-geometry-from-insunits-in-python/), which centralises the lookup and the undefined-unit policy in one reusable function.
+
+<!-- fig:mm-pipeline -->
+<svg viewBox="-20 -33.5 628.6 101.7" role="img" aria-label="Read the header unit, scale to metres, reproject with one cached Transformer, then write with the CRS recorded" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:629px;display:block;margin:1.5rem auto;">
+  <title>The read, scale, reproject, write sequence</title>
+  <desc>Four stages. The header is read for the base unit, every coordinate is multiplied by the resulting metre factor, a single cached Transformer reprojects the metre coordinates, and the result is written with its target CRS recorded. The scale step is a pure multiply and costs nothing next to the parse.</desc>
+  <defs>
+    <marker id="mm2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="mm2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-33.5" width="628.6" height="101.7" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="124.6" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="62.3" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Read $INSUNITS</text>
+  <text x="62.3" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">doc.header</text>
+  <rect x="158.6" y="0" width="116.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="216.7" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Scale to metres</text>
+  <text x="216.7" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">one multiply</text>
+  <rect x="308.8" y="0" width="121.5" height="48.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="369.6" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Reproject</text>
+  <text x="369.6" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">cached Transformer</text>
+  <rect x="464.3" y="0" width="124.2" height="48.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="526.4" y="20.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">Write with CRS</text>
+  <text x="526.4" y="34" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">recorded, not implied</text>
+  <line x1="124.6" y1="24.1" x2="158.6" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#mm2-a)"/>
+  <text x="141.6" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">factor</text>
+  <line x1="274.8" y1="24.1" x2="308.8" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#mm2-a)"/>
+  <text x="291.8" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">metres</text>
+  <line x1="430.3" y1="24.1" x2="464.3" y2="24.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#mm2-a)"/>
+  <text x="447.3" y="-7" text-anchor="middle" font-size="9" fill="currentColor" fill-opacity="0.7">EPSG:4326</text>
+</svg>
+<!-- /fig:mm-pipeline -->
 
 **2. Mismatched block-unit scaling.** `INSERT` entities can carry their own `$INSUNITS` via the referenced block definition, and AutoCAD auto-scales inserted blocks whose units differ from the drawing. If you flatten block references yourself, apply the block-to-drawing unit ratio during flattening, then apply the drawing-to-metre factor once. Do not apply the drawing factor a second time to already-normalised block geometry.
 

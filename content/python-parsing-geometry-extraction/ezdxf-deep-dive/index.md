@@ -86,7 +86,7 @@ Without a reliable ingestion layer, coordinate drift, orphaned block references,
 
 ---
 
-<svg viewBox="0 0 780 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ezdxf DXF parsing pipeline: from raw DXF file through header validation, entity traversal, block resolution, coordinate normalization to geometry output" style="width:100%;max-width:780px;display:block;margin:1.5rem auto;">
+<svg viewBox="-6 83 792 209" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ezdxf DXF parsing pipeline: from raw DXF file through header validation, entity traversal, block resolution, coordinate normalization to geometry output" style="width:100%;max-width:780px;display:block;margin:1.5rem auto;">
   <title>ezdxf DXF Parsing Pipeline</title>
   <desc>Data-flow diagram showing the five stages of an ezdxf-based DXF parsing pipeline: raw DXF input, header validation, entity traversal and layer filtering, block resolution and transform flattening, and coordinate normalization leading to geometry output.</desc>
   <defs>
@@ -94,6 +94,7 @@ Without a reliable ingestion layer, coordinate drift, orphaned block references,
       <polygon points="0 0, 8 3, 0 6" fill="currentColor" opacity="0.6"/>
     </marker>
   </defs>
+  <rect x="-6" y="83" width="792" height="209" fill="var(--color-surface)"/>
   <!-- Stage boxes -->
   <rect x="10" y="120" width="120" height="56" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
   <text x="70" y="145" text-anchor="middle" font-size="11" fill="currentColor" font-family="sans-serif" font-weight="600">Raw DXF</text>
@@ -154,6 +155,45 @@ Before implementing extraction logic, confirm that your runtime environment meet
 ## Architectural Overview
 
 `ezdxf` exposes a DXF document through a hierarchy of Python objects that map directly to the DXF specification sections:
+
+<!-- fig:ezdxf-object-model -->
+<svg viewBox="-20 -20 554.5 204.6" role="img" aria-label="The ezdxf document object and the collections around it — modelspace, blocks, layers, header and the entity database" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:555px;display:block;margin:1.5rem auto;">
+  <title>The document objects an extractor actually touches</title>
+  <desc>The document object and the five collections that hang off it. Modelspace holds the drawing; the block collection holds the definitions that INSERT entities reference; the layer table carries visibility, colour and lock state; the header holds the drawing-wide settings; and the entity database resolves the handles entities use to point at each other. An extraction routine that reads only modelspace resolves none of the references.</desc>
+  <defs>
+    <marker id="ezd1-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ezd1-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="554.5" height="204.6" fill="var(--color-surface)"/>
+  <rect x="172.2" y="54.2" width="170" height="56.2" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="2"/>
+  <text x="257.2" y="78.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">doc</text>
+  <text x="257.2" y="92.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">ezdxf.readfile()</text>
+  <rect x="0" y="0" width="102.2" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="51.1" y="18.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">modelspace()</text>
+  <text x="51.1" y="32" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">the drawing</text>
+  <path d="M 102.2 22.1 L 150.2 22.1 L 150.2 82.3 L 172.2 82.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#ezd1-a)" stroke-linejoin="round"/>
+  <rect x="0" y="60.2" width="102.2" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="51.1" y="78.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">doc.blocks</text>
+  <text x="51.1" y="92.2" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">INSERT targets</text>
+  <path d="M 102.2 82.3 L 150.2 82.3 L 150.2 82.3 L 172.2 82.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#ezd1-a)" stroke-linejoin="round"/>
+  <rect x="0" y="120.4" width="102.2" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="51.1" y="138.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">doc.layers</text>
+  <text x="51.1" y="152.4" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">visibility, colour</text>
+  <path d="M 102.2 142.5 L 150.2 142.5 L 150.2 82.3 L 172.2 82.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#ezd1-a)" stroke-linejoin="round"/>
+  <rect x="412.2" y="30.1" width="102.2" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="463.3" y="48.4" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">doc.header</text>
+  <text x="463.3" y="62.1" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">units, extents</text>
+  <path d="M 342.2 82.3 L 390.2 82.3 L 390.2 52.2 L 412.2 52.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#ezd1-a)" stroke-linejoin="round"/>
+  <rect x="412.2" y="90.3" width="102.2" height="44.2" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+  <text x="463.3" y="108.6" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">doc.entitydb</text>
+  <text x="463.3" y="122.3" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity="0.75">handle resolution</text>
+  <path d="M 342.2 82.3 L 390.2 82.3 L 390.2 112.4 L 412.2 112.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.7" marker-end="url(#ezd1-a)" stroke-linejoin="round"/>
+</svg>
+<!-- /fig:ezdxf-object-model -->
 
 | DXF Section | ezdxf Object | Key Contents |
 |-------------|-------------|--------------|
@@ -476,6 +516,37 @@ Run this test suite against a curated corpus of known-good DXF files covering ea
 ## Performance & Scale
 
 **Generator-based traversal** is the single most impactful optimisation. Replace any `list(msp)` calls with `for entity in layout:` immediately.
+
+<!-- fig:ezdxf-generator-traversal -->
+<svg viewBox="-20 -20 570 194.1" role="img" aria-label="Wrapping a layout in list() allocates every entity at once; iterating it directly keeps memory proportional to what is retained" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:570px;display:block;margin:1.5rem auto;">
+  <title>Materialising a layout versus iterating it</title>
+  <desc>Two ways of walking modelspace. Wrapping the layout in a list allocates every entity object before the first one is examined, so peak memory scales with the drawing. Iterating the layout directly yields entities one at a time and lets each be discarded after use, so memory scales with what is kept rather than with what is read.</desc>
+  <defs>
+    <marker id="ezd2-a" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="ezd2-o" markerWidth="8" markerHeight="6" refX="7.2" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="currentColor" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <rect x="-20" y="-20" width="570" height="194.1" fill="var(--color-surface)"/>
+  <rect x="0" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="125" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">list(msp)</text>
+  <line x1="14" y1="33" x2="236" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="16" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— allocates every entity first</text>
+  <text x="16" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— peak memory scales with the file</text>
+  <text x="16" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— nothing usable until it finishes</text>
+  <text x="16" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— fails on large survey drawings</text>
+  <rect x="280" y="0" width="250" height="130" rx="6" fill="currentColor" fill-opacity="0.11" stroke="currentColor" stroke-width="1.9"/>
+  <text x="405" y="24" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">for e in msp</text>
+  <line x1="294" y1="33" x2="516" y2="33" stroke="currentColor" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="296" y="52" font-size="10" fill="currentColor" fill-opacity="0.8">— yields one entity at a time</text>
+  <text x="296" y="70" font-size="10" fill="currentColor" fill-opacity="0.8">— memory scales with what you keep</text>
+  <text x="296" y="88" font-size="10" fill="currentColor" fill-opacity="0.8">— first result immediately</text>
+  <text x="296" y="106" font-size="10" fill="currentColor" fill-opacity="0.8">— the default for any batch job</text>
+  <text x="265" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity="0.72">Same results, different ceiling — the list form is what makes a parser look memory-hungry.</text>
+</svg>
+<!-- /fig:ezdxf-generator-traversal -->
 
 **Entity batching:** Process entities in configurable batches of 10,000 primitives per worker. This keeps per-worker memory under 200 MB for typical survey drawings and allows horizontal scaling across Celery or Ray workers.
 
