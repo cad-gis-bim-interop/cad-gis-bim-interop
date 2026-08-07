@@ -1,6 +1,6 @@
 ---
 title: "Auditing and Repairing DXF Files with ezdxf"
-description: "Run an audit on a converted DXF before parsing it: what the auditor fixes and what it only reports, distinguishing structural damage from content problems, and gating a batch on the result."
+description: "Audit a converted DXF before parsing it: what the auditor fixes and what it only reports, structural damage versus content loss, and gating a batch on it."
 slug: "auditing-and-repairing-dxf-files-with-ezdxf"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Auditing and Repairing DXF Files with ezdxf",
-      "description": "Run an audit on a converted DXF before parsing it: what the auditor fixes and what it only reports, distinguishing structural damage from content problems, and gating a batch on the result.",
+      "description": "Audit a converted DXF before parsing it: what the auditor fixes and what it only reports, structural damage versus content loss, and gating a batch on it.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

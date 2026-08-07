@@ -1,6 +1,6 @@
 ---
 title: "Repairing Non-Manifold Meshes with trimesh"
-description: "Diagnose and repair CAD-derived meshes in Python with trimesh: choosing a merge tolerance, fixing winding and normals, filling holes, and knowing when a mesh is beyond repair rather than nearly fixed."
+description: "Diagnose and repair CAD-derived meshes with trimesh: choosing a merge tolerance, fixing winding, filling holes, and knowing when a mesh is beyond repair."
 slug: "repairing-non-manifold-meshes-with-trimesh"
 breadcrumb:
   - label: "Interoperability Decision Guides"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Repairing Non-Manifold Meshes with trimesh",
-      "description": "Diagnose and repair CAD-derived meshes in Python with trimesh: choosing a merge tolerance, fixing winding and normals, filling holes, and knowing when a mesh is beyond repair rather than nearly fixed.",
+      "description": "Diagnose and repair CAD-derived meshes with trimesh: choosing a merge tolerance, fixing winding, filling holes, and knowing when a mesh is beyond repair.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

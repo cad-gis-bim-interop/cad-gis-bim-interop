@@ -1,6 +1,6 @@
 ---
 title: "How to Parse DXF Headers with Python"
-description: "Extract and normalize DXF HEADER section variables using ezdxf in Python. Covers $INSUNITS, $ACADVER, $EXTMIN/$EXTMAX, unit mapping, version routing, and defensive parsing for AEC/GIS ingestion pipelines."
+description: "Extract and normalize DXF HEADER variables with ezdxf: $INSUNITS, $ACADVER, $EXTMIN and $EXTMAX, unit mapping, version routing and defensive parsing."
 slug: "how-to-parse-dxf-headers-with-python"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "How to Parse DXF Headers with Python",
-      "description": "Extract and normalize DXF HEADER section variables using ezdxf in Python. Covers $INSUNITS, $ACADVER, $EXTMIN/$EXTMAX, unit mapping, version routing, and defensive parsing for AEC/GIS ingestion pipelines.",
+      "description": "Extract and normalize DXF HEADER variables with ezdxf: $INSUNITS, $ACADVER, $EXTMIN and $EXTMAX, unit mapping, version routing and defensive parsing.",
       "datePublished": "2024-11-01",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

@@ -1,6 +1,6 @@
 ---
 title: "GeoPackage vs PostGIS for CAD Output: Choosing a Storage Target"
-description: "A decision guide comparing GeoPackage and PostGIS as the storage target for converted CAD/BIM geometry — concurrency, scale, portability, indexing, tooling, and ops cost."
+description: "A decision guide comparing GeoPackage and PostGIS as the storage target for converted CAD/BIM geometry — concurrency, portability, indexing and ops cost."
 slug: "geopackage-vs-postgis-for-cad-output"
 breadcrumb:
   - label: "Interoperability Decision Guides"
@@ -18,7 +18,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "GeoPackage vs PostGIS for CAD Output: Choosing a Storage Target",
-      "description": "A decision guide comparing GeoPackage and PostGIS as the storage target for converted CAD/BIM geometry — concurrency, scale, portability, indexing, tooling, and ops cost.",
+      "description": "A decision guide comparing GeoPackage and PostGIS as the storage target for converted CAD/BIM geometry — concurrency, portability, indexing and ops cost.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

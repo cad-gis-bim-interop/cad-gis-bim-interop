@@ -1,6 +1,6 @@
 ---
 title: "Converting IFC Buildings to CityGML LoD1 with Python"
-description: "Generalise an IFC building into a CityGML LoD1 solid in Python: derive the footprint, resolve a single representative height, emit a valid prismatic solid, and carry the identifier so the city object can be matched back."
+description: "Generalise an IFC building into a CityGML LoD1 solid in Python: derive the footprint, resolve one representative height, and carry the identifier across."
 slug: "converting-ifc-buildings-to-citygml-lod1-with-python"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Converting IFC Buildings to CityGML LoD1 with Python",
-      "description": "Generalise an IFC building into a CityGML LoD1 solid in Python: derive the footprint, resolve a single representative height, emit a valid prismatic solid, and carry the identifier so the city object can be matched back.",
+      "description": "Generalise an IFC building into a CityGML LoD1 solid in Python: derive the footprint, resolve one representative height, and carry the identifier across.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

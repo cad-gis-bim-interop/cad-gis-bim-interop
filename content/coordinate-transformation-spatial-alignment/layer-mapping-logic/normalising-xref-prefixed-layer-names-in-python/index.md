@@ -1,6 +1,6 @@
 ---
 title: "Normalising XREF-Prefixed Layer Names in Python"
-description: "Strip external-reference prefixes from CAD layer names before mapping: how bound XREFs mangle names, a normaliser that survives nesting, and why the original name has to be kept alongside the normalised one."
+description: "Strip external-reference prefixes from CAD layer names before mapping: how bound XREFs stack prefixes, and why the original name has to be kept alongside."
 slug: "normalising-xref-prefixed-layer-names-in-python"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Normalising XREF-Prefixed Layer Names in Python",
-      "description": "Strip external-reference prefixes from CAD layer names before mapping: how bound XREFs mangle names, a normaliser that survives nesting, and why the original name has to be kept alongside the normalised one.",
+      "description": "Strip external-reference prefixes from CAD layer names before mapping: how bound XREFs stack prefixes, and why the original name has to be kept alongside.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

@@ -1,6 +1,6 @@
 ---
 title: "Extracting DWG Block Attributes with Python"
-description: "Harvest title-block and equipment-tag attributes from DWG files: convert DWG to DXF with ODA, then read INSERT attribs with ezdxf into tag-to-value tables keyed by block and handle."
+description: "Harvest title-block and equipment-tag attributes from DWG: convert to DXF with ODA, then read INSERT attribs with ezdxf into tables keyed by block and handle."
 slug: "extracting-dwg-block-attributes-with-python"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Extracting DWG Block Attributes with Python",
-      "description": "Harvest title-block and equipment-tag attributes from DWG files: convert DWG to DXF with ODA, then read INSERT attribs with ezdxf into tag-to-value tables keyed by block and handle.",
+      "description": "Harvest title-block and equipment-tag attributes from DWG: convert to DXF with ODA, then read INSERT attribs with ezdxf into tables keyed by block and handle.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

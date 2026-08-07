@@ -1,6 +1,6 @@
 ---
 title: "Computing RMSE for Control Point Alignment in Python"
-description: "Measure an alignment properly: hold out check points, report the maximum alongside the RMSE, identify the worst residual, and turn the numbers into a pass or fail the pipeline can act on."
+description: "Measure an alignment properly: hold out check points, report the maximum alongside the RMSE, and turn the numbers into a pass or fail a pipeline can act on."
 slug: "computing-rmse-for-control-point-alignment-in-python"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Computing RMSE for Control Point Alignment in Python",
-      "description": "Measure an alignment properly: hold out check points, report the maximum alongside the RMSE, identify the worst residual, and turn the numbers into a pass or fail the pipeline can act on.",
+      "description": "Measure an alignment properly: hold out check points, report the maximum alongside the RMSE, and turn the numbers into a pass or fail a pipeline can act on.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

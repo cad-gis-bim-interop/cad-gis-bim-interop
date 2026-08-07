@@ -1,6 +1,6 @@
 ---
 title: "ifcopenshell Workflow: IFC Parsing & BIM Geometry Extraction in Python"
-description: "Production guide to the ifcopenshell workflow: environment setup, geometry extraction with OpenCASCADE, coordinate transformation, serialization, edge cases, and memory management for BIM-to-GIS pipelines."
+description: "A production guide to ifcopenshell: environment setup, geometry extraction, coordinate transformation, edge cases and memory management for BIM-to-GIS work."
 slug: "ifcopenshell-workflow"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -18,7 +18,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "ifcopenshell Workflow: IFC Parsing & BIM Geometry Extraction in Python",
-      "description": "Production guide to the ifcopenshell workflow: environment setup, geometry extraction with OpenCASCADE, coordinate transformation, serialization, edge cases, and memory management for BIM-to-GIS pipelines.",
+      "description": "A production guide to ifcopenshell: environment setup, geometry extraction, coordinate transformation, edge cases and memory management for BIM-to-GIS work.",
       "datePublished": "2024-11-01",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "CAD-GIS-BIM Interop"}

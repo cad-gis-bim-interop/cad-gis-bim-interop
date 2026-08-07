@@ -1,6 +1,6 @@
 ---
 title: "Extracting Block Attributes from CAD Files with ezdxf"
-description: "Step-by-step guide to extracting ATTRIB entities from DXF INSERT blocks using Python ezdxf, covering DWG conversion, attribute mapping, coordinate export, and production error handling."
+description: "Extract ATTRIB entities from DXF INSERT blocks with ezdxf, covering DWG conversion, attribute mapping, coordinate capture and production error handling."
 slug: "extracting-block-attributes-from-cad-files"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Extracting Block Attributes from CAD Files with ezdxf",
-      "description": "Step-by-step guide to extracting ATTRIB entities from DXF INSERT blocks using Python ezdxf, covering DWG conversion, attribute mapping, coordinate export, and production error handling.",
+      "description": "Extract ATTRIB entities from DXF INSERT blocks with ezdxf, covering DWG conversion, attribute mapping, coordinate capture and production error handling.",
       "datePublished": "2025-03-10",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

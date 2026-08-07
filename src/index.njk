@@ -7,7 +7,7 @@ eleventyNavigation:
 ---
 
 <section class="container hero">
-  <img class="hero__logo" src="/assets/icons/logo.svg" alt="CAD/GIS/BIM Interop logo — layered grid, polyline, hex volume." width="240" height="240">
+  {% set logoClass = "hero__logo" %}{% set decorative = false %}{% include "partials/logo.njk" %}
 
   <p class="hero__eyebrow">Python · AEC · Geospatial</p>
   <h1 class="hero__title">{{ site.name }}</h1>

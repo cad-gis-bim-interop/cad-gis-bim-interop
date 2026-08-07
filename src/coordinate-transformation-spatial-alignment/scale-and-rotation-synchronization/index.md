@@ -1,6 +1,6 @@
 ---
 title: "Scale and Rotation Synchronization in CAD/GIS/BIM Python Pipelines"
-description: "How to compute and apply SVD-based similarity transformations that resolve unit-scale mismatches and angular misalignments when merging CAD, GIS, and BIM datasets in Python."
+description: "Compute and apply SVD-based similarity transformations that resolve unit-scale mismatches and angular misalignment when merging CAD, GIS and BIM datasets."
 slug: "scale-and-rotation-synchronization"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -18,7 +18,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Scale and Rotation Synchronization in CAD/GIS/BIM Python Pipelines",
-      "description": "How to compute and apply SVD-based similarity transformations that resolve unit-scale mismatches and angular misalignments when merging CAD, GIS, and BIM datasets in Python.",
+      "description": "Compute and apply SVD-based similarity transformations that resolve unit-scale mismatches and angular misalignment when merging CAD, GIS and BIM datasets.",
       "datePublished": "2024-03-01",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

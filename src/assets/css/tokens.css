@@ -49,6 +49,13 @@
   --color-on-highlight: #ffffff;
   --shadow-tint: 20, 32, 46;
 
+  /* Brand mark. The logo is inlined (see partials/logo.njk) so it can read these;
+     an <img> would be an isolated document and stay light on a dark page. */
+  --logo-grid: #bfb7a3;
+  --logo-ink: #1e3a5f;
+  --logo-teal: #0d9488;
+  --logo-warm: #c2410c;
+
   /* Diagram palette — inline SVGs key off these so a theme flip recolours the
      figure interiors, not just the prose around them. */
   --svg-ink: var(--color-text);
@@ -185,6 +192,13 @@
   --color-on-primary: #0f1720;
   --color-on-highlight: #06211e;
   --shadow-tint: 0, 0, 0;
+
+  /* The grid and the polyline have to lift off the dark surface; the teal and warm
+     marks stay saturated, since they are brand colour rather than neutral chrome. */
+  --logo-grid: #35485e;
+  --logo-ink: #8ab4e8;
+  --logo-teal: #45c8b8;
+  --logo-warm: #f0955c;
 
   --svg-canvas: transparent;
   --svg-fill: rgba(138, 180, 232, 0.10);

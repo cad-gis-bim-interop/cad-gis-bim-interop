@@ -1,6 +1,6 @@
 ---
 title: "Applying a Geoid Model with pyproj"
-description: "Install, pin and verify a geoid grid for pyproj: projsync and data packages, PROJ_NETWORK behaviour, checking which grid an operation actually used, and making the result reproducible across containers."
+description: "Install, pin and verify a geoid grid for pyproj: projsync and data packages, PROJ_NETWORK behaviour, and checking which grid an operation actually used."
 slug: "applying-a-geoid-model-with-pyproj"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Applying a Geoid Model with pyproj",
-      "description": "Install, pin and verify a geoid grid for pyproj: projsync and data packages, PROJ_NETWORK behaviour, checking which grid an operation actually used, and making the result reproducible across containers.",
+      "description": "Install, pin and verify a geoid grid for pyproj: projsync and data packages, PROJ_NETWORK behaviour, and checking which grid an operation actually used.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

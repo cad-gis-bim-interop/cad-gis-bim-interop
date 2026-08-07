@@ -1,6 +1,6 @@
 ---
 title: "Handling DWG Proxy Entities During Conversion"
-description: "Detect and mitigate ACAD_PROXY_ENTITY objects from Civil 3D and Plant 3D during DWG to DXF conversion: log by handle, use PROXYGRAPHICS, and treat cached graphics as approximate."
+description: "Detect and mitigate ACAD_PROXY_ENTITY objects during DWG to DXF conversion: log by handle, use PROXYGRAPHICS, and treat cached graphics as approximate."
 slug: "handling-dwg-proxy-entities-during-conversion"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Handling DWG Proxy Entities During Conversion",
-      "description": "Detect and mitigate ACAD_PROXY_ENTITY objects from Civil 3D and Plant 3D during DWG to DXF conversion: log by handle, use PROXYGRAPHICS, and treat cached graphics as approximate.",
+      "description": "Detect and mitigate ACAD_PROXY_ENTITY objects during DWG to DXF conversion: log by handle, use PROXYGRAPHICS, and treat cached graphics as approximate.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

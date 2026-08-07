@@ -1,6 +1,6 @@
 ---
 title: "Geometry Mesh Conversion for Python CAD/GIS/BIM Pipelines"
-description: "Convert parametric CAD and BIM geometry to watertight polygon meshes using Python. Covers trimesh, shapely, ezdxf, ifcopenshell, coordinate normalization, triangulation, and validation for AEC interoperability pipelines."
+description: "Convert parametric CAD and BIM geometry to watertight polygon meshes in Python with trimesh, shapely, ezdxf and ifcopenshell — triangulation and validation."
 slug: "geometry-mesh-conversion"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -18,7 +18,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Geometry Mesh Conversion for Python CAD/GIS/BIM Pipelines",
-      "description": "Convert parametric CAD and BIM geometry to watertight polygon meshes using Python. Covers trimesh, shapely, ezdxf, ifcopenshell, coordinate normalization, triangulation, and validation for AEC interoperability pipelines.",
+      "description": "Convert parametric CAD and BIM geometry to watertight polygon meshes in Python with trimesh, shapely, ezdxf and ifcopenshell — triangulation and validation.",
       "datePublished": "2024-03-15",
       "dateModified": "2026-06-24",
       "author": { "@type": "Organization", "name": "cad-gis-bim-interop.org" }

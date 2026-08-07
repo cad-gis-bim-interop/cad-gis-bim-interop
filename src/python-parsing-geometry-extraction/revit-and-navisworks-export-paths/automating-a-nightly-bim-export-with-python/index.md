@@ -1,6 +1,6 @@
 ---
 title: "Automating a Nightly BIM Export with Python"
-description: "Run an unattended BIM export on a schedule: driving the authoring application headlessly, timeouts and stale-output detection, atomic publishing, and a manifest that tells the pipeline what it is consuming."
+description: "Run an unattended BIM export on a schedule: timeouts, stale-output detection, atomic publishing, and a manifest telling the pipeline what it is consuming."
 slug: "automating-a-nightly-bim-export-with-python"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Automating a Nightly BIM Export with Python",
-      "description": "Run an unattended BIM export on a schedule: driving the authoring application headlessly, timeouts and stale-output detection, atomic publishing, and a manifest that tells the pipeline what it is consuming.",
+      "description": "Run an unattended BIM export on a schedule: timeouts, stale-output detection, atomic publishing, and a manifest telling the pipeline what it is consuming.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

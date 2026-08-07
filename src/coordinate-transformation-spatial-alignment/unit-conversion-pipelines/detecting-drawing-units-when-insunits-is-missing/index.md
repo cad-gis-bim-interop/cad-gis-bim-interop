@@ -1,6 +1,6 @@
 ---
 title: "Detecting Drawing Units When $INSUNITS Is Missing"
-description: "Resolve the unit of a DXF that declares none: the evidence a drawing offers, an extent-magnitude heuristic with explicit confidence, and why the answer must be recorded as an assumption rather than a fact."
+description: "Resolve the unit of a DXF that declares none: the evidence a drawing offers, an extent-magnitude heuristic, and recording the answer as a logged assumption."
 slug: "detecting-drawing-units-when-insunits-is-missing"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Detecting Drawing Units When $INSUNITS Is Missing",
-      "description": "Resolve the unit of a DXF that declares none: the evidence a drawing offers, an extent-magnitude heuristic with explicit confidence, and why the answer must be recorded as an assumption rather than a fact.",
+      "description": "Resolve the unit of a DXF that declares none: the evidence a drawing offers, an extent-magnitude heuristic, and recording the answer as a logged assumption.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

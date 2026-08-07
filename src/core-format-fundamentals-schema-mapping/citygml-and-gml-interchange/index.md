@@ -1,6 +1,6 @@
 ---
 title: "CityGML and GML Interchange"
-description: "Parse and produce CityGML and GML in Python: the level-of-detail model, GML geometry primitives, namespace handling with lxml, and the mapping rules that get an IFC building into a city model without losing its identity."
+description: "Parse and produce CityGML and GML in Python: the level-of-detail model, namespaced geometry primitives with lxml, and mapping an IFC building into a city model."
 slug: "citygml-and-gml-interchange"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -18,7 +18,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "CityGML and GML Interchange",
-      "description": "Parse and produce CityGML and GML in Python: the level-of-detail model, GML geometry primitives, namespace handling with lxml, and the mapping rules that get an IFC building into a city model without losing its identity.",
+      "description": "Parse and produce CityGML and GML in Python: the level-of-detail model, namespaced geometry primitives with lxml, and mapping an IFC building into a city model.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

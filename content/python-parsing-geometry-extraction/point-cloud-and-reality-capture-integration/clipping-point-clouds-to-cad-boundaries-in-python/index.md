@@ -1,6 +1,6 @@
 ---
 title: "Clipping Point Clouds to CAD Boundaries in Python"
-description: "Clip a LAS or LAZ cloud to a CAD site boundary in Python: extract the polygon from DXF, prefilter by bounding box, run a vectorised point-in-polygon test per chunk, and write a valid clipped file."
+description: "Clip a LAS or LAZ cloud to a CAD site boundary: extract the polygon from DXF, prefilter by bounding box, test containment per chunk, and write a valid file."
 slug: "clipping-point-clouds-to-cad-boundaries-in-python"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Clipping Point Clouds to CAD Boundaries in Python",
-      "description": "Clip a LAS or LAZ cloud to a CAD site boundary in Python: extract the polygon from DXF, prefilter by bounding box, run a vectorised point-in-polygon test per chunk, and write a valid clipped file.",
+      "description": "Clip a LAS or LAZ cloud to a CAD site boundary: extract the polygon from DXF, prefilter by bounding box, test containment per chunk, and write a valid file.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

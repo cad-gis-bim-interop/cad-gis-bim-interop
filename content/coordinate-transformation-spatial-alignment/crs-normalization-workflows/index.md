@@ -1,6 +1,6 @@
 ---
-title: "CRS Normalization Workflows: Python Pipelines for CAD, GIS & BIM Interoperability"
-description: "End-to-end Python workflows for detecting, validating, and transforming heterogeneous coordinate reference systems across DXF, IFC, and GIS formats using pyproj and geopandas."
+title: "CRS Normalization Workflows for CAD, GIS and BIM"
+description: "Python workflows for detecting, validating and transforming heterogeneous coordinate reference systems across DXF, IFC and GIS formats with pyproj."
 slug: "crs-normalization-workflows"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -17,8 +17,8 @@ dateModified: "2026-06-24"
   "@graph": [
     {
       "@type": "Article",
-      "headline": "CRS Normalization Workflows: Python Pipelines for CAD, GIS & BIM Interoperability",
-      "description": "End-to-end Python workflows for detecting, validating, and transforming heterogeneous coordinate reference systems across DXF, IFC, and GIS formats using pyproj and geopandas.",
+      "headline": "CRS Normalization Workflows for CAD, GIS and BIM",
+      "description": "Python workflows for detecting, validating and transforming heterogeneous coordinate reference systems across DXF, IFC and GIS formats with pyproj.",
       "datePublished": "2024-03-15",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

@@ -1,6 +1,6 @@
 ---
 title: "Detecting and Routing DWG Version Compatibility in Python Pipelines"
-description: "Read the 6-byte ACAD header, map it to the correct AutoCAD release schema, and route DWG files through version-aware converters to prevent silent data loss in CAD/GIS/BIM interoperability pipelines."
+description: "Read the six-byte ACAD header, map it to the right release schema, and route DWG files through version-aware converters to prevent silent data loss."
 slug: "understanding-dwg-version-compatibility"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Detecting and Routing DWG Version Compatibility in Python Pipelines",
-      "description": "Read the 6-byte ACAD header, map it to the correct AutoCAD release schema, and route DWG files through version-aware converters to prevent silent data loss in CAD/GIS/BIM interoperability pipelines.",
+      "description": "Read the six-byte ACAD header, map it to the right release schema, and route DWG files through version-aware converters to prevent silent data loss.",
       "datePublished": "2025-01-15",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

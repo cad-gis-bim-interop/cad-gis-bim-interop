@@ -1,6 +1,6 @@
 ---
 title: "Writing Extracted CAD Metadata to Parquet"
-description: "Persist extracted CAD and BIM attributes as Parquet in Python: a stable schema across heterogeneous sources, typing the long tail, partitioning by source, and keeping the provenance a later query will need."
+description: "Persist extracted CAD and BIM attributes as Parquet: a typed core plus a map column for the tail, partitioned by source, with provenance a later query needs."
 slug: "writing-extracted-cad-metadata-to-parquet"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Writing Extracted CAD Metadata to Parquet",
-      "description": "Persist extracted CAD and BIM attributes as Parquet in Python: a stable schema across heterogeneous sources, typing the long tail, partitioning by source, and keeping the provenance a later query will need.",
+      "description": "Persist extracted CAD and BIM attributes as Parquet: a typed core plus a map column for the tail, partitioned by source, with provenance a later query needs.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

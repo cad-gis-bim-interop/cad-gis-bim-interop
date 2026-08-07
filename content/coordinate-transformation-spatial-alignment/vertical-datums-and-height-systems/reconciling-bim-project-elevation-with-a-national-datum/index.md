@@ -1,6 +1,6 @@
 ---
 title: "Reconciling BIM Project Elevation with a National Datum"
-description: "Resolve the constant offset between a BIM project elevation and a national height datum in Python: read IfcMapConversion OrthogonalHeight, apply it as a named step, and prove the result against a survey level."
+description: "Resolve the constant offset between a BIM project elevation and a national height datum: read IfcMapConversion, apply it as a step, and prove it on a level."
 slug: "reconciling-bim-project-elevation-with-a-national-datum"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Reconciling BIM Project Elevation with a National Datum",
-      "description": "Resolve the constant offset between a BIM project elevation and a national height datum in Python: read IfcMapConversion OrthogonalHeight, apply it as a named step, and prove the result against a survey level.",
+      "description": "Resolve the constant offset between a BIM project elevation and a national height datum: read IfcMapConversion, apply it as a step, and prove it on a level.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

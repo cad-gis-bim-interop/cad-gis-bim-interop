@@ -1,6 +1,6 @@
 ---
-title: "Coordinate Transformation & Spatial Alignment in Python Interoperability Pipelines"
-description: "Master coordinate transformation and spatial alignment across CAD, GIS, and BIM formats using Python. Covers CRS normalization, unit harmonization, affine registration, and production pipeline validation."
+title: "Coordinate Transformation & Spatial Alignment in Python"
+description: "Coordinate transformation and spatial alignment across CAD, GIS and BIM in Python: CRS normalization, unit harmonization, affine registration and validation."
 slug: coordinate-transformation-spatial-alignment
 breadcrumb:
   - label: Home
@@ -18,8 +18,8 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "@id": "https://www.cad-gis-bim-interop.org/coordinate-transformation-spatial-alignment/#article",
-      "headline": "Coordinate Transformation & Spatial Alignment in Python Interoperability Pipelines",
-      "description": "Master coordinate transformation and spatial alignment across CAD, GIS, and BIM formats using Python. Covers CRS normalization, unit harmonization, affine registration, and production pipeline validation.",
+      "headline": "Coordinate Transformation & Spatial Alignment in Python",
+      "description": "Coordinate transformation and spatial alignment across CAD, GIS and BIM in Python: CRS normalization, unit harmonization, affine registration and validation.",
       "datePublished": "2024-01-15",
       "dateModified": "2026-06-24",
       "author": {

@@ -3,7 +3,7 @@
     <div class="site-footer__grid">
       <div>
         <a href="{{ '/' | absoluteUrl }}" class="brand" aria-label="{{ site.shortName }} — home" style="margin-bottom: var(--s-3);">
-          <img class="brand__logo" src="/assets/icons/logo.svg" alt="" width="36" height="36" loading="lazy" decoding="async">
+          {% set logoClass = "brand__logo" %}{% set decorative = true %}{% include "partials/logo.njk" %}
           <span class="brand__name">{{ site.shortName }}</span>
         </a>
         <p style="margin-top: var(--s-3); max-width: 30ch;">{{ site.tagline }}</p>

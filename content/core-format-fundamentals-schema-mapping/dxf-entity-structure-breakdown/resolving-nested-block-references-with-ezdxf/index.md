@@ -1,6 +1,6 @@
 ---
 title: "Resolving Nested Block References with ezdxf"
-description: "Flatten nested INSERT entities into world coordinates with ezdxf: how placement transforms compose, why virtual entities stop at one level, guarding against circular definitions, and keeping the block path for provenance."
+description: "Flatten nested INSERT entities to world coordinates with ezdxf: how placement transforms compose, why virtual entities stop at one level, and guarding cycles."
 slug: "resolving-nested-block-references-with-ezdxf"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Resolving Nested Block References with ezdxf",
-      "description": "Flatten nested INSERT entities into world coordinates with ezdxf: how placement transforms compose, why virtual entities stop at one level, guarding against circular definitions, and keeping the block path for provenance.",
+      "description": "Flatten nested INSERT entities to world coordinates with ezdxf: how placement transforms compose, why virtual entities stop at one level, and guarding cycles.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

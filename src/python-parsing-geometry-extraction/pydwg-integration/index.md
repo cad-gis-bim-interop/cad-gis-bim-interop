@@ -1,6 +1,6 @@
 ---
 title: "DWG-to-Python Integration: Building Reliable CAD Extraction Pipelines"
-description: "How to parse DWG files in Python using ODA File Converter, libredwg, and ezdxf — covering version detection, headless conversion, XREF handling, and production scaling patterns."
+description: "Parse DWG files in Python with the ODA File Converter, libredwg and ezdxf — version detection, headless conversion, XREF handling and production scaling."
 slug: "pydwg-integration"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -18,7 +18,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "DWG-to-Python Integration: Building Reliable CAD Extraction Pipelines",
-      "description": "How to parse DWG files in Python using ODA File Converter, libredwg, and ezdxf — covering version detection, headless conversion, XREF handling, and production scaling patterns.",
+      "description": "Parse DWG files in Python with the ODA File Converter, libredwg and ezdxf — version detection, headless conversion, XREF handling and production scaling.",
       "datePublished": "2024-03-01",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

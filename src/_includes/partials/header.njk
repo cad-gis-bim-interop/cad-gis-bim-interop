@@ -1,7 +1,7 @@
 <header class="site-header">
   <div class="container site-header__inner">
     <a href="{{ '/' | absoluteUrl }}" class="brand" aria-label="{{ site.shortName }} — home">
-      <img class="brand__logo" src="/assets/icons/logo.svg" alt="" width="36" height="36" loading="eager" decoding="async">
+      {% set logoClass = "brand__logo" %}{% set decorative = true %}{% include "partials/logo.njk" %}
       <span class="brand__name">{{ site.shortName }}</span>
     </a>
 

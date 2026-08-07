@@ -1,6 +1,6 @@
 ---
 title: "Extracting IfcAlignment Geometry with ifcopenshell"
-description: "Read IFC4X3 alignment geometry in Python: the horizontal and vertical business logic, sampling the referent curve into coordinates, handling transitions, and why an alignment has no solid to extract."
+description: "Read IFC4X3 alignment geometry in Python: horizontal and vertical business logic, sampling segments into coordinates, and why an alignment has no solid."
 slug: "extracting-ifcalignment-geometry-with-ifcopenshell"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Extracting IfcAlignment Geometry with ifcopenshell",
-      "description": "Read IFC4X3 alignment geometry in Python: the horizontal and vertical business logic, sampling the referent curve into coordinates, handling transitions, and why an alignment has no solid to extract.",
+      "description": "Read IFC4X3 alignment geometry in Python: horizontal and vertical business logic, sampling segments into coordinates, and why an alignment has no solid.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

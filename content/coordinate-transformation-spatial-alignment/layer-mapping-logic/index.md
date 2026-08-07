@@ -1,6 +1,6 @@
 ---
 title: "Layer Mapping Logic for CAD/GIS & BIM Interoperability Pipelines"
-description: "Build deterministic Python layer mapping pipelines that translate CAD layer names, BIM categories, and GIS feature classes across heterogeneous format boundaries without silent data loss."
+description: "Build deterministic Python layer mapping that translates CAD layer names, BIM categories and GIS feature classes across format boundaries without data loss."
 slug: "layer-mapping-logic"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -18,7 +18,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Layer Mapping Logic for CAD/GIS & BIM Interoperability Pipelines",
-      "description": "Build deterministic Python layer mapping pipelines that translate CAD layer names, BIM categories, and GIS feature classes across heterogeneous format boundaries without silent data loss.",
+      "description": "Build deterministic Python layer mapping that translates CAD layer names, BIM categories and GIS feature classes across format boundaries without data loss.",
       "datePublished": "2025-08-14",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

@@ -1,0 +1,49 @@
+{#- The brand mark, inlined rather than loaded as an <img>.
+
+    An external SVG is an isolated document: it cannot see the page's custom properties, so it
+    cannot follow the theme toggle. The file version is drawn for a light page — a white radial
+    halo and a deep-navy polyline — which on the dark surface reads as a bright disc with most of
+    the mark missing inside it. Inlining it lets every colour come from a themed token.
+
+    Flat fills rather than gradients, deliberately: the mark appears up to three times on a page
+    (header, hero, footer) and gradient ids would collide. At 36px the gradients were invisible
+    anyway.
+
+    Params: `decorative` (true → aria-hidden, for the brand lockups where the name sits beside it).
+-#}
+<svg class="logo{{ ' ' + logoClass if logoClass }}" viewBox="0 0 320 320"
+  {%- if decorative %} aria-hidden="true" focusable="false"
+  {%- else %} role="img" aria-labelledby="logo-title"{% endif %}
+  xmlns="http://www.w3.org/2000/svg">
+  {%- if not decorative %}
+  <title id="logo-title">CAD/GIS/BIM Interop — a layered grid, a CAD polyline and a BIM volume</title>
+  {%- endif %}
+
+  {#- The surface colour behind the mark: invisible against the page in either theme, and it
+      gives the compass label a defined background rather than an assumed light one. -#}
+  <rect class="logo__canvas" x="0" y="0" width="320" height="320"/>
+
+  <g class="logo__grid">
+    <path d="M40 100 H280"/><path d="M40 160 H280"/><path d="M40 220 H280"/>
+    <path d="M100 40 V280"/><path d="M160 40 V280"/><path d="M220 40 V280"/>
+  </g>
+
+  <path class="logo__volume"
+    d="M160 56 L232 100 L232 196 L160 240 L88 196 L88 100 Z"/>
+  <path class="logo__volume-edges"
+    d="M160 56 V240 M88 100 L232 100 M88 196 L232 196"/>
+
+  <polyline class="logo__polyline" points="56,228 100,140 160,180 220,80 268,128"/>
+
+  <circle class="logo__node-warm" cx="100" cy="140" r="8"/>
+  <circle class="logo__node-warm" cx="220" cy="80" r="8"/>
+  <circle class="logo__node-ink" cx="160" cy="180" r="9"/>
+  <circle class="logo__node-teal" cx="56" cy="228" r="6"/>
+  <circle class="logo__node-teal" cx="268" cy="128" r="6"/>
+
+  <g transform="translate(258 60)">
+    <path class="logo__north" d="M0 -16 L8 8 L0 2 L-8 8 Z"/>
+    <text class="logo__north-label" x="0" y="22" font-size="10" font-weight="700"
+      text-anchor="middle">N</text>
+  </g>
+</svg>

@@ -1,6 +1,6 @@
 ---
 title: "IFC4x3 Schema Mapping for Civil Infrastructure Python Pipelines"
-description: "Complete guide to IFC4x3 schema mapping with Python: entity hierarchy traversal, property set extraction, CRS alignment, and GIS export for civil engineering interoperability."
+description: "A guide to IFC4x3 schema mapping with Python: entity hierarchy traversal, property set extraction, CRS alignment and GIS export for civil infrastructure."
 slug: "ifc4x3-schema-mapping"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -18,7 +18,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "IFC4x3 Schema Mapping for Civil Infrastructure Python Pipelines",
-      "description": "Complete guide to IFC4x3 schema mapping with Python: entity hierarchy traversal, property set extraction, CRS alignment, and GIS export for civil engineering interoperability.",
+      "description": "A guide to IFC4x3 schema mapping with Python: entity hierarchy traversal, property set extraction, CRS alignment and GIS export for civil infrastructure.",
       "datePublished": "2024-03-01",
       "dateModified": "2026-06-24",
       "url": "https://www.cad-gis-bim-interop.org/core-format-fundamentals-schema-mapping/ifc4x3-schema-mapping/"

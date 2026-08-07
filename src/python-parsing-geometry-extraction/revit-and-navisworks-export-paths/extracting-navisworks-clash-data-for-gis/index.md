@@ -1,6 +1,6 @@
 ---
 title: "Extracting Navisworks Clash Data for GIS"
-description: "Turn a Navisworks clash report into mappable data with Python: parse the XML, read clash points and status, reproject into the project CRS, and aggregate clash density onto a grid for GIS analysis."
+description: "Turn a Navisworks clash report into mappable data: parse the XML, filter by status, reproject into the project CRS, and aggregate density onto a grid."
 slug: "extracting-navisworks-clash-data-for-gis"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Extracting Navisworks Clash Data for GIS",
-      "description": "Turn a Navisworks clash report into mappable data with Python: parse the XML, read clash points and status, reproject into the project CRS, and aggregate clash density onto a grid for GIS analysis.",
+      "description": "Turn a Navisworks clash report into mappable data: parse the XML, filter by status, reproject into the project CRS, and aggregate density onto a grid.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

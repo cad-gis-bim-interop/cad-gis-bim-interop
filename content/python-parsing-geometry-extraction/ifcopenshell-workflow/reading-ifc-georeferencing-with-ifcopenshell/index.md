@@ -1,6 +1,6 @@
 ---
 title: "Reading IFC Georeferencing with ifcopenshell"
-description: "Read IfcMapConversion and IfcProjectedCRS with ifcopenshell, build the map transform from eastings, northings, rotation and scale, and fall back to IfcSite latitude and longitude."
+description: "Read IfcMapConversion and IfcProjectedCRS with ifcopenshell, build the map transform from eastings, northings, rotation and scale, and fall back to IfcSite."
 slug: "reading-ifc-georeferencing-with-ifcopenshell"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Reading IFC Georeferencing with ifcopenshell",
-      "description": "Read IfcMapConversion and IfcProjectedCRS with ifcopenshell, build the map transform from eastings, northings, rotation and scale, and fall back to IfcSite latitude and longitude.",
+      "description": "Read IfcMapConversion and IfcProjectedCRS with ifcopenshell, build the map transform from eastings, northings, rotation and scale, and fall back to IfcSite.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

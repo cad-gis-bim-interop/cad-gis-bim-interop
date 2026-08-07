@@ -1,6 +1,6 @@
 ---
 title: "Metadata Extraction Strategies for CAD, GIS, and BIM Pipelines"
-description: "A production-tested guide to extracting, normalizing, and validating metadata from DXF, IFC, and geospatial vector formats using Python — covering format routing, attribute harvesting, schema validation, and scaling patterns."
+description: "Extract, normalize and validate metadata from DXF, IFC and geospatial vector formats in Python — format routing, attribute harvesting and scaling patterns."
 slug: "metadata-extraction-strategies"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -18,7 +18,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Metadata Extraction Strategies for CAD, GIS, and BIM Pipelines",
-      "description": "A production-tested guide to extracting, normalizing, and validating metadata from DXF, IFC, and geospatial vector formats using Python — covering format routing, attribute harvesting, schema validation, and scaling patterns.",
+      "description": "Extract, normalize and validate metadata from DXF, IFC and geospatial vector formats in Python — format routing, attribute harvesting and scaling patterns.",
       "datePublished": "2024-11-01",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

@@ -1,6 +1,6 @@
 ---
 title: "Parsing DXF XDATA with ezdxf in Python"
-description: "How to read application-defined XDATA from DXF entities with ezdxf: APPID namespaces, group-code typing, nested 1002 control lists, and JSON export for AEC pipelines."
+description: "Read application-defined XDATA from DXF entities with ezdxf: APPID namespaces, group-code typing, nested 1002 control lists, and JSON export for pipelines."
 slug: "parsing-dxf-xdata-with-ezdxf-in-python"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Parsing DXF XDATA with ezdxf in Python",
-      "description": "How to read application-defined XDATA from DXF entities with ezdxf: APPID namespaces, group-code typing, nested 1002 control lists, and JSON export for AEC pipelines.",
+      "description": "Read application-defined XDATA from DXF entities with ezdxf: APPID namespaces, group-code typing, nested 1002 control lists, and JSON export for pipelines.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

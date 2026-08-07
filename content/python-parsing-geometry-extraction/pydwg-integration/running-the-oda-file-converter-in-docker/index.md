@@ -1,6 +1,6 @@
 ---
 title: "Running the ODA File Converter in Docker"
-description: "Package the ODA File Converter for a headless container: the virtual display it still expects, licensing and redistribution, a health check that proves it converts, and supervising it from Python."
+description: "Package the ODA File Converter for a headless container: the virtual display it expects, licensing, a health check that proves it converts, and supervision."
 slug: "running-the-oda-file-converter-in-docker"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Running the ODA File Converter in Docker",
-      "description": "Package the ODA File Converter for a headless container: the virtual display it still expects, licensing and redistribution, a health check that proves it converts, and supervising it from Python.",
+      "description": "Package the ODA File Converter for a headless container: the virtual display it expects, licensing, a health check that proves it converts, and supervision.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

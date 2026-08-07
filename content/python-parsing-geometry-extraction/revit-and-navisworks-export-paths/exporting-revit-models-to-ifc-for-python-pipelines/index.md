@@ -1,6 +1,6 @@
 ---
 title: "Exporting Revit Models to IFC for Python Pipelines"
-description: "Configure a Revit IFC export a Python pipeline can rely on: schema and model view choice, property set mapping, shared coordinates, and the acceptance checks that catch a truncated or unscaled export."
+description: "Configure a Revit IFC export a pipeline can rely on: schema and model view, property set mapping, shared coordinates, and checks that catch a bad export."
 slug: "exporting-revit-models-to-ifc-for-python-pipelines"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Exporting Revit Models to IFC for Python Pipelines",
-      "description": "Configure a Revit IFC export a Python pipeline can rely on: schema and model view choice, property set mapping, shared coordinates, and the acceptance checks that catch a truncated or unscaled export.",
+      "description": "Configure a Revit IFC export a pipeline can rely on: schema and model view, property set mapping, shared coordinates, and checks that catch a bad export.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

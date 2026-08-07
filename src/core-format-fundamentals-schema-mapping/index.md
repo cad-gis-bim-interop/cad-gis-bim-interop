@@ -1,6 +1,6 @@
 ---
 title: "Core Format Fundamentals & Schema Mapping"
-description: "Master the file-level architectures, schema translation rules, and Python pipeline patterns that keep CAD, GIS, and BIM data coherent across automated interoperability workflows."
+description: "The file-level architectures, schema translation rules and Python pipeline patterns that keep CAD, GIS and BIM data coherent across automated workflows."
 slug: "core-format-fundamentals-schema-mapping"
 breadcrumb: "Core Format Fundamentals & Schema Mapping"
 datePublished: "2025-01-15"
@@ -14,7 +14,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Core Format Fundamentals & Schema Mapping",
-      "description": "Master the file-level architectures, schema translation rules, and Python pipeline patterns that keep CAD, GIS, and BIM data coherent across automated interoperability workflows.",
+      "description": "The file-level architectures, schema translation rules and Python pipeline patterns that keep CAD, GIS and BIM data coherent across automated workflows.",
       "datePublished": "2025-01-15",
       "dateModified": "2026-06-24",
       "author": { "@type": "Organization", "name": "cad-gis-bim-interop.org" },

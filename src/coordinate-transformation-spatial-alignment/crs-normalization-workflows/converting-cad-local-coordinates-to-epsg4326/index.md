@@ -1,6 +1,6 @@
 ---
 title: "Converting CAD Local Coordinates to EPSG:4326"
-description: "Step-by-step Python pipeline using pyproj and numpy to convert arbitrary CAD site-grid coordinates to WGS84 (EPSG:4326) via a two-stage similarity transform and reprojection."
+description: "A Python pipeline using pyproj and numpy to convert arbitrary CAD site-grid coordinates to WGS84 via a fitted similarity transform and one reprojection."
 slug: "converting-cad-local-coordinates-to-epsg4326"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Converting CAD Local Coordinates to EPSG:4326",
-      "description": "Step-by-step Python pipeline using pyproj and numpy to convert arbitrary CAD site-grid coordinates to WGS84 (EPSG:4326) via a two-stage similarity transform and reprojection.",
+      "description": "A Python pipeline using pyproj and numpy to convert arbitrary CAD site-grid coordinates to WGS84 via a fitted similarity transform and one reprojection.",
       "datePublished": "2025-01-15",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

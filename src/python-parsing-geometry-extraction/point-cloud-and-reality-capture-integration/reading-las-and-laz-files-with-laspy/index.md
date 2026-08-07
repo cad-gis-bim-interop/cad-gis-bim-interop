@@ -1,6 +1,6 @@
 ---
 title: "Reading LAS and LAZ Files with laspy"
-description: "Read LAS and LAZ point clouds in Python with laspy: scaled versus raw coordinates, header-first inspection, chunked iteration for files larger than memory, classification filtering, and CRS extraction."
+description: "Read LAS and LAZ point clouds with laspy: scaled versus raw coordinates, header-first inspection, chunked iteration and classification filtering."
 slug: "reading-las-and-laz-files-with-laspy"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Reading LAS and LAZ Files with laspy",
-      "description": "Read LAS and LAZ point clouds in Python with laspy: scaled versus raw coordinates, header-first inspection, chunked iteration for files larger than memory, classification filtering, and CRS extraction.",
+      "description": "Read LAS and LAZ point clouds with laspy: scaled versus raw coordinates, header-first inspection, chunked iteration and classification filtering.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

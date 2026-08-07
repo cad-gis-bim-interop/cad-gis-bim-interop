@@ -1,6 +1,6 @@
 ---
-title: "Reading 3D Solids with ezdxf Python: Extract ACIS Payloads from DXF Files"
-description: "How to read 3DSOLID entities with ezdxf in Python: access ACIS/SAT payloads, validate headers, handle encrypted blobs, and route geometry to OpenCASCADE or STEP for production AEC pipelines."
+title: "Reading 3D Solids with ezdxf: ACIS Payloads from DXF"
+description: "Read 3DSOLID entities with ezdxf: access ACIS/SAT payloads, validate headers, handle encrypted blobs, and route geometry onward for production AEC pipelines."
 slug: "reading-3d-solids-with-ezdxf-python"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -19,8 +19,8 @@ dateModified: "2026-06-24"
   "@graph": [
     {
       "@type": "Article",
-      "headline": "Reading 3D Solids with ezdxf Python: Extract ACIS Payloads from DXF Files",
-      "description": "How to read 3DSOLID entities with ezdxf in Python: access ACIS/SAT payloads, validate headers, handle encrypted blobs, and route geometry to OpenCASCADE or STEP for production AEC pipelines.",
+      "headline": "Reading 3D Solids with ezdxf: ACIS Payloads from DXF",
+      "description": "Read 3DSOLID entities with ezdxf: access ACIS/SAT payloads, validate headers, handle encrypted blobs, and route geometry onward for production AEC pipelines.",
       "datePublished": "2025-01-15",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

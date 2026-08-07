@@ -1,6 +1,6 @@
 ---
 title: "Converting 3DFACE Entities to OBJ Meshes"
-description: "Read DXF 3DFACE corner points with ezdxf, deduplicate a shared vertex list with tolerance, and emit 1-indexed Wavefront OBJ meshes with triangle and quad face handling."
+description: "Read DXF 3DFACE corner points with ezdxf, deduplicate a shared vertex list with tolerance, and emit 1-indexed Wavefront OBJ meshes with quad handling."
 slug: "converting-3dface-entities-to-obj-meshes"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Converting 3DFACE Entities to OBJ Meshes",
-      "description": "Read DXF 3DFACE corner points with ezdxf, deduplicate a shared vertex list with tolerance, and emit 1-indexed Wavefront OBJ meshes with triangle and quad face handling.",
+      "description": "Read DXF 3DFACE corner points with ezdxf, deduplicate a shared vertex list with tolerance, and emit 1-indexed Wavefront OBJ meshes with quad handling.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

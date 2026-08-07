@@ -1,6 +1,6 @@
 ---
 title: "Converting Ellipsoidal to Orthometric Heights in Python"
-description: "Convert GNSS ellipsoidal heights to orthometric heights with pyproj: build a compound CRS, pass z through the transformer, confirm which geoid grid was used, and validate against a levelled benchmark."
+description: "Convert GNSS ellipsoidal heights to orthometric with pyproj: build a compound CRS, pass z, confirm the geoid grid, and validate against a levelled benchmark."
 slug: "converting-ellipsoidal-to-orthometric-heights-in-python"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Converting Ellipsoidal to Orthometric Heights in Python",
-      "description": "Convert GNSS ellipsoidal heights to orthometric heights with pyproj: build a compound CRS, pass z through the transformer, confirm which geoid grid was used, and validate against a levelled benchmark.",
+      "description": "Convert GNSS ellipsoidal heights to orthometric with pyproj: build a compound CRS, pass z, confirm the geoid grid, and validate against a levelled benchmark.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

@@ -1,6 +1,6 @@
 ---
 title: "DXF vs IFC for GIS Ingestion: Choosing the Interchange Format"
-description: "A decision guide comparing DXF and IFC as the interchange format feeding a GIS pipeline — semantic richness, georeferencing, geometry fidelity, parse cost, and tooling."
+description: "A decision guide comparing DXF and IFC as the interchange format feeding a GIS pipeline — semantic richness, georeferencing, geometry fidelity and cost."
 slug: "dxf-vs-ifc-for-gis-ingestion"
 breadcrumb:
   - label: "Interoperability Decision Guides"
@@ -18,7 +18,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "DXF vs IFC for GIS Ingestion: Choosing the Interchange Format",
-      "description": "A decision guide comparing DXF and IFC as the interchange format feeding a GIS pipeline — semantic richness, georeferencing, geometry fidelity, parse cost, and tooling.",
+      "description": "A decision guide comparing DXF and IFC as the interchange format feeding a GIS pipeline — semantic richness, georeferencing, geometry fidelity and cost.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

@@ -1,6 +1,6 @@
 ---
 title: "Aligning BIM Models with GIS Survey Data Using Python"
-description: "Step-by-step guide to aligning BIM models with GIS survey data via SVD-based similarity transforms in Python — covers control point extraction, CRS harmonization, RMSE validation, and IFC georeferencing."
+description: "Align BIM models with GIS survey data using an SVD similarity transform in Python — control point extraction, CRS harmonization and RMSE validation."
 slug: "aligning-bim-models-with-gis-survey-data"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Aligning BIM Models with GIS Survey Data Using Python",
-      "description": "Step-by-step guide to aligning BIM models with GIS survey data via SVD-based similarity transforms in Python — covers control point extraction, CRS harmonization, RMSE validation, and IFC georeferencing.",
+      "description": "Align BIM models with GIS survey data using an SVD similarity transform in Python — control point extraction, CRS harmonization and RMSE validation.",
       "datePublished": "2025-03-10",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"}

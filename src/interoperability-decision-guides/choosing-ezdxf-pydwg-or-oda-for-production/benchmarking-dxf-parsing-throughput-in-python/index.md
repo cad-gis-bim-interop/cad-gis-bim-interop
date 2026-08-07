@@ -1,6 +1,6 @@
 ---
 title: "Benchmarking DXF Parsing Throughput in Python"
-description: "How to fairly measure ezdxf parsing throughput — entities/sec, MB/sec, and peak memory — with warm-vs-cold runs, perf_counter timing, and a reusable harness for CI regression gates."
+description: "Measure ezdxf parsing throughput fairly — entities per second, MB/sec and peak memory — with warm runs, median timing and a reusable CI regression harness."
 slug: "benchmarking-dxf-parsing-throughput-in-python"
 breadcrumb:
   - label: "Interoperability Decision Guides"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Benchmarking DXF Parsing Throughput in Python",
-      "description": "How to fairly measure ezdxf parsing throughput — entities/sec, MB/sec, and peak memory — with warm-vs-cold runs, perf_counter timing, and a reusable harness for CI regression gates.",
+      "description": "Measure ezdxf parsing throughput fairly — entities per second, MB/sec and peak memory — with warm runs, median timing and a reusable CI regression harness.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

@@ -1,6 +1,6 @@
 ---
 title: "Extracting IFC Wall Geometries to Shapely"
-description: "Step-by-step guide to projecting IFC wall B-Rep and SweptSolid geometries onto a 2D plane with ifcopenshell, converting them to valid Shapely Polygon objects, and integrating the results into GIS and CAD pipelines."
+description: "Project IFC wall geometry onto the horizontal plane with ifcopenshell, convert it to valid Shapely polygons, and feed the result into GIS and CAD pipelines."
 slug: "extracting-ifc-wall-geometries-to-shapely"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Extracting IFC Wall Geometries to Shapely",
-      "description": "Step-by-step guide to projecting IFC wall B-Rep and SweptSolid geometries onto a 2D plane with ifcopenshell, converting them to valid Shapely Polygon objects, and integrating the results into GIS and CAD pipelines.",
+      "description": "Project IFC wall geometry onto the horizontal plane with ifcopenshell, convert it to valid Shapely polygons, and feed the result into GIS and CAD pipelines.",
       "datePublished": "2025-06-01",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

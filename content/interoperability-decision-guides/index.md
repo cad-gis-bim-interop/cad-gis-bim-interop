@@ -1,6 +1,6 @@
 ---
 title: "Interoperability Decision Guides for CAD, GIS & BIM Pipelines"
-description: "An engineering decision framework for choosing the right Python library, interchange format, and storage target when moving geometry between CAD, GIS, and BIM systems."
+description: "A decision framework for choosing the Python library, interchange format, storage target and geometry engine when moving data between CAD, GIS and BIM."
 slug: "interoperability-decision-guides"
 breadcrumb: "Interoperability Decision Guides"
 datePublished: "2026-07-11"
@@ -14,7 +14,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Interoperability Decision Guides for CAD, GIS & BIM Pipelines",
-      "description": "An engineering decision framework for choosing the right Python library, interchange format, and storage target when moving geometry between CAD, GIS, and BIM systems.",
+      "description": "A decision framework for choosing the Python library, interchange format, storage target and geometry engine when moving data between CAD, GIS and BIM.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

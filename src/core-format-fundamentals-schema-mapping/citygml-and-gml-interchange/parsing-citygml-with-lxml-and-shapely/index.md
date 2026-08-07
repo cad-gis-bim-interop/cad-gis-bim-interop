@@ -1,6 +1,6 @@
 ---
 title: "Parsing CityGML with lxml and Shapely"
-description: "Read CityGML in Python without loading the whole tree: namespace-aware iterparse, decoding gml:posList into coordinates, honouring srsDimension and axis order, and assembling surfaces into valid Shapely polygons."
+description: "Read CityGML without loading the whole tree: namespace-aware iterparse, decoding gml:posList, honouring srsDimension and axis order, and building polygons."
 slug: "parsing-citygml-with-lxml-and-shapely"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Parsing CityGML with lxml and Shapely",
-      "description": "Read CityGML in Python without loading the whole tree: namespace-aware iterparse, decoding gml:posList into coordinates, honouring srsDimension and axis order, and assembling surfaces into valid Shapely polygons.",
+      "description": "Read CityGML without loading the whole tree: namespace-aware iterparse, decoding gml:posList, honouring srsDimension and axis order, and building polygons.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

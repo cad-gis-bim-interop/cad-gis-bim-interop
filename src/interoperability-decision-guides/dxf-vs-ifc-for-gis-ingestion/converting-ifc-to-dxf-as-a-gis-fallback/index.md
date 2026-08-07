@@ -1,6 +1,6 @@
 ---
 title: "Converting IFC to DXF as a GIS Fallback in Python"
-description: "Convert IFC to DXF when a GIS toolchain only accepts DXF: evaluate IFC geometry with ifcopenshell and write footprints and meshes with ezdxf, preserving IDs in layers."
+description: "Convert IFC to DXF when a GIS toolchain accepts only DXF: evaluate geometry with ifcopenshell and write footprints with ezdxf, preserving IDs in layers."
 slug: "converting-ifc-to-dxf-as-a-gis-fallback"
 breadcrumb:
   - label: "Interoperability Decision Guides"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Converting IFC to DXF as a GIS Fallback in Python",
-      "description": "Convert IFC to DXF when a GIS toolchain only accepts DXF: evaluate IFC geometry with ifcopenshell and write footprints and meshes with ezdxf, preserving IDs in layers.",
+      "description": "Convert IFC to DXF when a GIS toolchain accepts only DXF: evaluate geometry with ifcopenshell and write footprints with ezdxf, preserving IDs in layers.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

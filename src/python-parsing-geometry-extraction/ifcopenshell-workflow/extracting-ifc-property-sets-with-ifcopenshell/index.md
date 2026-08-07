@@ -1,6 +1,6 @@
 ---
 title: "Extracting IFC Property Sets with ifcopenshell"
-description: "Read IFC property sets and quantity sets with ifcopenshell.util.element.get_psets, flatten them per element by GlobalId, and serialize to JSON or Parquet for GIS and database ingestion."
+description: "Read IFC property and quantity sets with ifcopenshell.util.element, flatten them per element by GlobalId, and serialize to JSON or Parquet for ingestion."
 slug: "extracting-ifc-property-sets-with-ifcopenshell"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Extracting IFC Property Sets with ifcopenshell",
-      "description": "Read IFC property sets and quantity sets with ifcopenshell.util.element.get_psets, flatten them per element by GlobalId, and serialize to JSON or Parquet for GIS and database ingestion.",
+      "description": "Read IFC property and quantity sets with ifcopenshell.util.element, flatten them per element by GlobalId, and serialize to JSON or Parquet for ingestion.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

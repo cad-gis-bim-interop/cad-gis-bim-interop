@@ -1,6 +1,6 @@
 ---
 title: "Converting CAD Polylines to GeoJSON with Python"
-description: "Step-by-step guide to extracting LWPOLYLINE and POLYLINE entities from DXF files, validating topology with Shapely, reprojecting with GeoPandas, and serializing RFC 7946-compliant GeoJSON."
+description: "Extract LWPOLYLINE and POLYLINE entities from DXF, validate topology with Shapely, reproject with GeoPandas, and serialize RFC 7946-compliant GeoJSON."
 slug: "converting-cad-polylines-to-geojson"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Converting CAD Polylines to GeoJSON with Python",
-      "description": "Step-by-step guide to extracting LWPOLYLINE and POLYLINE entities from DXF files, validating topology with Shapely, reprojecting with GeoPandas, and serializing RFC 7946-compliant GeoJSON.",
+      "description": "Extract LWPOLYLINE and POLYLINE entities from DXF, validate topology with Shapely, reproject with GeoPandas, and serialize RFC 7946-compliant GeoJSON.",
       "datePublished": "2025-02-14",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

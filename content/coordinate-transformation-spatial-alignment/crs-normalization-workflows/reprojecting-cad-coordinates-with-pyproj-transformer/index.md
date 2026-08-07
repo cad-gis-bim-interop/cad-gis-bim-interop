@@ -1,6 +1,6 @@
 ---
 title: "Reprojecting CAD Coordinates with pyproj Transformer"
-description: "Reproject CAD point arrays with pyproj Transformer: always_xy axis handling, vectorized numpy transforms, cached thread-safe transformers, and automatic UTM zone selection."
+description: "Reproject CAD point arrays with pyproj Transformer: always_xy axis handling, vectorized numpy transforms, cached transformers and UTM zone selection."
 slug: "reprojecting-cad-coordinates-with-pyproj-transformer"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Reprojecting CAD Coordinates with pyproj Transformer",
-      "description": "Reproject CAD point arrays with pyproj Transformer: always_xy axis handling, vectorized numpy transforms, cached thread-safe transformers, and automatic UTM zone selection.",
+      "description": "Reproject CAD point arrays with pyproj Transformer: always_xy axis handling, vectorized numpy transforms, cached transformers and UTM zone selection.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

@@ -32,6 +32,46 @@
 }
 .brand:hover { color: var(--color-accent); background-size: 0 2px; }
 .brand__logo { width: 36px; height: 36px; flex: none; }
+
+/* ===== Brand mark =====
+   Inlined so it follows the theme toggle. Every colour is a token; nothing here is
+   a literal, which is what lets the whole mark flip with the surface. */
+.logo { display: block; }
+.logo__canvas { fill: var(--color-surface); }
+.logo__grid {
+  fill: none;
+  stroke: var(--logo-grid);
+  stroke-width: 1.4;
+  opacity: 0.55;
+}
+.logo__volume {
+  fill: var(--logo-teal);
+  fill-opacity: 0.14;
+  stroke: var(--logo-teal);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.logo__volume-edges {
+  fill: none;
+  stroke: var(--logo-teal);
+  stroke-width: 1.6;
+  opacity: 0.6;
+}
+.logo__polyline {
+  fill: none;
+  stroke: var(--logo-ink);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.logo__node-warm { fill: var(--logo-warm); }
+.logo__node-ink { fill: var(--logo-ink); }
+.logo__node-teal { fill: var(--logo-teal); }
+.logo__north { fill: var(--logo-warm); opacity: 0.9; }
+.logo__north-label {
+  fill: var(--logo-ink);
+  font-family: var(--font-sans);
+}
 .brand__name { display: none; }
 @media (min-width: 720px) {
   .brand__name { display: inline; }

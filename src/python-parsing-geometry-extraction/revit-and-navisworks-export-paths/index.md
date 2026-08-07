@@ -1,6 +1,6 @@
 ---
 title: "Revit and Navisworks Export Paths"
-description: "Get Revit and Navisworks data into a Python pipeline: which export route preserves what, why the RVT and NWD formats are closed, and how to automate an IFC or DWG export so a nightly job never needs a person."
+description: "Get Revit and Navisworks data into Python: which export route preserves what, why RVT and NWD are closed, and how to automate an export unattended."
 slug: "revit-and-navisworks-export-paths"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -18,7 +18,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Revit and Navisworks Export Paths",
-      "description": "Get Revit and Navisworks data into a Python pipeline: which export route preserves what, why the RVT and NWD formats are closed, and how to automate an IFC or DWG export so a nightly job never needs a person.",
+      "description": "Get Revit and Navisworks data into Python: which export route preserves what, why RVT and NWD are closed, and how to automate an export unattended.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

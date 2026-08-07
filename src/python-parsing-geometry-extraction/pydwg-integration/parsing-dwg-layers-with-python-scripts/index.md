@@ -1,6 +1,6 @@
 ---
 title: "Parsing DWG Layers with Python Scripts"
-description: "Step-by-step guide to extracting DWG layer metadata, visibility states, and entity counts in Python using the DWG→DXF→ezdxf pipeline. Includes a production-ready script, compatibility matrix, and concrete troubleshooting steps."
+description: "Extract DWG layer names, visibility states and entity counts in Python through the DWG-to-DXF-to-ezdxf route, with a runnable script and troubleshooting steps."
 slug: "parsing-dwg-layers-with-python-scripts"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"

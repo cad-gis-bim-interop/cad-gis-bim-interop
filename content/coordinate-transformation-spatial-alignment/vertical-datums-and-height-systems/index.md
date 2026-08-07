@@ -1,6 +1,6 @@
 ---
 title: "Vertical Datums and Height Systems"
-description: "Reconcile ellipsoidal, orthometric and project heights in Python: geoid separation, compound CRS definitions in pyproj, IFC and DXF elevation handling, and the checks that catch a silent vertical shift."
+description: "Reconcile ellipsoidal, orthometric and project heights in Python: geoid separation, compound CRS definitions in pyproj, and the checks that catch a shift."
 slug: "vertical-datums-and-height-systems"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -18,7 +18,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Vertical Datums and Height Systems",
-      "description": "Reconcile ellipsoidal, orthometric and project heights in Python: geoid separation, compound CRS definitions in pyproj, IFC and DXF elevation handling, and the checks that catch a silent vertical shift.",
+      "description": "Reconcile ellipsoidal, orthometric and project heights in Python: geoid separation, compound CRS definitions in pyproj, and the checks that catch a shift.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

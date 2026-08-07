@@ -1,6 +1,6 @@
 ---
 title: "Mapping GML Geometry to PostGIS with OGR"
-description: "Load GML and CityGML into PostGIS with GDAL/OGR from Python: driver configuration, the GFS schema file, forcing an SRID, flattening nested features, and verifying the load rather than trusting it."
+description: "Load GML and CityGML into PostGIS with GDAL/OGR: driver configuration, the GFS schema file, forcing an SRID, and verifying the load rather than trusting it."
 slug: "mapping-gml-geometry-to-postgis-with-ogr"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Mapping GML Geometry to PostGIS with OGR",
-      "description": "Load GML and CityGML into PostGIS with GDAL/OGR from Python: driver configuration, the GFS schema file, forcing an SRID, flattening nested features, and verifying the load rather than trusting it.",
+      "description": "Load GML and CityGML into PostGIS with GDAL/OGR: driver configuration, the GFS schema file, forcing an SRID, and verifying the load rather than trusting it.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

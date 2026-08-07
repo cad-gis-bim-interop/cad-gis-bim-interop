@@ -1,6 +1,6 @@
 ---
 title: "Choosing ezdxf, pydwg, or ODA for Production CAD Pipelines"
-description: "How to choose between pure-Python ezdxf, community DWG readers, and the licensed ODA converter for reading CAD files, scored on coverage, fidelity, licensing, and CI suitability."
+description: "Choose between pure-Python ezdxf, community DWG readers and the licensed ODA converter, scored on coverage, fidelity, licensing and headless CI suitability."
 slug: "choosing-ezdxf-pydwg-or-oda-for-production"
 breadcrumb:
   - label: "Interoperability Decision Guides"
@@ -18,7 +18,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Choosing ezdxf, pydwg, or ODA for Production CAD Pipelines",
-      "description": "How to choose between pure-Python ezdxf, community DWG readers, and the licensed ODA converter for reading CAD files, scored on coverage, fidelity, licensing, and CI suitability.",
+      "description": "Choose between pure-Python ezdxf, community DWG readers and the licensed ODA converter, scored on coverage, fidelity, licensing and headless CI suitability.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"}

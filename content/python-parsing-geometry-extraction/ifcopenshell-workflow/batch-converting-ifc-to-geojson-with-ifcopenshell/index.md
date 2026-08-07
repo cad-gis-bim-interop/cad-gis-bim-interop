@@ -1,6 +1,6 @@
 ---
 title: "Batch Converting IFC to GeoJSON with ifcopenshell"
-description: "Evaluate IFC geometry with ifcopenshell.geom, project each element to a 2D footprint with shapely, attach GlobalId and property sets, and write RFC 7946 GeoJSON across a folder in parallel."
+description: "Evaluate IFC geometry with ifcopenshell.geom, project each element to a footprint with shapely, attach GlobalId, and write RFC 7946 GeoJSON across a folder."
 slug: "batch-converting-ifc-to-geojson-with-ifcopenshell"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Batch Converting IFC to GeoJSON with ifcopenshell",
-      "description": "Evaluate IFC geometry with ifcopenshell.geom, project each element to a 2D footprint with shapely, attach GlobalId and property sets, and write RFC 7946 GeoJSON across a folder in parallel.",
+      "description": "Evaluate IFC geometry with ifcopenshell.geom, project each element to a footprint with shapely, attach GlobalId, and write RFC 7946 GeoJSON across a folder.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

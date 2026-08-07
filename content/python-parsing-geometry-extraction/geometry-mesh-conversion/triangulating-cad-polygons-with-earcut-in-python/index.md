@@ -1,6 +1,6 @@
 ---
 title: "Triangulating CAD Polygons with Earcut in Python"
-description: "Triangulate CAD faces with holes into render-ready triangles using mapbox_earcut and ezdxf, with Shapely validity checks, winding normalization, and degenerate-vertex fallbacks."
+description: "Triangulate CAD faces with holes into render-ready triangles using mapbox_earcut and ezdxf, with Shapely validity checks and winding normalization."
 slug: "triangulating-cad-polygons-with-earcut-in-python"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Triangulating CAD Polygons with Earcut in Python",
-      "description": "Triangulate CAD faces with holes into render-ready triangles using mapbox_earcut and ezdxf, with Shapely validity checks, winding normalization, and degenerate-vertex fallbacks.",
+      "description": "Triangulate CAD faces with holes into render-ready triangles using mapbox_earcut and ezdxf, with Shapely validity checks and winding normalization.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

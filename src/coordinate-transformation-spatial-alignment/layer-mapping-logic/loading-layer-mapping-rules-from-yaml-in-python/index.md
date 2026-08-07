@@ -1,6 +1,6 @@
 ---
 title: "Loading Layer Mapping Rules from YAML in Python"
-description: "Move CAD layer mapping rules out of code and into configuration: a schema that survives review, compiling regex rules once, deterministic precedence, and validating the rule file before a pipeline runs on it."
+description: "Move CAD layer mapping rules into configuration: a schema that survives review, patterns compiled once, deterministic precedence, and validation at load time."
 slug: "loading-layer-mapping-rules-from-yaml-in-python"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Loading Layer Mapping Rules from YAML in Python",
-      "description": "Move CAD layer mapping rules out of code and into configuration: a schema that survives review, compiling regex rules once, deterministic precedence, and validating the rule file before a pipeline runs on it.",
+      "description": "Move CAD layer mapping rules into configuration: a schema that survives review, patterns compiled once, deterministic precedence, and validation at load time.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

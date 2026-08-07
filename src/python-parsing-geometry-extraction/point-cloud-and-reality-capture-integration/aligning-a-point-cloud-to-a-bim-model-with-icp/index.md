@@ -1,6 +1,6 @@
 ---
 title: "Aligning a Point Cloud to a BIM Model with ICP"
-description: "Register a laser scan against a BIM model in Python: why ICP refines rather than georeferences, disabling scale, choosing a correspondence distance, and measuring the fit on surfaces held out of the solve."
+description: "Register a laser scan against a BIM model: why ICP refines rather than georeferences, disabling scale, and measuring the fit on surfaces held out of the solve."
 slug: "aligning-a-point-cloud-to-a-bim-model-with-icp"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Aligning a Point Cloud to a BIM Model with ICP",
-      "description": "Register a laser scan against a BIM model in Python: why ICP refines rather than georeferences, disabling scale, choosing a correspondence distance, and measuring the fit on surfaces held out of the solve.",
+      "description": "Register a laser scan against a BIM model: why ICP refines rather than georeferences, disabling scale, and measuring the fit on surfaces held out of the solve.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

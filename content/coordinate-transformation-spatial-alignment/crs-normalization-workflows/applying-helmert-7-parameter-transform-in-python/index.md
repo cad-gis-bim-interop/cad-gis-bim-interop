@@ -1,6 +1,6 @@
 ---
 title: "Applying a Helmert 7-Parameter Transform in Python"
-description: "Implement the Bursa-Wolf 7-parameter datum transform in Python with numpy and pyproj: translations, arc-second rotations, ppm scale, and the position_vector convention."
+description: "Implement the Bursa-Wolf seven-parameter datum transform in Python with numpy and pyproj: translations, arc-second rotations, ppm scale and conventions."
 slug: "applying-helmert-7-parameter-transform-in-python"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Applying a Helmert 7-Parameter Transform in Python",
-      "description": "Implement the Bursa-Wolf 7-parameter datum transform in Python with numpy and pyproj: translations, arc-second rotations, ppm scale, and the position_vector convention.",
+      "description": "Implement the Bursa-Wolf seven-parameter datum transform in Python with numpy and pyproj: translations, arc-second rotations, ppm scale and conventions.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

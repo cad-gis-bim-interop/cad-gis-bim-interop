@@ -1,6 +1,6 @@
 ---
 title: "Unit Conversion Pipelines for CAD, GIS & BIM Interoperability"
-description: "Build deterministic unit conversion pipelines in Python that normalize CAD drawing units, GIS projection units, and IFC metric standards into a canonical measurement space without silent data corruption."
+description: "Build deterministic unit conversion pipelines in Python that normalize CAD drawing units, GIS projection units and IFC standards without silent corruption."
 slug: "unit-conversion-pipelines"
 breadcrumb:
   - label: "Home"
@@ -20,7 +20,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Unit Conversion Pipelines for CAD, GIS & BIM Interoperability",
-      "description": "Build deterministic unit conversion pipelines in Python that normalize CAD drawing units, GIS projection units, and IFC metric standards into a canonical measurement space without silent data corruption.",
+      "description": "Build deterministic unit conversion pipelines in Python that normalize CAD drawing units, GIS projection units and IFC standards without silent corruption.",
       "datePublished": "2024-03-15",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

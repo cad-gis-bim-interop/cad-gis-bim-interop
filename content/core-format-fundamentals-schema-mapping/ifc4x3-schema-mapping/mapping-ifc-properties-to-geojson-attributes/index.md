@@ -1,6 +1,6 @@
 ---
 title: "Mapping IFC Properties to GeoJSON Attributes with Python"
-description: "Step-by-step guide to extracting IfcPropertySet and IfcElementQuantity data, flattening BIM metadata into JSON-safe key-value pairs, and serializing valid GeoJSON FeatureCollection output using ifcopenshell and pyproj."
+description: "Extract IfcPropertySet and IfcElementQuantity data with ifcopenshell, flatten BIM metadata into JSON-safe pairs, and serialize a valid GeoJSON output."
 slug: "mapping-ifc-properties-to-geojson-attributes"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Mapping IFC Properties to GeoJSON Attributes with Python",
-      "description": "Step-by-step guide to extracting IfcPropertySet and IfcElementQuantity data, flattening BIM metadata into JSON-safe key-value pairs, and serializing valid GeoJSON FeatureCollection output using ifcopenshell and pyproj.",
+      "description": "Extract IfcPropertySet and IfcElementQuantity data with ifcopenshell, flatten BIM metadata into JSON-safe pairs, and serialize a valid GeoJSON output.",
       "datePublished": "2025-06-10",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

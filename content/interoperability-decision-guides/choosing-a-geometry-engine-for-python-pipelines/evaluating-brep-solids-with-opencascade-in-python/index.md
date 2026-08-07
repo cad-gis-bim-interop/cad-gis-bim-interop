@@ -1,6 +1,6 @@
 ---
 title: "Evaluating B-Rep Solids with OpenCASCADE in Python"
-description: "Work with boundary-representation solids in Python through pythonocc: checking a shape before using it, tessellating to a controlled deflection, running a solid boolean, and detecting the null shapes the kernel returns on failure."
+description: "Work with B-rep solids through pythonocc: validate a shape, run a solid boolean, detect the null shapes the kernel returns, and tessellate to a set deflection."
 slug: "evaluating-brep-solids-with-opencascade-in-python"
 breadcrumb:
   - label: "Interoperability Decision Guides"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Evaluating B-Rep Solids with OpenCASCADE in Python",
-      "description": "Work with boundary-representation solids in Python through pythonocc: checking a shape before using it, tessellating to a controlled deflection, running a solid boolean, and detecting the null shapes the kernel returns on failure.",
+      "description": "Work with B-rep solids through pythonocc: validate a shape, run a solid boolean, detect the null shapes the kernel returns, and tessellate to a set deflection.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

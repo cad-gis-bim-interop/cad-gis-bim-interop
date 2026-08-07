@@ -1,6 +1,6 @@
 ---
 title: "DWG Proprietary Limitations for Python Interoperability Pipelines"
-description: "Understand DWG's closed binary architecture, version-lock constraints, and proxy object hazards, then build a resilient Python ingestion pipeline that routes safely around every known failure mode."
+description: "DWG's closed binary architecture, version-lock constraints and proxy object hazards — and a resilient Python ingestion pipeline that routes around them."
 slug: "dwg-proprietary-limitations"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -18,7 +18,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "DWG Proprietary Limitations for Python Interoperability Pipelines",
-      "description": "Understand DWG's closed binary architecture, version-lock constraints, and proxy object hazards, then build a resilient Python ingestion pipeline that routes safely around every known failure mode.",
+      "description": "DWG's closed binary architecture, version-lock constraints and proxy object hazards — and a resilient Python ingestion pipeline that routes around them.",
       "datePublished": "2024-03-15",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

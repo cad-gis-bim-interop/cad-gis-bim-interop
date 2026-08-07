@@ -1,6 +1,6 @@
 ---
 title: "Detecting Mirrored Transforms in Python"
-description: "A reflection fits control points as well as a rotation does. Detect it with the determinant, repair the SVD solve that produced it, and assert handedness before any transform reaches production geometry."
+description: "A reflection fits control points as well as a rotation does. Detect it with the determinant, repair the SVD solve, and assert handedness before you apply it."
 slug: "detecting-mirrored-transforms-in-python"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Detecting Mirrored Transforms in Python",
-      "description": "A reflection fits control points as well as a rotation does. Detect it with the determinant, repair the SVD solve that produced it, and assert handedness before any transform reaches production geometry.",
+      "description": "A reflection fits control points as well as a rotation does. Detect it with the determinant, repair the SVD solve, and assert handedness before you apply it.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

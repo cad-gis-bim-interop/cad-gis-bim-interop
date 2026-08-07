@@ -1,6 +1,6 @@
 ---
 title: "Converting IFC Length Units to Metres in Python"
-description: "Read the IFC unit assignment and normalise model geometry to metres: SI units with prefixes, conversion-based units for imperial models, why the geometry kernel may or may not apply it, and the extent check that catches a missed conversion."
+description: "Read the IFC unit assignment, resolve SI prefixes and conversion-based units to one multiplier, apply it exactly once, and verify with an extent check."
 slug: "converting-ifc-length-units-to-metres-in-python"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Converting IFC Length Units to Metres in Python",
-      "description": "Read the IFC unit assignment and normalise model geometry to metres: SI units with prefixes, conversion-based units for imperial models, why the geometry kernel may or may not apply it, and the extent check that catches a missed conversion.",
+      "description": "Read the IFC unit assignment, resolve SI prefixes and conversion-based units to one multiplier, apply it exactly once, and verify with an extent check.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

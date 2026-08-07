@@ -1,6 +1,6 @@
 ---
 title: "ezdxf Deep Dive: Production-Grade DXF Parsing for AEC/GIS Pipelines"
-description: "A complete technical reference for ezdxf — covering document ingestion, entity traversal, block resolution, coordinate normalization, and CI/CD integration for Python-driven CAD/GIS/BIM interoperability pipelines."
+description: "A technical reference for ezdxf: document ingestion, entity traversal, block resolution, coordinate normalization and CI integration for CAD/GIS/BIM pipelines."
 slug: "ezdxf-deep-dive"
 breadcrumb:
   - label: "Home"
@@ -20,7 +20,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "ezdxf Deep Dive: Production-Grade DXF Parsing for AEC/GIS Pipelines",
-      "description": "A complete technical reference for ezdxf — covering document ingestion, entity traversal, block resolution, coordinate normalization, and CI/CD integration for Python-driven CAD/GIS/BIM interoperability pipelines.",
+      "description": "A technical reference for ezdxf: document ingestion, entity traversal, block resolution, coordinate normalization and CI integration for CAD/GIS/BIM pipelines.",
       "datePublished": "2024-01-15",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

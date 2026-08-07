@@ -1,6 +1,6 @@
 ---
 title: "DXF Entity Structure Breakdown"
-description: "A technical deep-dive into DXF's section layout, group code taxonomy, coordinate systems, and production-grade Python parsing workflows using ezdxf for CAD/GIS/BIM interoperability pipelines."
+description: "A deep dive into DXF's section layout, group code taxonomy, coordinate systems and production-grade Python parsing with ezdxf for interoperability pipelines."
 slug: "dxf-entity-structure-breakdown"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -18,7 +18,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "DXF Entity Structure Breakdown",
-      "description": "A technical deep-dive into DXF's section layout, group code taxonomy, coordinate systems, and production-grade Python parsing workflows using ezdxf for CAD/GIS/BIM interoperability pipelines.",
+      "description": "A deep dive into DXF's section layout, group code taxonomy, coordinate systems and production-grade Python parsing with ezdxf for interoperability pipelines.",
       "datePublished": "2024-03-01",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

@@ -1,6 +1,6 @@
 ---
 title: "Point Cloud and Reality Capture Integration"
-description: "Bring LAS, LAZ and E57 survey data into a CAD/GIS/BIM pipeline with Python: scaled integer storage, coordinate reference metadata, classification codes, and registering a scan against a design model."
+description: "Bring LAS, LAZ and E57 survey data into a CAD/GIS/BIM pipeline: scaled integer storage, coordinate metadata, and registering a scan against a design model."
 slug: "point-cloud-and-reality-capture-integration"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -18,7 +18,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Point Cloud and Reality Capture Integration",
-      "description": "Bring LAS, LAZ and E57 survey data into a CAD/GIS/BIM pipeline with Python: scaled integer storage, coordinate reference metadata, classification codes, and registering a scan against a design model.",
+      "description": "Bring LAS, LAZ and E57 survey data into a CAD/GIS/BIM pipeline: scaled integer storage, coordinate metadata, and registering a scan against a design model.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

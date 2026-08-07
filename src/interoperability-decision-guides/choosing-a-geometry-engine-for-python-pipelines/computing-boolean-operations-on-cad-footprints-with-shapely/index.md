@@ -1,6 +1,6 @@
 ---
 title: "Computing Boolean Operations on CAD Footprints with Shapely"
-description: "Union, difference and intersection on CAD-derived footprints in Python: repairing rings before the operation, choosing between unary_union and pairwise merging, and handling the multi-part results a CAD source produces."
+description: "Union, difference and intersection on CAD-derived footprints in Python: repairing rings first, unary_union over a pairwise fold, and multi-part results."
 slug: "computing-boolean-operations-on-cad-footprints-with-shapely"
 breadcrumb:
   - label: "Interoperability Decision Guides"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Computing Boolean Operations on CAD Footprints with Shapely",
-      "description": "Union, difference and intersection on CAD-derived footprints in Python: repairing rings before the operation, choosing between unary_union and pairwise merging, and handling the multi-part results a CAD source produces.",
+      "description": "Union, difference and intersection on CAD-derived footprints in Python: repairing rings first, unary_union over a pairwise fold, and multi-part results.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

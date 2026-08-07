@@ -1,6 +1,6 @@
 ---
 title: "Mapping IFC Property Sets to PostGIS Columns"
-description: "Flatten IFC property sets into a PostGIS relational model: stable core columns, a JSONB pset column, geometry(GeometryZ, srid), and psycopg2 inserts with GIN and GiST indexes."
+description: "Flatten IFC property sets into a PostGIS model: stable core columns, a JSONB pset column, a 3D geometry column, and inserts with GIN and GiST indexes."
 slug: "mapping-ifc-property-sets-to-postgis-columns"
 breadcrumb:
   - label: "Core Format Fundamentals & Schema Mapping"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Mapping IFC Property Sets to PostGIS Columns",
-      "description": "Flatten IFC property sets into a PostGIS relational model: stable core columns, a JSONB pset column, geometry(GeometryZ, srid), and psycopg2 inserts with GIN and GiST indexes.",
+      "description": "Flatten IFC property sets into a PostGIS model: stable core columns, a JSONB pset column, a 3D geometry column, and inserts with GIN and GiST indexes.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

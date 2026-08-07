@@ -1,6 +1,6 @@
 ---
 title: "Selecting a Datum Transformation Pipeline with pyproj"
-description: "Choose between the datum transformations PROJ offers rather than accepting the default: enumerating candidate operations, reading their accuracy and grid requirements, pinning one, and recording which was used."
+description: "Choose a datum transformation rather than accepting PROJ's default: enumerate the candidates, compare accuracy and grid needs, pin one, and record which ran."
 slug: "selecting-a-datum-transformation-pipeline-with-pyproj"
 breadcrumb:
   - label: "Coordinate Transformation & Spatial Alignment"
@@ -20,7 +20,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Selecting a Datum Transformation Pipeline with pyproj",
-      "description": "Choose between the datum transformations PROJ offers rather than accepting the default: enumerating candidate operations, reading their accuracy and grid requirements, pinning one, and recording which was used.",
+      "description": "Choose a datum transformation rather than accepting PROJ's default: enumerate the candidates, compare accuracy and grid needs, pin one, and record which ran.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},

@@ -1,6 +1,6 @@
 ---
 title: "Batch Converting DWG to DXF with the ODA File Converter"
-description: "Wrap the ODA File Converter CLI in Python subprocess with xvfb-run to batch-convert DWG folders to DXF headlessly, then load each result with ezdxf and return a success/failure manifest."
+description: "Wrap the ODA File Converter in a Python subprocess to convert DWG folders to DXF headlessly, then load each result with ezdxf and return a success manifest."
 slug: "batch-converting-dwg-to-dxf-with-oda-file-converter"
 breadcrumb:
   - label: "Python Parsing & Geometry Extraction"
@@ -20,7 +20,7 @@ dateModified: "2026-07-11"
     {
       "@type": "Article",
       "headline": "Batch Converting DWG to DXF with the ODA File Converter",
-      "description": "Wrap the ODA File Converter CLI in Python subprocess with xvfb-run to batch-convert DWG folders to DXF headlessly, then load each result with ezdxf and return a success/failure manifest.",
+      "description": "Wrap the ODA File Converter in a Python subprocess to convert DWG folders to DXF headlessly, then load each result with ezdxf and return a success manifest.",
       "datePublished": "2026-07-11",
       "dateModified": "2026-07-11",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"}

@@ -1,6 +1,6 @@
 ---
 title: "Python Parsing & Geometry Extraction for CAD, GIS, and BIM Pipelines"
-description: "A complete engineering reference for building production-grade Python pipelines that ingest DXF, DWG, IFC, and GIS formats, extract topology-correct geometry, and serialize to GeoJSON, glTF, or PostGIS."
+description: "An engineering reference for Python pipelines that ingest DXF, DWG, IFC and GIS formats, extract topology-correct geometry, and serialize it for downstream use."
 slug: "python-parsing-geometry-extraction"
 breadcrumb: "Python Parsing & Geometry Extraction"
 datePublished: "2025-01-15"
@@ -14,7 +14,7 @@ dateModified: "2026-06-24"
     {
       "@type": "Article",
       "headline": "Python Parsing & Geometry Extraction for CAD, GIS, and BIM Pipelines",
-      "description": "A complete engineering reference for building production-grade Python pipelines that ingest DXF, DWG, IFC, and GIS formats, extract topology-correct geometry, and serialize to GeoJSON, glTF, or PostGIS.",
+      "description": "An engineering reference for Python pipelines that ingest DXF, DWG, IFC and GIS formats, extract topology-correct geometry, and serialize it for downstream use.",
       "datePublished": "2025-01-15",
       "dateModified": "2026-06-24",
       "author": {"@type": "Organization", "name": "CAD GIS BIM Interop"},

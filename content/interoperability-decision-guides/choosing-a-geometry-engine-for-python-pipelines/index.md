@@ -1,6 +1,6 @@
 ---
 title: "Choosing a Geometry Engine for Python Pipelines"
-description: "Shapely, trimesh and OpenCASCADE solve different geometry problems. Compare them on dimensionality, robustness, deployment weight and failure behaviour, and pick the one your CAD/GIS/BIM pipeline actually needs."
+description: "Shapely, trimesh and OpenCASCADE solve different problems. Compare them on dimensionality, failure behaviour and deployment weight, and pick the one you need."
 slug: "choosing-a-geometry-engine-for-python-pipelines"
 breadcrumb:
   - label: "Interoperability Decision Guides"
@@ -18,7 +18,7 @@ dateModified: "2026-08-07"
     {
       "@type": "Article",
       "headline": "Choosing a Geometry Engine for Python Pipelines",
-      "description": "Shapely, trimesh and OpenCASCADE solve different geometry problems. Compare them on dimensionality, robustness, deployment weight and failure behaviour, and pick the one your CAD/GIS/BIM pipeline actually needs.",
+      "description": "Shapely, trimesh and OpenCASCADE solve different problems. Compare them on dimensionality, failure behaviour and deployment weight, and pick the one you need.",
       "datePublished": "2026-08-07",
       "dateModified": "2026-08-07",
       "author": {"@type": "Organization", "name": "cad-gis-bim-interop.org"},
